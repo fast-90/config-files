@@ -1,0 +1,12 @@
+* Meta-key
+#+begin_src emacs-lisp
+(setq mac-command-modifier 'meta)
+(setq mac-option-modifier 'super)
+#+end_src
+* Custom shell for zsh
+#+begin_src emacs-lisp
+(defun sh ()
+  "Start zsh terminal."
+  (interactive)
+  (ansi-term "/bin/zsh"))
+#+end_src

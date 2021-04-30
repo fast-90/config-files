@@ -435,5 +435,5 @@ Disable line numbers, line highlight and exit confirmation
   :ensure t)
 (add-hook 'org-mode-hook (lambda () (org-bullets-mode 1)))
 
-;; (use-package org-tempo)
+(use-package org-tempo)
 #+end_src

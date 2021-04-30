@@ -1,0 +1,437 @@
+* UI interface
+** Do not show startup screen
+#+begin_src emacs-lisp
+
+(setq inhibit-startup-message t)
+
+#+end_src
+** Disable tool bar, menu bar and scroll bar
+#+begin_src emacs-lisp
+
+(tool-bar-mode -1)
+(menu-bar-mode -1)
+(scroll-bar-mode -1)
+(tooltip-mode -1)
+(set-fringe-mode 10)
+
+#+end_src
+** Line number configuration
+#+begin_src emacs-lisp
+
+;; Highlight current line
+(global-hl-line-mode t)
+;; Enable line numbers
+(global-display-line-numbers-mode t)
+;; Set relative line numbers
+(setq display-line-numbers-type 'relative)
+
+#+end_src
+** Disable bell sound
+#+begin_src emacs-lisp
+
+(setq ring-bell-function 'ignore)
+
+#+end_src
+(setq command-line-default-directory "~/")
+#+end_src
+
+* Package management
+** Add MELPA to package archives
+#+begin_src emacs-lisp
+
+(require 'package)
+(package-initialize)
+(add-to-list 'package-archives
+	     '("melpa" . "http://melpa.org/packages/") t)
+
+#+end_src
+** Install use-package for easy package installation
+#+begin_src emacs-lisp
+
+(when (not (package-installed-p 'use-package))
+  (package-refresh-contents)
+  (package-install 'usepackage))
+
+#+end_src
+** Use Delight to hide modes from modeline bar
+#+begin_src emacs-lisp
+
+(use-package delight
+  :ensure t)
+
+#+end_src
+
+* Themes
+** General theme
+Currently using doom-one from doom-themes
+#+begin_src emacs-lisp
+
+(use-package doom-themes
+  :ensure t
+  :init
+  (setq doom-themes-enable-bold t
+	doom-themes-enable-italic t)
+  (load-theme 'doom-one t))
+
+#+end_src
+** Doom modeline 
+This package depends on all-the-icons package. When installing Doom
+modeline for the first time, please run 'all-the-icons-install-fonts'
+via M-x first.
+#+begin_src emacs-lisp
+
+(use-package doom-modeline
+  :ensure t
+  :init (doom-modeline-mode 1))
+
+#+end_src
+
+* Emacs UI and menu enhancements
+** Which key
+Which key adds a guiding menu for keybindings
+#+begin_src emacs-lisp
+(use-package which-key
+  :ensure t
+  :delight
+  :init
+  (setq which-key-idle-delay 0.5)
+  :config (which-key-mode))
+#+end_src
+** Ivy, Counsel and Swiper
+Ivy is a customisable completion mechanism. Counsel contains a collection of
+Ivy-enhanced versions of command Emacs commands (e.g. M-x). Swiper as an
+Ivy-enhanced version of Isearch.
+#+begin_src emacs-lisp
+(use-package ivy
+  :ensure t
+  :diminish
+  :bind (("C-s" . swiper)
+         :map ivy-minibuffer-map
+         ("C-l" . ivy-alt-done)
+         ("C-j" . ivy-next-line)
+         ("C-k" . ivy-previous-line)
+         :map ivy-switch-buffer-map
+         ("C-k" . ivy-previous-line)
+         ("C-l" . ivy-done)
+         ("C-d" . ivy-switch-buffer-kill)
+         :map ivy-reverse-i-search-map
+         ("C-k" . ivy-previous-line)
+         ("C-d" . ivy-reverse-i-search-kill))
+  :config
+  (ivy-mode 1))
+(use-package counsel
+  :ensure t
+  :after ivy
+  :config (counsel-mode))
+(use-package swiper
+  :ensure t
+  :after ivy)
+;; Ivy rich to add description to M-x and other menus
+(use-package ivy-rich
+  :ensure t
+  :after ivy
+  :custom
+  (ivy-virtual-abbreviate 'full
+   ivy-rich-switch-buffer-align-virtual-buffer t
+   ivy-rich-path-style 'abbrev)
+  :config
+  (ivy-set-display-transformer 'ivy-switch-buffer
+                               'ivy-rich-switch-buffer-transformer))
+(ivy-rich-mode 1)
+(setq ivy-initial-inputs-alist nil) ; Remove the ^ in ivy buffers
+; Smex to allow M-x remember our history
+(use-package smex :ensure t)
+(smex-initialize)
+#+end_src
+** Helpful
+Helpful package for more helpful descriptions of functions, commands and
+variables.
+#+begin_src emacs-lisp
+(use-package helpful
+  :ensure t
+  :commands (helpful-callable helpful-variable helpful-command helpful-key)
+  :custom
+  (counsel-describe-function-function #'helpful-callable)
+  (counsel-describe-variable-function #'helpful-variable)
+  :bind
+  ([remap describe-function] . counsel-describe-function)
+  ([remap describe-command] . helpful-command)
+  ([remap describe-variable] . counsel-describe-variable)
+  ([remap describe-key] . helpful-key))
+#+end_src
+
+* Project management
+
+** TODO Magit
+#+begin_src emacs-lisp
+(use-package magit
+  :ensure t
+  :bind ("C-x g" . magit-status))
+#+end_src
+** Projectile
+#+begin_src emacs-lisp
+(use-package projectile
+  :ensure t
+  :delight projectile-mode
+  :config (projectile-mode)
+  :custom ((projectile-completion-system 'ivy))
+  :bind-keymap
+  ("C-c p" . projectile-command-map)
+  :init
+  ;; NOTE: Set this to the folder where you keep your Git repos!
+  (when (file-directory-p "~/PythonProjects")
+    (setq projectile-project-search-path '("~/PythonProjects")))
+  (setq projectile-switch-project-action #'projectile-dired))
+
+(use-package counsel-projectile
+  :ensure t
+  :after projectile)
+#+end_src
+* Other useful packages
+** Hydra
+#+begin_src emacs-lisp
+(use-package hydra
+  :ensure t)
+#+end_src
+** Command log mode to show keypress and command
+Related commands start with "clm" in the M-x menu
+#+begin_src emacs-lisp
+(use-package command-log-mode
+  :ensure t)
+#+end_src
+
+* Window management
+** Winum
+#+begin_src emacs-lisp
+(use-package winum
+  :ensure t
+  :config (progn
+	    (setq winum-scope 'frame-local
+		  winum-reverse-frame-list nil
+		  winum-auto-setup-setup-mode-line nil
+		  winum-ignored-buffers '(" *which-key*"))
+	    (winum-mode)))
+#+end_src
+** Function to interactivel resize window
+#+begin_src emacs-lisp
+(defhydra hydra-window-resize ()
+  "Resize window"
+  ("h" shrink-window-horizontally "shrink window horizontally")
+  ("l" enlarge-window-horizontally "enlarge window horizontally")
+  ("j" shrink-window "shrink window vertically")
+  ("k" enlarge-window "enlarge window vertically")
+  ("b" balance-windows "reset window sizes"))
+#+end_src
+* Keybindings
+** Evil mode
+The Evil package(s) enable Vim-like keybindings
+#+begin_src emacs-lisp
+(use-package evil
+  :ensure t
+  :init      ;; tweak evil's configuration before loading it
+  (setq evil-want-integration t) ;; This is optional since it's already set to t by default.
+  (setq evil-want-keybinding nil)
+  (setq evil-want-C-u-scroll t)
+  (setq evil-vsplit-window-right t)
+  (setq evil-split-window-below t)
+  :config
+  (evil-mode)
+  ;; Use visual line motions (e.g. for when a long line is wrapped)
+  (evil-global-set-key 'motion "j" 'evil-next-visual-line)
+  (evil-global-set-key 'motion "k" 'evil-previous-visual-line))
+#+end_src
+
+Evil collection is a collection of Evil bindings for the parts of Emacs that Evil does not cover properly by default.
+
+#+begin_src emacs-lisp
+(use-package evil-collection
+  :ensure t
+  :after evil
+  :config
+  (setq evil-collection-mode-list '(dashboard dired ibuffer magit)) ; Modes to activate Evil keybindings for
+  (evil-collection-init))
+#+end_src
+
+Bind jk in insert mode to ESC.
+
+#+begin_src emacs-lisp
+(use-package key-chord
+  :ensure t
+  :init
+  (setq key-chord-two-keys-delay 0.5)
+  (key-chord-define evil-insert-state-map "jk" 'evil-normal-state)
+  (key-chord-mode 1))
+#+end_src
+** Undo tree
+Enable Vim-like undo/redo
+#+begin_src emacs-lisp
+(use-package undo-tree
+  :ensure t
+  :init
+  (global-undo-tree-mode)
+  (evil-set-undo-system 'undo-tree))
+#+end_src
+
+** Bindings with SPC prefix
+The config in this section enable SPC as a prefix to a useful and commonly used
+function (similar to Spacemacs/Doom/VSpaceCode).
+
+*** General package 
+#+begin_src emacs-lisp
+(use-package general
+  :ensure t
+  :init
+  (setq general-override-states '(insert
+                                  emacs
+                                  hybrid
+                                  normal
+                                  visual
+                                  motion
+                                  operator
+                                  replace))
+  :after evil
+  :config
+  (general-evil-setup t)
+  (general-create-definer leader-keys
+    :states '(normal visual emacs motion) ; consider adding motion for using with easymotion
+    :keymaps 'override 
+    :prefix "SPC"))
+#+end_src
+
+*** Buffer management
+Add function to kill all buffers except current one.
+#+begin_src emacs-lisp
+(defun kill-other-buffers ()
+      "Kill all other buffers."
+      (interactive)
+      (mapc 'kill-buffer (delq (current-buffer) (buffer-list))))
+#+end_src
+
+Keybindings for buffer management.
+#+begin_src emacs-lisp
+(leader-keys
+ "TAB"   '(counsel-switch-buffer :which-key "Switch buffer")
+ "b"     '(:ignore t :which-key "Buffer")
+ "b b"   '(ibuffer :which-key "Ibuffer")
+ "b c"   '(clone-indirect-buffer-other-window :which-key "Clone indirect buffer other window")
+ "b k"   '(kill-current-buffer :which-key "Kill current buffer")
+ "b n"   '(next-buffer :which-key "Next buffer")
+ "b p"   '(previous-buffer :which-key "Previous buffer")
+ "b B"   '(ibuffer-list-buffers :which-key "Ibuffer list buffers")
+ "b K"   '(kill-buffer :which-key "Kill buffer")
+ "b 1"   '(kill-other-buffers :which-key "Kill other buffers"))
+#+end_src
+*** File management
+#+begin_src emacs-lisp
+(leader-keys
+ "f"     '(:ignore t :which-key "File")
+ "."     '(find-file :which-key "Find file")
+ "f f"   '(find-file :which-key "Find file")
+ "f r"   '(counsel-recentf :which-key "Recent files")
+ "f s"   '(save-buffer :which-key "Save file")
+ "f u"   '(sudo-edit-find-file :which-key "Sudo find file")
+ "f y"   '(dt/show-and-copy-buffer-path :which-key "Yank file path")
+ "f C"   '(copy-file :which-key "Copy file")
+ "f D"   '(delete-file :which-key "Delete file")
+ "f R"   '(rename-file :which-key "Rename file")
+ "f S"   '(write-file :which-key "Save file as...")
+ "f U"   '(sudo-edit :which-key "Sudo edit file"))
+#+end_src
+*** Window management
+#+begin_src emacs-lisp
+(winner-mode 1)
+(leader-keys
+  ;; Window splits
+  "w"     '(:ignore t :which-key "Window")
+  "w c"   '(evil-window-delete :which-key "Close window")
+  "w n"   '(evil-window-new :which-key "New window")
+  "w s"   '(evil-window-split :which-key "Horizontal split window")
+  "w v"   '(evil-window-vsplit :which-key "Vertical split window")
+  "w C"   '(delete-other-windows :which-key "Close other windows")
+  "w r"   '(hydra-window-resize/body :which-key "Resize window")
+  ;; Window motions
+  "w h"   '(evil-window-left :which-key "Window left")
+  "w j"   '(evil-window-down :which-key "Window down")
+  "w k"   '(evil-window-up :which-key "Window up")
+  "w l"   '(evil-window-right :which-key "Window right")
+  "w w"   '(evil-window-next :which-key "Goto next window")
+  ;; winner mode
+  "w <left>"  '(winner-undo :which-key "Winner undo")
+  "w <right>" '(winner-redo :which-key "Winner redo")
+  ;; Window numbers
+  "1" '(winum-select-window-1 :which-key "Select window 1")
+  "2" '(winum-select-window-2 :which-key "Select window 2")
+  "3" '(winum-select-window-3 :which-key "Select window 3")
+  "4" '(winum-select-window-4 :which-key "Select window 4")
+  "5" '(winum-select-window-5 :which-key "Select window 5")
+  "6" '(winum-select-window-6 :which-key "Select window 6")
+  "7" '(winum-select-window-7 :which-key "Select window 7")
+  "8" '(winum-select-window-8 :which-key "Select window 8"))
+#+end_src
+*** Git
+#+begin_src emacs-lisp
+(leader-keys
+  "g"   '(:ignore t :which-key "Git")
+  "g s" '(magit :which-key "Magit status"))
+#+end_src
+*** General text bindings
+#+begin_src emacs-lisp
+(leader-keys
+  "x"   '(:ignore t :which-key "Text")
+  "x i" '(indent-region :which-key "Indent region"))
+#+end_src
+*** Eval
+#+begin_src emacs-lisp
+(leader-keys
+ "e"     '(:ignore t :which-key "Eval")
+ "e b"   '(eval-buffer :which-key "Eval elisp in buffer")
+ "e d"   '(eval-defun :which-key "Eval defun")
+ "e e"   '(eval-expression :which-key "Eval elisp expression")
+ "e l"   '(eval-last-sexp :which-key "Eval last sexression")
+ "e r"   '(eval-region :which-key "Eval region"))
+#+end_src
+*** Shells and terminals
+#+begin_src emacs-lisp
+(leader-keys
+  "'" '(sh :which-key "Start zsh"))
+#+end_src
+* Shells and terminals
+** Function to disable exit confirmation query for shells and terminals
+#+begin_src emacs-lisp
+(defun set-no-process-query-on-exit ()
+  (let ((proc (get-buffer-process (current-buffer))))
+    (when (processp proc)
+    (set-process-query-on-exit-flag proc nil))))
+#+end_src
+** Settings for shell-mode-hook and term-mode-hook
+Disable line numbers, line highlight and exit confirmation
+#+begin_src emacs-lisp
+(dolist (mode '(term-mode-hook
+		shell-mode-hook))
+  (add-hook mode (lambda () (display-line-numbers-mode 0)))
+  (add-hook mode (lambda () (setq-local global-hl-line-mode nil)))
+  (add-hook mode 'set-no-process-query-on-exit))
+#+end_src
+* Org mode
+#+begin_src emacs-lisp
+(add-hook 'org-mode-hook 'org-indent-mode)
+(setq ;org-directory "~/Org/"
+      ;org-agenda-files '("~/Org/agenda.org")
+      ;org-default-notes-file (expand-file-name "notes.org" org-directory)
+      org-ellipsis " ▼ "
+      org-log-done 'time
+      ;org-journal-dir "~/Org/journal/"
+      org-journal-date-format "%B %d, %Y (%A) "
+      org-journal-file-format "%Y-%m-%d.org"
+      org-hide-emphasis-markers t
+      org-startup-indented t)
+(setq org-src-preserve-indentation t
+      org-src-fontify-natively t
+      org-src-tab-acts-natively t
+      org-edit-src-content-indentation 0)
+(use-package org-bullets
+  :ensure t)
+(add-hook 'org-mode-hook (lambda () (org-bullets-mode 1)))
+
+(use-package org-tempo)
+#+end_src

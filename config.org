@@ -40,9 +40,11 @@
 #+begin_src emacs-lisp
 
 (require 'package)
+(setq package-archives
+      '(("melpa" . "https://melpa.org/packages/")
+        ("gnu" . "https://elpa.gnu.org/packages/")
+        ("org" . "http://orgmode.org/elpa/")))
 (package-initialize)
-(add-to-list 'package-archives
-	     '("melpa" . "http://melpa.org/packages/") t)
 
 #+end_src
 ** Install use-package for easy package installation
@@ -433,5 +435,5 @@ Disable line numbers, line highlight and exit confirmation
   :ensure t)
 (add-hook 'org-mode-hook (lambda () (org-bullets-mode 1)))
 
-(use-package org-tempo)
+;; (use-package org-tempo)
 #+end_src

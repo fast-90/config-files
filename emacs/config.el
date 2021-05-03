@@ -1,22 +1,10 @@
-* UI interface
-** Do not show startup screen
-#+begin_src emacs-lisp
-
 (setq inhibit-startup-message t)
-
-#+end_src
-** Disable tool bar, menu bar and scroll bar
-#+begin_src emacs-lisp
 
 (tool-bar-mode -1)
 (menu-bar-mode -1)
 (scroll-bar-mode -1)
 (tooltip-mode -1)
 (set-fringe-mode 10)
-
-#+end_src
-** Line number configuration
-#+begin_src emacs-lisp
 
 ;; Highlight current line
 (global-hl-line-mode t)
@@ -25,19 +13,7 @@
 ;; Set relative line numbers
 (setq display-line-numbers-type 'relative)
 
-#+end_src
-** Disable bell sound
-#+begin_src emacs-lisp
-
 (setq ring-bell-function 'ignore)
-
-#+end_src
-(setq command-line-default-directory "~/")
-#+end_src
-
-* Package management
-** Add MELPA to package archives
-#+begin_src emacs-lisp
 
 (require 'package)
 (setq package-archives
@@ -46,27 +22,12 @@
         ("org" . "http://orgmode.org/elpa/")))
 (package-initialize)
 
-#+end_src
-** Install use-package for easy package installation
-#+begin_src emacs-lisp
-
 (when (not (package-installed-p 'use-package))
   (package-refresh-contents)
   (package-install 'usepackage))
 
-#+end_src
-** Use Delight to hide modes from modeline bar
-#+begin_src emacs-lisp
-
 (use-package delight
   :ensure t)
-
-#+end_src
-
-* Themes
-** General theme
-Currently using doom-one from doom-themes
-#+begin_src emacs-lisp
 
 (use-package doom-themes
   :ensure t
@@ -75,35 +36,17 @@ Currently using doom-one from doom-themes
 	doom-themes-enable-italic t)
   (load-theme 'doom-one t))
 
-#+end_src
-** Doom modeline 
-This package depends on all-the-icons package. When installing Doom
-modeline for the first time, please run 'all-the-icons-install-fonts'
-via M-x first.
-#+begin_src emacs-lisp
-
 (use-package doom-modeline
   :ensure t
   :init (doom-modeline-mode 1))
 
-#+end_src
-
-* Emacs UI and menu enhancements
-** Which key
-Which key adds a guiding menu for keybindings
-#+begin_src emacs-lisp
 (use-package which-key
   :ensure t
   :delight
   :init
   (setq which-key-idle-delay 0.5)
   :config (which-key-mode))
-#+end_src
-** Ivy, Counsel and Swiper
-Ivy is a customisable completion mechanism. Counsel contains a collection of
-Ivy-enhanced versions of command Emacs commands (e.g. M-x). Swiper as an
-Ivy-enhanced version of Isearch.
-#+begin_src emacs-lisp
+
 (use-package ivy
   :ensure t
   :diminish
@@ -144,11 +87,7 @@ Ivy-enhanced version of Isearch.
 ; Smex to allow M-x remember our history
 (use-package smex :ensure t)
 (smex-initialize)
-#+end_src
-** Helpful
-Helpful package for more helpful descriptions of functions, commands and
-variables.
-#+begin_src emacs-lisp
+
 (use-package helpful
   :ensure t
   :commands (helpful-callable helpful-variable helpful-command helpful-key)
@@ -160,21 +99,11 @@ variables.
   ([remap describe-command] . helpful-command)
   ([remap describe-variable] . counsel-describe-variable)
   ([remap describe-key] . helpful-key))
-#+end_src
 
-* Project management
-
-** TODO Magit
-
-#+begin_src emacs-lisp
 (use-package magit
   :ensure t
   :bind ("C-x g" . magit-status))
-#+end_src
 
-** Projectile
-
-#+begin_src emacs-lisp
 (use-package projectile
   :ensure t
   :delight projectile-mode
@@ -191,32 +120,13 @@ variables.
 (use-package counsel-projectile
   :ensure t
   :after projectile)
-#+end_src
 
-* Other useful packages
-** Hydra
-#+begin_src emacs-lisp
 (use-package hydra
   :ensure t)
-#+end_src
-** Command log mode to show keypress and command
-Related commands start with "clm" in the M-x menu
-#+begin_src emacs-lisp
+
 (use-package command-log-mode
   :ensure t)
-#+end_src
-** Yasnippet
 
-#+begin_src emacs-lisp
-(use-package yasnippet
-  :ensure t
-  :init
-  (yas-global-mode 1))
-#+end_src
-
-* Window management
-** Winum
-#+begin_src emacs-lisp
 (use-package winum
   :ensure t
   :config (progn
@@ -225,9 +135,7 @@ Related commands start with "clm" in the M-x menu
 		  winum-auto-setup-setup-mode-line nil
 		  winum-ignored-buffers '(" *which-key*"))
 	    (winum-mode)))
-#+end_src
-** Function to interactivel resize window
-#+begin_src emacs-lisp
+
 (defhydra hydra-window-resize ()
   "Resize window"
   ("h" shrink-window-horizontally "shrink window horizontally")
@@ -235,11 +143,7 @@ Related commands start with "clm" in the M-x menu
   ("j" shrink-window "shrink window vertically")
   ("k" enlarge-window "enlarge window vertically")
   ("b" balance-windows "reset window sizes"))
-#+end_src
-* Keybindings
-** Evil mode
-The Evil package(s) enable Vim-like keybindings
-#+begin_src emacs-lisp
+
 (use-package evil
   :ensure t
   :init      ;; tweak evil's configuration before loading it
@@ -253,52 +157,30 @@ The Evil package(s) enable Vim-like keybindings
   ;; Use visual line motions (e.g. for when a long line is wrapped)
   (evil-global-set-key 'motion "j" 'evil-next-visual-line)
   (evil-global-set-key 'motion "k" 'evil-previous-visual-line))
-#+end_src
 
-Evil collection is a collection of Evil bindings for the parts of Emacs that Evil does not cover properly by default.
-
-#+begin_src emacs-lisp
 (use-package evil-collection
   :ensure t
   :after evil
   :config
   (setq evil-collection-mode-list '(dashboard dired ibuffer magit)) ; Modes to activate Evil keybindings for
   (evil-collection-init))
-#+end_src
 
-Bind jk in insert mode to ESC.
-
-#+begin_src emacs-lisp
 (use-package key-chord
   :ensure t
   :init
   (setq key-chord-two-keys-delay 0.5)
   (key-chord-define evil-insert-state-map "jk" 'evil-normal-state)
   (key-chord-mode 1))
-#+end_src
 
-Evil nerd commenter for line comment
-
-#+begin_src emacs-lisp
 (use-package evil-nerd-commenter
   :ensure t)
-#+end_src
-** Undo tree
-Enable Vim-like undo/redo
-#+begin_src emacs-lisp
+
 (use-package undo-tree
   :ensure t
   :init
   (global-undo-tree-mode)
   (evil-set-undo-system 'undo-tree))
-#+end_src
 
-** Bindings with SPC prefix
-The config in this section enable SPC as a prefix to a useful and commonly used
-function (similar to Spacemacs/Doom/VSpaceCode).
-
-*** General package 
-#+begin_src emacs-lisp
 (use-package general
   :ensure t
   :init
@@ -317,19 +199,12 @@ function (similar to Spacemacs/Doom/VSpaceCode).
     :states '(normal visual emacs motion) ; consider adding motion for using with easymotion
     :keymaps 'override 
     :prefix "SPC"))
-#+end_src
 
-*** Buffer management
-Add function to kill all buffers except current one.
-#+begin_src emacs-lisp
 (defun kill-other-buffers ()
   "Kill all other buffers."
   (interactive)
   (mapc 'kill-buffer (delq (current-buffer) (buffer-list))))
-#+end_src
 
-Keybindings for buffer management.
-#+begin_src emacs-lisp
 (leader-keys
   "TAB"   '(counsel-switch-buffer :which-key "Switch buffer")
   "b"     '(:ignore t :which-key "Buffer")
@@ -341,9 +216,7 @@ Keybindings for buffer management.
   "b B"   '(ibuffer-list-buffers :which-key "Ibuffer list buffers")
   "b K"   '(kill-buffer :which-key "Kill buffer")
   "b 1"   '(kill-other-buffers :which-key "Kill other buffers"))
-#+end_src
-*** File management
-#+begin_src emacs-lisp
+
 (leader-keys
   "f"     '(:ignore t :which-key "File")
   "."     '(find-file :which-key "Find file")
@@ -357,9 +230,7 @@ Keybindings for buffer management.
   "f R"   '(rename-file :which-key "Rename file")
   "f S"   '(write-file :which-key "Save file as...")
   "f U"   '(sudo-edit :which-key "Sudo edit file"))
-#+end_src
-*** Window management
-#+begin_src emacs-lisp
+
 (winner-mode 1)
 (leader-keys
   ;; Window splits
@@ -388,22 +259,16 @@ Keybindings for buffer management.
   "6" '(winum-select-window-6 :which-key "Select window 6")
   "7" '(winum-select-window-7 :which-key "Select window 7")
   "8" '(winum-select-window-8 :which-key "Select window 8"))
-#+end_src
-*** Git
-#+begin_src emacs-lisp
+
 (leader-keys
   "g"   '(:ignore t :which-key "Git")
   "g s" '(magit :which-key "Magit status"))
-#+end_src
-*** General text bindings
-#+begin_src emacs-lisp
+
 (leader-keys
   "x"   '(:ignore t :which-key "Text")
   "x i" '(indent-region :which-key "Indent region")
   ";"   '(evilnc-comment-or-uncomment-lines :which-key "Toggle line comment"))
-#+end_src
-*** Eval
-#+begin_src emacs-lisp
+
 (leader-keys
  "e"     '(:ignore t :which-key "Eval")
  "e b"   '(eval-buffer :which-key "Eval elisp in buffer")
@@ -411,31 +276,21 @@ Keybindings for buffer management.
  "e e"   '(eval-expression :which-key "Eval elisp expression")
  "e l"   '(eval-last-sexp :which-key "Eval last sexression")
  "e r"   '(eval-region :which-key "Eval region"))
-#+end_src
-*** Shells and terminals
-#+begin_src emacs-lisp
+
 (leader-keys
   "'" '(sh :which-key "Start zsh"))
-#+end_src
-* Shells and terminals
-** Function to disable exit confirmation query for shells and terminals
-#+begin_src emacs-lisp
+
 (defun set-no-process-query-on-exit ()
   (let ((proc (get-buffer-process (current-buffer))))
     (when (processp proc)
     (set-process-query-on-exit-flag proc nil))))
-#+end_src
-** Settings for shell-mode-hook and term-mode-hook
-Disable line numbers, line highlight and exit confirmation
-#+begin_src emacs-lisp
+
 (dolist (mode '(term-mode-hook
 		shell-mode-hook))
   (add-hook mode (lambda () (display-line-numbers-mode 0)))
   (add-hook mode (lambda () (setq-local global-hl-line-mode nil)))
   (add-hook mode 'set-no-process-query-on-exit))
-#+end_src
-* Org mode
-#+begin_src emacs-lisp
+
 (add-hook 'org-mode-hook 'org-indent-mode)
 (setq ;org-directory "~/Org/"
       ;org-agenda-files '("~/Org/agenda.org")
@@ -463,12 +318,7 @@ Disable line numbers, line highlight and exit confirmation
   (add-to-list 'org-structure-template-alist '("sh" . "src shell"))
   (add-to-list 'org-structure-template-alist '("el" . "src emacs-lisp"))
   (add-to-list 'org-structure-template-alist '("py" . "src python")))
-#+end_src
-* Development
 
-** Language Server Protocol (lsp-mode)
-
-#+begin_src emacs-lisp
 (defun lsp-mode-setup ()
   (setq lsp-headerline-breadcrumb-segments '(path-up-to-project file symbols))
   (lsp-headerline-breadcrumb-mode))
@@ -495,11 +345,7 @@ Disable line numbers, line highlight and exit confirmation
 (use-package lsp-ivy
   :ensure t
   :after lsp)
-#+end_src
 
-** Debugging with dap
-
-#+begin_src emacs-lisp
 (use-package dap-mode
   :ensure t
   ;; Uncomment the config below if you want all UI panes to be hidden by default!
@@ -518,11 +364,7 @@ Disable line numbers, line highlight and exit confirmation
    :keymaps 'lsp-mode-map
    :prefix lsp-keymap-prefix
    "d" '(dap-hydra t :wk "debugger")))
-#+end_src
 
-** Company for completion
-
-#+begin_src emacs-lisp
 (use-package company
   :ensure t
   :after lsp-mode
@@ -538,13 +380,7 @@ Disable line numbers, line highlight and exit confirmation
 (use-package company-box
   :ensure t
   :hook (company-mode . company-box-mode))
-#+end_src
 
-** Python
-
-*** Basic setup
-
-#+begin_src emacs-lisp
 (use-package python-mode
   :ensure t
   :hook (python-mode . lsp-deferred)
@@ -572,19 +408,7 @@ Disable line numbers, line highlight and exit confirmation
   :config
   (conda-env-initialize-interactive-shells)
   (conda-env-initialize-eshell))
-#+end_src
 
-*** Pyright (Python lsp)
-
-Before using lsp-pyright, make sure sure you have installed node.js through your package manager (the npm command should be available in your terminal). Then, install pyright globally by running the following command in your terminal:
-
-#+begin_src bash
-npm install -g pyright
-
-sudo npm update -g pyright
-#+end_src
-
-#+begin_src emacs-lisp
 ;; (use-package lsp-pyright
 ;;   :ensure t
 ;;   :hook (python-mode . (lambda ()
@@ -594,13 +418,7 @@ sudo npm update -g pyright
 ;;   (add-hook 'pyvenv-post-activate-hooks (lambda () (lsp-restart-workspace)))
 ;;   (add-hook 'conda-postactivate-hook (lambda () (lsp-restart-workspace)))
 ;;   (add-hook 'conda-postdeactivate-hook (lambda () (lsp-restart-workspace)))) ; or lsp-deferred
-#+end_src
 
-*** Python MS LSP
-
-This is an alternative solution to Pyright.
-
-#+begin_src emacs-lisp
 (use-package lsp-python-ms
   :ensure t
   :init (setq lsp-python-ms-auto-install-server t)
@@ -611,5 +429,3 @@ This is an alternative solution to Pyright.
   (add-hook 'pyvenv-post-activate-hooks (lambda () (lsp-restart-workspace)))
   (add-hook 'conda-postactivate-hook (lambda () (lsp-restart-workspace)))
   (add-hook 'conda-postdeactivate-hook (lambda () (lsp-restart-workspace)))) ; or lsp-deferred
-#+end_src
-

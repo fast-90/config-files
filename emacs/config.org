@@ -1,4 +1,4 @@
-* UI interface
+
 ** Do not show startup screen
 #+begin_src emacs-lisp
 
@@ -134,14 +134,14 @@ Ivy-enhanced version of Isearch.
   :after ivy
   :custom
   (ivy-virtual-abbreviate 'full
-   ivy-rich-switch-buffer-align-virtual-buffer t
-   ivy-rich-path-style 'abbrev)
+			  ivy-rich-switch-buffer-align-virtual-buffer t
+			  ivy-rich-path-style 'abbrev)
   :config
   (ivy-set-display-transformer 'ivy-switch-buffer
                                'ivy-rich-switch-buffer-transformer))
 (ivy-rich-mode 1)
 (setq ivy-initial-inputs-alist nil) ; Remove the ^ in ivy buffers
-; Smex to allow M-x remember our history
+					; Smex to allow M-x remember our history
 (use-package smex :ensure t)
 (smex-initialize)
 #+end_src
@@ -405,12 +405,12 @@ Keybindings for buffer management.
 *** Eval
 #+begin_src emacs-lisp
 (leader-keys
- "e"     '(:ignore t :which-key "Eval")
- "e b"   '(eval-buffer :which-key "Eval elisp in buffer")
- "e d"   '(eval-defun :which-key "Eval defun")
- "e e"   '(eval-expression :which-key "Eval elisp expression")
- "e l"   '(eval-last-sexp :which-key "Eval last sexression")
- "e r"   '(eval-region :which-key "Eval region"))
+  "e"     '(:ignore t :which-key "Eval")
+  "e b"   '(eval-buffer :which-key "Eval elisp in buffer")
+  "e d"   '(eval-defun :which-key "Eval defun")
+  "e e"   '(eval-expression :which-key "Eval elisp expression")
+  "e l"   '(eval-last-sexp :which-key "Eval last sexression")
+  "e r"   '(eval-region :which-key "Eval region"))
 #+end_src
 *** Shells and terminals
 #+begin_src emacs-lisp
@@ -423,7 +423,7 @@ Keybindings for buffer management.
 (defun set-no-process-query-on-exit ()
   (let ((proc (get-buffer-process (current-buffer))))
     (when (processp proc)
-    (set-process-query-on-exit-flag proc nil))))
+      (set-process-query-on-exit-flag proc nil))))
 #+end_src
 ** Settings for shell-mode-hook and term-mode-hook
 Disable line numbers, line highlight and exit confirmation
@@ -438,15 +438,15 @@ Disable line numbers, line highlight and exit confirmation
 #+begin_src emacs-lisp
 (add-hook 'org-mode-hook 'org-indent-mode)
 (setq ;org-directory "~/Org/"
-      ;org-agenda-files '("~/Org/agenda.org")
-      ;org-default-notes-file (expand-file-name "notes.org" org-directory)
-      org-ellipsis " ▼ "
-      org-log-done 'time
-      ;org-journal-dir "~/Org/journal/"
-      org-journal-date-format "%B %d, %Y (%A) "
-      org-journal-file-format "%Y-%m-%d.org"
-      org-hide-emphasis-markers t
-      org-startup-indented t)
+					;org-agenda-files '("~/Org/agenda.org")
+					;org-default-notes-file (expand-file-name "notes.org" org-directory)
+ org-ellipsis " ▼ "
+ org-log-done 'time
+					;org-journal-dir "~/Org/journal/"
+ org-journal-date-format "%B %d, %Y (%A) "
+ org-journal-file-format "%Y-%m-%d.org"
+ org-hide-emphasis-markers t
+ org-startup-indented t)
 (setq org-src-preserve-indentation t
       org-src-fontify-natively t
       org-src-tab-acts-natively t
@@ -497,6 +497,16 @@ Disable line numbers, line highlight and exit confirmation
   :after lsp)
 #+end_src
 
+The following lines are required to tune and improve LSP performance (see also [[https://emacs-lsp.github.io/lsp-mode/page/performance/][here]]):
+
+#+begin_src emacs-lisp
+
+(setq gc-cons-threshold 100000000)
+(setq read-process-output-max (* 1024 1024)) ;; 1mb
+(setq lsp-idle-delay 0.500)
+
+#+end_src
+
 ** Debugging with dap
 
 #+begin_src emacs-lisp
@@ -544,10 +554,17 @@ Disable line numbers, line highlight and exit confirmation
 
 *** Basic setup
 
+Includes hooks for linting with flake8 and formatting on save with black.
+
 #+begin_src emacs-lisp
+
 (use-package python-mode
   :ensure t
-  :hook (python-mode . lsp-deferred)
+  :hook
+  (python-mode . (lambda ()
+		   (lsp-deferred)))
+		   ;; (add-hook 'before-save-hook 'blacken-buffer)
+		   ;; (flycheck-add-next-checker 'lsp 'python-flake8)))
   :custom
   ;; NOTE: Set these if Python 3 is called "python3" on your system!
   ;; (python-shell-interpreter "python3")
@@ -555,13 +572,6 @@ Disable line numbers, line highlight and exit confirmation
   (dap-python-debugger 'debugpy)
   :config
   (require 'dap-python))
-
-;; (use-package pyvenv
-;;   :ensure t
-;;   :after python-mode
-;;   :config
-;;   (setenv "WORKON_HOME" "~/miniconda3/envs")
-;;   (pyvenv-mode 1))
 
 (use-package conda
   :ensure t
@@ -572,44 +582,87 @@ Disable line numbers, line highlight and exit confirmation
   :config
   (conda-env-initialize-interactive-shells)
   (conda-env-initialize-eshell))
+
 #+end_src
+
+**** Troubleshooting
+
+The first Python buffer always starts in "Py mode" instead of "Python
+mode". All subsequent buffers are correctly opened in "Python
+mode". Different posts on the internet suggest to add the following
+lines, however this did not help for me. For completeness though,
+these are the lines:
+
+#+begin_src emacs-lisp
+
+;; (autoload 'python-mode "python-mode" "Python Mode." t)
+;; (add-to-list 'auto-mode-alist '("\\.py\\'" . python-mode))
+;; (add-to-list 'interpreter-mode-alist '("python" . python-mode))
+
+#+end_src
+
+*** Linting and formatting
+
+Install flake8 and blacken to for linting and formatting. Setup is via hooks under python-mode.
+
+#+begin_src emacs-lisp
+
+(use-package flycheck
+  :ensure t
+  :hook
+  (python-mode . (lambda () (flycheck-add-next-checker 'lsp 'python-flake8)))
+  :config
+  (setq flycheck-python-flake8-executable "flake8")) ; Ensure flake8 is in path
+
+(use-package blacken
+  :ensure t
+  :hook
+  (python-mode . (lambda () (add-hook 'before-save-hook 'blacken-buffer))))
+
+#+end_src
+
 
 *** Pyright (Python lsp)
 
 Before using lsp-pyright, make sure sure you have installed node.js through your package manager (the npm command should be available in your terminal). Then, install pyright globally by running the following command in your terminal:
 
 #+begin_src bash
+
 npm install -g pyright
 
 sudo npm update -g pyright
+
 #+end_src
 
 #+begin_src emacs-lisp
-;; (use-package lsp-pyright
-;;   :ensure t
-;;   :hook (python-mode . (lambda ()
-;;                          (require 'lsp-pyright)
-;;                          (lsp-deferred)))
-;;   :config
-;;   (add-hook 'pyvenv-post-activate-hooks (lambda () (lsp-restart-workspace)))
-;;   (add-hook 'conda-postactivate-hook (lambda () (lsp-restart-workspace)))
-;;   (add-hook 'conda-postdeactivate-hook (lambda () (lsp-restart-workspace)))) ; or lsp-deferred
-#+end_src
 
-*** Python MS LSP
-
-This is an alternative solution to Pyright.
-
-#+begin_src emacs-lisp
-(use-package lsp-python-ms
+(use-package lsp-pyright
   :ensure t
-  :init (setq lsp-python-ms-auto-install-server t)
   :hook (python-mode . (lambda ()
-                          (require 'lsp-python-ms)
-                          (lsp-deferred)))  ; or lsp-deferred
+                         (require 'lsp-pyright)
+                         (lsp-deferred)
+			 (flycheck-add-next-checker 'lsp 'python-flake8)))
   :config
   (add-hook 'pyvenv-post-activate-hooks (lambda () (lsp-restart-workspace)))
   (add-hook 'conda-postactivate-hook (lambda () (lsp-restart-workspace)))
   (add-hook 'conda-postdeactivate-hook (lambda () (lsp-restart-workspace)))) ; or lsp-deferred
+
 #+end_src
+
+*** Python MS LSP
+
+This is an alternative solution to Pyright. Currently using Pyright on work desktop as it seems to be stable and fairly quick (after tuning the options).
+
+# #+begin_src emacs-lisp
+# (use-package lsp-python-ms
+#   :ensure t
+#   :init (setq lsp-python-ms-auto-install-server t)
+#   :hook (python-mode . (lambda ()
+#                           (require 'lsp-python-ms)
+#                           (lsp-deferred)))  ; or lsp-deferred
+#   :config
+#   (add-hook 'pyvenv-post-activate-hooks (lambda () (lsp-restart-workspace)))
+#   (add-hook 'conda-postactivate-hook (lambda () (lsp-restart-workspace)))
+#   (add-hook 'conda-postdeactivate-hook (lambda () (lsp-restart-workspace)))) ; or lsp-deferred
+# #+end_src
 

@@ -402,6 +402,37 @@ Keybindings for buffer management.
   "x i" '(indent-region :which-key "Indent region")
   ";"   '(evilnc-comment-or-uncomment-lines :which-key "Toggle line comment"))
 #+end_src
+*** Easymotion
+
+#+begin_src emacs-lisp
+
+(use-package evil-easymotion
+  :ensure t
+  :after (general evil)
+  :general
+  (leader-keys
+    "j"   '(:ignore t :which-key "Jump to")
+    "j f" '(evilem-motion-find-char :which-key "Find char")
+    "j F" '(evilem-motion-find-char-backward :which-key "Find char backward")
+    "j t" '(evilem-motion-find-char-to :which-key "To char")
+    "j T" '(evilem-motion-find-char-to-backward :which-key "To char backward")
+    ;; "j j" (evilem-create 'next-line)
+    "j j" '(evilem-motion-next-line :which-key "Jump to line forward")
+    ;; "j k" (evilem-create 'previous-line)
+    "j k" '(evilem-motion-next-line :which-key "Jump to line backward")
+    "j e" '(evilem-motion-forward-word-end :which-key "Forward word end")
+    "j E" '(evilem-motion-forward-WORD-end :which-key "Forward WORD end")
+    "j g e" '(evilem-motion-backward-word-end :which-key "Backward word end")
+    "j g E" '(evilem-motion-backward-WORD-end :which-key "Backward WORD end")
+    "j w" '(evilem-motion-forward-word-begin :which-key "Forward word")
+    "j W" '(evilem-motion-forward-WORD-begin :which-key "Forward WORD")
+    "j b" '(evilem-motion-backward-word-begin :which-key "Backward word")
+    "j B" '(evilem-motion-backward-WORD-begin :which-key "Backward WORD")
+    "j n" '(evilem-motion-search-next :which-key "Search next")
+    "j N" '(evilem-motion-search-previous :which-key "Search previous")
+    "j g" '(:ignore t :which-key "Backward word end")))
+
+#+end_src
 *** Eval
 #+begin_src emacs-lisp
 (leader-keys
@@ -554,8 +585,6 @@ The following lines are required to tune and improve LSP performance (see also [
 
 *** Basic setup
 
-Includes hooks for linting with flake8 and formatting on save with black.
-
 #+begin_src emacs-lisp
 
 (use-package python-mode
@@ -563,8 +592,6 @@ Includes hooks for linting with flake8 and formatting on save with black.
   :hook
   (python-mode . (lambda ()
 		   (lsp-deferred)))
-		   ;; (add-hook 'before-save-hook 'blacken-buffer)
-		   ;; (flycheck-add-next-checker 'lsp 'python-flake8)))
   :custom
   ;; NOTE: Set these if Python 3 is called "python3" on your system!
   ;; (python-shell-interpreter "python3")
@@ -603,7 +630,8 @@ these are the lines:
 
 *** Linting and formatting
 
-Install flake8 and blacken to for linting and formatting. Setup is via hooks under python-mode.
+flake8 for linting and black(en) for formatting. Also enables auto-formatting
+on save for Python mode.
 
 #+begin_src emacs-lisp
 

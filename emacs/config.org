@@ -433,6 +433,41 @@ Keybindings for buffer management.
     "j g" '(:ignore t :which-key "Backward word end")))
 
 #+end_src
+
+*** evil-snipe
+
+evil-snipe is simulates Vim sneak.
+
+#+begin_src emacs-lisp
+
+(use-package evil-snipe
+  :ensure t
+  :init
+  (evil-normalize-keymaps)
+  :after evil
+  ;; :general
+  ;; (general-vmap evil-snipe-local-mode-map "z" 'evil-snipe-s)
+  ;; (general-vmap 'visual evil-snipe-local-mode-map "Z" 'evil-snipe-S)
+  :hook (magit-mode . turn-off-evil-snipe-override-mode)
+  :custom
+  (evil-snipe-scope 'visible)
+  (evil-snipe-repeat-scope 'whole-visible)
+  (evil-snipe-spillover-scope 'whole-buffer))
+
+  (evil-snipe-mode +1)
+  (evil-snipe-override-mode +1)
+
+#+end_src
+
+*** evil-surround
+
+#+begin_src emacs-lisp
+(use-package evil-surround
+  :ensure t
+  :config
+  (global-evil-surround-mode 1))
+#+end_src
+
 *** Eval
 #+begin_src emacs-lisp
 (leader-keys

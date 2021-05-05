@@ -1,4 +1,4 @@
-
+* General UI settings
 ** Do not show startup screen
 #+begin_src emacs-lisp
 
@@ -400,6 +400,7 @@ Keybindings for buffer management.
 (leader-keys
   "x"   '(:ignore t :which-key "Text")
   "x i" '(indent-region :which-key "Indent region")
+  "x s" '(flyspell-correct-wrapper :which-key "Flyspell correct")
   ";"   '(evilnc-comment-or-uncomment-lines :which-key "Toggle line comment"))
 #+end_src
 *** Easymotion
@@ -753,14 +754,21 @@ this can also be added as a hook.
 
 #+begin_src emacs-lisp
 
+(defun aspell-path ()
+  (cond ((eq system-type 'gnu/linux) "/usr/bin/aspell")
+	((eq system-type 'darwin) "/usr/local/bin/aspell")
+	(t "/usr/bin/aspell")))
+
 (use-package flyspell
   :custom
   (ispell-program-name "aspell")
   ;; Default dictionary. To change do M-x ispell-change-dictionary RET.
   (aspell-dictionary "en_GB-ise-wo_accents")
-  (aspell-program-name "/usr/local/bin/aspell")
+  ;; (aspell-program-name "/usr/local/bin/aspell")
+  (aspell-program-name (aspell-path))
   (ispell-dictionary "en_GB-ise-wo_accents")
-  (ispell-program-name "/usr/local/bin/aspell")
+  ;; (ispell-program-name "/usr/local/bin/aspell")
+  (ispell-program-name (aspell-path))
   :config
   (add-hook 'markdown-mode-hook 'flyspell-mode))
 

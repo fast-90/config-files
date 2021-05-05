@@ -1,0 +1,4 @@
+*.el
+emacs/nw-config.org
+emacs/mac_config.org
+*~

@@ -262,7 +262,7 @@ Evil collection is a collection of Evil bindings for the parts of Emacs that Evi
   :ensure t
   :after evil
   :config
-  (setq evil-collection-mode-list '(dashboard dired ibuffer magit)) ; Modes to activate Evil keybindings for
+  (setq evil-collection-mode-list '(dashboard dired ibuffer magit pdf doc-view company)) ; Modes to activate Evil keybindings for
   (evil-collection-init))
 #+end_src
 
@@ -776,5 +776,13 @@ this can also be added as a hook.
   :ensure t
   :bind ("C-;" . flyspell-correct-wrapper))
 
+#+end_src
+
+* PDF tools
+
+#+begin_src emacs-lisp
+
+(use-package pdf-tools
+  :ensure t)
 #+end_src
 

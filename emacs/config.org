@@ -88,6 +88,16 @@ via M-x first.
 
 #+end_src
 
+Ensure icons are used in Daemon mode:
+
+#+begin_src emacs-lisp
+
+(defun enable-doom-modeline-icons (_frame)
+  (setq doom-modeline-icont t))
+
+(add-hook 'after-make-frame-functions #'enable-doom-modeline-icons)
+
+#+end_src
 * Emacs UI and menu enhancements
 ** Which key
 Which key adds a guiding menu for keybindings

@@ -92,10 +92,9 @@ Ensure icons are used in Daemon mode:
 
 #+begin_src emacs-lisp
 
-(defun enable-doom-modeline-icons (_frame)
-  (setq doom-modeline-icont t))
-
-(add-hook 'after-make-frame-functions #'enable-doom-modeline-icons)
+(add-hook 'server-after-make-frame-hook
+ (lambda ()
+     (setq doom-modeline-icon (display-graphic-p))))
 
 #+end_src
 * Emacs UI and menu enhancements

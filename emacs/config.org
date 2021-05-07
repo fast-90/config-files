@@ -34,6 +34,10 @@
 #+end_src
 (setq command-line-default-directory "~/")
 #+end_src
+** Set default fill-column
+#+begin_src emacs-lisp
+(setq-default fill-column 79)
+#+end_src
 
 * Package management
 ** Add MELPA to package archives
@@ -239,12 +243,46 @@ Related commands start with "clm" in the M-x menu
 #+begin_src emacs-lisp
 (defhydra hydra-window-resize ()
   "Resize window"
-  ("h" shrink-window-horizontally "shrink window horizontally")
-  ("l" enlarge-window-horizontally "enlarge window horizontally")
-  ("j" shrink-window "shrink window vertically")
-  ("k" enlarge-window "enlarge window vertically")
-  ("b" balance-windows "reset window sizes"))
+  ("h" shrink-window-horizontally "shrink horizontally")
+  ("l" enlarge-window-horizontally "enlarge horizontally")
+  ("j" shrink-window "shrink vertically")
+  ("k" enlarge-window "enlarge vertically")
+  ("b" balance-windows "reset sizes")
+  ("q" nil "quit"))
 #+end_src
+
+* File management
+
+** Dired
+
+#+begin_src emacs-lisp
+
+(use-package dired
+  :after evil evil-collection
+  ;; :commands (dired dired-jump)
+  ;; :bind (("C-x C-j" . dired-jump))
+  ;; :custom ((dired-listing-switches "-agho --group-directories-first"))
+  :config
+  (evil-collection-define-key 'normal 'dired-mode-map
+    "h" 'dired-single-up-directory
+    "l" 'dired-single-buffer))
+
+(use-package dired-single
+  :ensure t)
+
+(use-package all-the-icons-dired
+  :ensure t
+  :hook (dired-mode . all-the-icons-dired-mode))
+
+(use-package dired-hide-dotfiles
+  :ensure t
+  :hook (dired-mode . dired-hide-dotfiles-mode)
+  :config
+  (evil-collection-define-key 'normal 'dired-mode-map
+    "H" 'dired-hide-dotfiles-mode))
+
+#+end_src
+
 * Keybindings
 ** Evil mode
 The Evil package(s) enable Vim-like keybindings
@@ -365,6 +403,11 @@ Keybindings for buffer management.
   "f D"   '(delete-file :which-key "Delete file")
   "f R"   '(rename-file :which-key "Rename file")
   "f S"   '(write-file :which-key "Save file as...")
+  ;; "f d"   '(:ignore t :which-key "Dired")
+  "d"     '(dired :which-key "Dired")
+  ;; "f d d" '(dired :which-key "Dired")
+  "f j"   '(dired-jump :which-key "Dired jump")
+  ;; "f d j" '(dired-jump :which-key "Dired jump")
   "f U"   '(sudo-edit :which-key "Sudo edit file"))
 #+end_src
 *** Window management
@@ -424,12 +467,12 @@ Keybindings for buffer management.
     "j"   '(:ignore t :which-key "Jump to")
     "j f" '(evilem-motion-find-char :which-key "Find char")
     "j F" '(evilem-motion-find-char-backward :which-key "Find char backward")
+    "j j" '(evilem-motion-find-char :which-key "Find char")
+    "j J" '(evilem-motion-find-char-backward :which-key "Find char backward")
     "j t" '(evilem-motion-find-char-to :which-key "To char")
     "j T" '(evilem-motion-find-char-to-backward :which-key "To char backward")
-    ;; "j j" (evilem-create 'next-line)
-    "j j" '(evilem-motion-next-line :which-key "Jump to line forward")
-    ;; "j k" (evilem-create 'previous-line)
-    "j k" '(evilem-motion-next-line :which-key "Jump to line backward")
+    "j l" '(evilem-motion-next-line :which-key "Jump to line forward")
+    "j L" '(evilem-motion-previous-line :which-key "Jump to line backward")
     "j e" '(evilem-motion-forward-word-end :which-key "Forward word end")
     "j E" '(evilem-motion-forward-WORD-end :which-key "Forward WORD end")
     "j g e" '(evilem-motion-backward-word-end :which-key "Backward word end")
@@ -514,7 +557,15 @@ Disable line numbers, line highlight and exit confirmation
 #+begin_src emacs-lisp
 (add-hook 'org-mode-hook 'org-indent-mode)
 (setq ;org-directory "~/Org/"
-					;org-agenda-files '("~/Org/agenda.org")
+ org-agenda-files '("~/org/tasks.org"
+                    "~/org/birthdays.org")
+ ;; Settings for todo states
+ org-todo-keywords
+   '((sequence "TODO(t)" "NEXT(n)" "|" "DONE(d!)"))
+ ;; Settings for log mode for finished tasks
+ org-agenda-start-with-log-mode t
+ org-log-done 'time
+ org-log-into-drawer t
 					;org-default-notes-file (expand-file-name "notes.org" org-directory)
  org-ellipsis " ▼ "
  org-log-done 'time
@@ -523,6 +574,7 @@ Disable line numbers, line highlight and exit confirmation
  org-journal-file-format "%Y-%m-%d.org"
  org-hide-emphasis-markers t
  org-startup-indented t)
+
 (setq org-src-preserve-indentation t
       org-src-fontify-natively t
       org-src-tab-acts-natively t
@@ -788,6 +840,8 @@ this can also be added as a hook.
 #+end_src
 
 * PDF tools
+
+Also install pdftotext in your OS (e.g. via sudo apt on Ubuntu).
 
 #+begin_src emacs-lisp
 

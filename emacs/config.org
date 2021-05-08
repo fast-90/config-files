@@ -261,7 +261,7 @@ Related commands start with "clm" in the M-x menu
   :after evil evil-collection
   ;; :commands (dired dired-jump)
   ;; :bind (("C-x C-j" . dired-jump))
-  ;; :custom ((dired-listing-switches "-agho --group-directories-first"))
+  :custom ((dired-listing-switches "-agho --group-directories-first"))
   :config
   (evil-collection-define-key 'normal 'dired-mode-map
     "h" 'dired-single-up-directory
@@ -283,6 +283,25 @@ Related commands start with "clm" in the M-x menu
 
 #+end_src
 
+*** Mac specific settings
+
+OS X's ls function does not support the --group-directories-first switch. In order to enable this, install GNU core utils:
+
+#+begin_src shell
+
+brew install coreutils
+
+#+end_src
+
+Then the emacs-lisp code below ensures that dired uses the gls (GNU ls) command:
+
+#+begin_src emacs-lisp
+
+(when (string= system-type "darwin")
+  (setq dired-use-ls-dired t
+        insert-directory-program "/usr/local/bin/gls"))
+
+#+end_src
 * Keybindings
 ** Evil mode
 The Evil package(s) enable Vim-like keybindings
@@ -434,12 +453,12 @@ Keybindings for buffer management.
   ;; Window numbers
   "1" '(winum-select-window-1 :which-key "Select window 1")
   "2" '(winum-select-window-2 :which-key "Select window 2")
-  "3" '(winum-select-window-3 :which-key "Select window 3")
-  "4" '(winum-select-window-4 :which-key "Select window 4")
-  "5" '(winum-select-window-5 :which-key "Select window 5")
-  "6" '(winum-select-window-6 :which-key "Select window 6")
-  "7" '(winum-select-window-7 :which-key "Select window 7")
-  "8" '(winum-select-window-8 :which-key "Select window 8"))
+  "3" '(winum-select-window-3 :which-key t)
+  "4" '(winum-select-window-4 :which-key t)
+  "5" '(winum-select-window-5 :which-key t)
+  "6" '(winum-select-window-6 :which-key t)
+  "7" '(winum-select-window-7 :which-key t)
+  "8" '(winum-select-window-8 :which-key t))
 #+end_src
 *** Git
 #+begin_src emacs-lisp

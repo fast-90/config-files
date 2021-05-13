@@ -556,6 +556,157 @@ evil-snipe is simulates Vim sneak.
   "'" '(sh :which-key "Start zsh"))
 #+end_src
 * Shells and terminals
+** Eshell
+
+#+begin_src emacs-lisp
+
+(defun configure-eshell ()
+  ;; Save command history when commands are entered
+  (add-hook 'eshell-pre-command-hook 'eshell-save-some-history)
+
+  ;; Truncate buffer for performance
+  (add-to-list 'eshell-output-filter-functions 'eshell-truncate-buffer)
+
+  ;; Bind some useful keys for evil-mode
+  (evil-define-key '(normal insert visual) eshell-mode-map (kbd "C-r") 'counsel-esh-history)
+  (evil-define-key '(normal insert visual) eshell-mode-map (kbd "C-a") 'eshell-bol)
+  (evil-define-key '(normal insert visual) eshell-mode-map (kbd "C-e") 'eshell-show-maximum-output)
+  (evil-define-key '(normal insert visual) eshell-mode-map (kbd "C-u") 'eshell-kill-input)
+  (evil-normalize-keymaps)
+
+  (setq eshell-history-size         10000
+        eshell-buffer-maximum-lines 10000
+        eshell-hist-ignoredups t
+        eshell-scroll-to-bottom-on-input t))
+
+(use-package eshell-git-prompt
+  :ensure t
+  :after eshell)
+
+(use-package eshell
+  :hook (eshell-first-time-mode . configure-eshell)
+  :config
+
+  (with-eval-after-load 'esh-opt
+    (setq eshell-destroy-buffer-when-process-dies t)
+    (setq eshell-visual-commands '("htop" "zsh" "vim")))
+
+  (eshell-git-prompt-use-theme 'powerline))
+
+#+end_src
+*** Custom prompt
+
+See also [[http://www.modernemacs.com/post/custom-eshell/][here]].
+
+**** Macros and functions
+
+Define a macro esh-section taking a name, an icon, a form or variable to be
+evaluated, and optionally face properties. They create anonymous functions
+which will be evaluated and concatenated at prompt-time.
+
+#+begin_src emacs-lisp
+
+(require 'dash)
+(require 's)
+;; (require 'cl)
+
+;; (use-package dash
+;;   :ensure t)
+
+;; (use-package s
+;;   :ensure t)
+
+(defmacro with-face (STR &rest PROPS)
+  "Return STR propertized with PROPS."
+  `(propertize ,STR 'face (list ,@PROPS)))
+
+(defmacro esh-section (NAME ICON FORM &rest PROPS)
+  "Build eshell section NAME with ICON prepended to evaled FORM with PROPS."
+  `(setq ,NAME
+         (lambda () (when ,FORM
+                      (-> ,ICON
+                          (concat esh-section-delim ,FORM)
+                          (with-face ,@PROPS))))))
+
+(defun esh-acc (acc x)
+  "Accumulator for evaluating and concatenating esh-sections."
+  (--if-let (funcall x)
+      (if (s-blank? acc)
+          it
+        (concat acc esh-sep it))
+    acc))
+
+(defun esh-prompt-func ()
+  "Build `eshell-prompt-function'"
+  (concat esh-header
+          (-reduce-from 'esh-acc "" eshell-funcs)
+          "\n"
+          eshell-prompt-string))
+
+#+end_src
+
+**** Configuration
+
+#+begin_src emacs-lisp
+
+;; Separator between esh-sections
+(setq esh-sep " | ")  ; or " | "
+
+;; Separator between an esh-section icon and form
+(setq esh-section-delim " ")
+
+;; Eshell prompt header
+(setq esh-header "\n┌─")  ; or "\n┌─"
+
+;; Eshell prompt regexp and string. Unless you are varying the prompt by eg.
+;; your login, these can be the same.
+(setq eshell-prompt-regexp "└─> ")   ; or "└─> "
+(setq eshell-prompt-string "└─> ")   ; or "└─> "
+
+#+end_src
+
+**** Sections
+
+#+begin_src emacs-lisp
+
+(esh-section esh-dir
+             "\xf07b" ;; "\xf07c"  ;  (faicon folder)
+             (abbreviate-file-name (eshell/pwd))
+             '(:foreground "gold"))
+
+(esh-section esh-git
+             "\xe907"  ;  (git icon)
+             (magit-get-current-branch)
+             '(:foreground "orange"))
+
+(esh-section esh-python
+             "\xe928"  ;  (python icon)
+             conda-env-current-name)
+
+(esh-section esh-clock
+             "\xf017"  ;  (clock icon)
+             (format-time-string "%H:%M" (current-time))
+             '(:foreground "forest green"))
+
+;; Below I implement a "prompt number" section
+;; (setq esh-prompt-num 0)
+;; (add-hook 'eshell-exit-hook (lambda () (setq esh-prompt-num 0)))
+;; (advice-add 'eshell-send-input :before
+;;             (lambda (&rest args) (setq esh-prompt-num (cl-incf esh-prompt-num))))
+
+;; (esh-section esh-num
+;;              "\xf0c9"  ;  (list icon)
+;;              (number-to-string esh-prompt-num)
+;;              '(:foreground "brown"))
+
+;; Choose which eshell-funcs to enable
+(setq eshell-funcs (list esh-dir esh-git esh-python)) ; esh-clock esh-num))
+
+;; Enable the new eshell prompt
+(setq eshell-prompt-function 'esh-prompt-func)
+
+#+end_src
+
 ** Function to disable exit confirmation query for shells and terminals
 #+begin_src emacs-lisp
 (defun set-no-process-query-on-exit ()
@@ -567,7 +718,8 @@ evil-snipe is simulates Vim sneak.
 Disable line numbers, line highlight and exit confirmation
 #+begin_src emacs-lisp
 (dolist (mode '(term-mode-hook
-		shell-mode-hook))
+		shell-mode-hook
+            eshell-mode-hook))
   (add-hook mode (lambda () (display-line-numbers-mode 0)))
   (add-hook mode (lambda () (setq-local global-hl-line-mode nil)))
   (add-hook mode 'set-no-process-query-on-exit))
@@ -610,6 +762,13 @@ Disable line numbers, line highlight and exit confirmation
   (add-to-list 'org-structure-template-alist '("sh" . "src shell"))
   (add-to-list 'org-structure-template-alist '("el" . "src emacs-lisp"))
   (add-to-list 'org-structure-template-alist '("py" . "src python")))
+
+(with-eval-after-load 'org
+  (org-babel-do-load-languages
+      'org-babel-load-languages
+      '((emacs-lisp . t)
+      (python . t))))
+
 #+end_src
 * Markdown
 
@@ -794,6 +953,13 @@ sudo npm update -g pyright
 
 #+begin_src emacs-lisp
 
+(defun restart-lsp-python()
+  "Restart LSP server in Python mode"
+  (when (eq major-mode 'python-mode)
+    (lambda()
+    (lsp-restart-workspace)
+    (lsp))))
+
 (use-package lsp-pyright
   :ensure t
   :hook (python-mode . (lambda ()
@@ -804,6 +970,11 @@ sudo npm update -g pyright
   (add-hook 'pyvenv-post-activate-hooks (lambda () (lsp-restart-workspace)))
   (add-hook 'conda-postactivate-hook (lambda () (lsp-restart-workspace)))
   (add-hook 'conda-postdeactivate-hook (lambda () (lsp-restart-workspace)))) ; or lsp-deferred
+  ;; (add-hook 'pyvenv-post-activate-hooks (lambda () (lsp-restart-workspace)))
+  ;; (add-hook 'conda-postactivate-hook (lambda () (lsp-restart-workspace) (lsp)))
+  ;; (add-hook 'conda-postdeactivate-hook (lambda () (lsp-restart-workspace) (lsp)))) ; or lsp-deferred
+;; (add-hook 'conda-postactivate-hook 'restart-lsp-python) ; or lsp-deferred
+;; (add-hook 'conda-postdeactivate-hook 'restart-lsp-python)) ; or lsp-deferred
 
 #+end_src
 

@@ -1,11 +1,15 @@
 * General UI settings
+
 ** Do not show startup screen
+
 #+begin_src emacs-lisp
 
 (setq inhibit-startup-message t)
 
 #+end_src
+
 ** Disable tool bar, menu bar and scroll bar
+
 #+begin_src emacs-lisp
 
 (tool-bar-mode -1)
@@ -15,7 +19,9 @@
 (set-fringe-mode 10)
 
 #+end_src
+
 ** Line number configuration
+
 #+begin_src emacs-lisp
 
 ;; Highlight current line
@@ -26,7 +32,9 @@
 (setq display-line-numbers-type 'relative)
 
 #+end_src
+
 ** Disable bell sound
+
 #+begin_src emacs-lisp
 
 (setq ring-bell-function 'ignore)
@@ -40,7 +48,9 @@
 #+end_src
 
 * Package management
+
 ** Add MELPA to package archives
+
 #+begin_src emacs-lisp
 
 (require 'package)
@@ -51,7 +61,9 @@
 (package-initialize)
 
 #+end_src
+
 ** Install use-package for easy package installation
+
 #+begin_src emacs-lisp
 
 (when (not (package-installed-p 'use-package))
@@ -59,7 +71,9 @@
   (package-install 'usepackage))
 
 #+end_src
+
 ** Use Delight to hide modes from modeline bar
+
 #+begin_src emacs-lisp
 
 (use-package delight
@@ -68,8 +82,11 @@
 #+end_src
 
 * Themes
+
 ** General theme
+
 Currently using doom-one from doom-themes
+
 #+begin_src emacs-lisp
 
 (use-package doom-themes
@@ -158,9 +175,12 @@ Ivy-enhanced version of Isearch.
 (use-package smex :ensure t)
 (smex-initialize)
 #+end_src
+
 ** Helpful
+
 Helpful package for more helpful descriptions of functions, commands and
 variables.
+
 #+begin_src emacs-lisp
 (use-package helpful
   :ensure t
@@ -343,11 +363,25 @@ Bind jk in insert mode to ESC.
   (key-chord-mode 1))
 #+end_src
 
-Evil nerd commenter for line comment
+Evil nerd commenter for line comment.
 
 #+begin_src emacs-lisp
 (use-package evil-nerd-commenter
   :ensure t)
+#+end_src
+
+Evil-org adds evil bindings to org-agenda.
+
+#+begin_src emacs-lisp
+
+(use-package evil-org
+  :ensure t
+  :after org
+  :hook (org-mode . (lambda () evil-org-mode))
+  :config
+  (require 'evil-org-agenda)
+  (evil-org-agenda-set-keys))
+
 #+end_src
 ** Undo tree
 Enable Vim-like undo/redo
@@ -555,6 +589,15 @@ evil-snipe is simulates Vim sneak.
 (leader-keys
   "'" '(sh :which-key "Start zsh"))
 #+end_src
+*** Org mode
+#+begin_src emacs-lisp
+
+(leader-keys
+  "o"   '(:ignore t :which-key "Org")
+  "o a" '(org-agenda :which-key "Agenda")
+  "o c" '(org-capture :which-key "Capture")
+  "o t" '(org-todo :which-key "Todo"))
+#+end_src
 * Shells and terminals
 ** Eshell
 
@@ -725,51 +768,217 @@ Disable line numbers, line highlight and exit confirmation
   (add-hook mode 'set-no-process-query-on-exit))
 #+end_src
 * Org mode
+
+** Org made basic setup
+
 #+begin_src emacs-lisp
-(add-hook 'org-mode-hook 'org-indent-mode)
-(setq ;org-directory "~/Org/"
- org-agenda-files '("~/org/tasks.org"
-                    "~/org/birthdays.org")
- ;; Settings for todo states
- org-todo-keywords
-   '((sequence "TODO(t)" "NEXT(n)" "|" "DONE(d!)"))
- ;; Settings for log mode for finished tasks
- org-agenda-start-with-log-mode t
- org-log-done 'time
- org-log-into-drawer t
-					;org-default-notes-file (expand-file-name "notes.org" org-directory)
- org-ellipsis " ▼ "
- org-log-done 'time
-					;org-journal-dir "~/Org/journal/"
- org-journal-date-format "%B %d, %Y (%A) "
- org-journal-file-format "%Y-%m-%d.org"
- org-hide-emphasis-markers t
- org-startup-indented t)
 
-(setq org-src-preserve-indentation t
-      org-src-fontify-natively t
-      org-src-tab-acts-natively t
-      org-edit-src-content-indentation 0)
-(use-package org-bullets
-  :ensure t)
-(add-hook 'org-mode-hook (lambda () (org-bullets-mode 1)))
-
-(use-package org-tempo)
-(with-eval-after-load 'org
-  ;; This is needed as of Org 9.2
+(use-package org
+  :ensure org-plus-contrib
+  :mode ("\\.org\\'" . org-mode)
+  :bind
+  (("C-c l" . org-store-link)
+   ("C-c a" . org-agenda)
+   ("C-c b" . org-iswitchb)
+   ("C-c c" . org-capture))
+  :bind
+  (:map org-mode-map
+        ("M-n" . outline-next-visible-heading)
+        ("M-p" . outline-previous-visible-heading))
+  :custom
+  (org-src-window-setup 'current-window)
+  (org-return-follows-link t)
+  (org-agenda-diary-file "~/org/diary.org")
+  (org-babel-load-languages
+   '((emacs-lisp . t)
+     (python . t)
+     (dot . t)
+     (R . t)))
+  (org-confirm-babel-evaluate nil)
+  (org-use-speed-commands t)
+  (org-catch-invisible-edits 'show)
+  (org-ellipsis " ▼ ")
+  (org-src-fontify-natively t)
+  (org-edit-src-content-indentation 0)
+  ;; (org-preview-latex-image-directory "/tmp/ltximg/")
+  :custom-face
+  (variable-pitch ((t (:family "Libre Baskerville"))))
+  (org-document-title ((t (:weight bold :height 1.5))))
+  (org-done ((t (:strike-through t :weight bold))))
+  (org-headline-done ((t (:strike-through t))))
+  (org-level-1 ((t (:height 1.3 :weight bold))))
+  (org-level-2 ((t (:height 1.2 :weight bold))))
+  (org-level-3 ((t (:height 1.1 :weight bold))))
+  (org-image-actual-width (/ (display-pixel-width) 2))
+  :custom
+  (org-structure-template-alist '(("a" . "export ascii")
+                                  ("c" . "center")
+                                  ("C" . "comment")
+                                  ("e" . "example")
+                                  ("E" . "export")
+                                  ("l" . "export latex")
+                                  ("py" . "src python")
+                                  ("q" . "quote")
+                                  ("s" . "src")
+                                  ("v" . "verse")
+                                  ("el" . "src emacs-lisp")
+                                  ("d" . "definition")
+                                  ("t" . "theorem")))
+  (org-startup-indented t)
+  (org-hide-leading-stars nil)
+  (org-hide-emphasis-markers nil)
+  (org-pretty-entities nil)
+  (org-adapt-indentation t)
+  :init
+  (with-eval-after-load 'flycheck
+    (flycheck-add-mode 'proselint 'org-mode))
+  :config
+  (advice-add 'org-refile :after (lambda (&rest _) (org-save-all-org-buffers)))
+  (require 'org-habit)
   (require 'org-tempo)
+  (require 'ol-notmuch))
 
-  (add-to-list 'org-structure-template-alist '("sh" . "src shell"))
-  (add-to-list 'org-structure-template-alist '("el" . "src emacs-lisp"))
-  (add-to-list 'org-structure-template-alist '("py" . "src python")))
-
-(with-eval-after-load 'org
-  (org-babel-do-load-languages
-      'org-babel-load-languages
-      '((emacs-lisp . t)
-      (python . t))))
+(require 'org)
 
 #+end_src
+
+** Style and formatting
+
+#+begin_src emacs-lisp
+
+(use-package org-bullets
+  :ensure t)
+
+(add-hook 'org-mode-hook (lambda () (org-bullets-mode 1)))
+
+(defun duy/style-org ()
+  (setq line-spacing 0.2)
+  (variable-pitch-mode +1)
+  (mapc
+   (lambda (face) ;; Other fonts with fixed-pitch.
+     (set-face-attribute face nil :inherit 'fixed-pitch))
+   (list 'org-block
+         'org-table
+         'org-verbatim
+         'org-block-begin-line
+         'org-block-end-line
+         'org-meta-line
+         'org-document-info-keyword
+         'line-number
+         'line-number-current-line))
+  (mapc
+   (lambda (face) ;; Other fonts with fixed-pitch.
+     (set-face-attribute face nil :inherit '(shadow fixed-pitch)))
+   (list 'org-code
+         'org-table
+         'org-verbatim)))
+
+;; (add-hook 'org-mode-hook #'duy/style-org)
+
+#+end_src
+
+** Workflow
+
+#+begin_src emacs-lisp
+
+(defun duy/org-archive-done-tasks ()
+  "Archive all done tasks."
+  (interactive)
+  (org-map-entries 'org-archive-subtree "/DONE" 'file))
+
+(require 'find-lisp)
+(setq duy/org-agenda-directory "~/org/personal/")
+(setq nw/org-agenda-directory "~/org/work/")
+
+(setq org-agenda-files
+      (find-lisp-find-files duy/org-agenda-directory "\.org$"))
+
+(setq org-agenda-files "~/org/duy.org")
+
+;; Setup org-protocol
+(require 'org-protocol)
+(require 'org-capture)
+(add-to-list 'org-capture-templates
+             `("i" "inbox" entry (file ,(concat duy/org-agenda-directory "inbox.org"))
+               "* TODO %?"))
+(add-to-list 'org-capture-templates
+             `("e" "email" entry (file+headline ,(concat duy/org-agenda-directory "emails.org") "Emails")
+               "* TODO [#A] Reply: %a :@home:@school:"
+               :immediate-finish t))
+(add-to-list 'org-capture-templates
+             `("c" "org-protocol-capture" entry (file ,(concat duy/org-agenda-directory "inbox.org"))
+               "* TODO [[%:link][%:description]]\n\n %i"
+               :immediate-finish t))
+(add-to-list 'org-capture-templates
+             `("w" "Weekly Review" entry (file+olp+datetree ,(concat duy/org-agenda-directory "reviews.org"))
+               (file ,(concat duy/org-agenda-directory "templates/weekly_review.org"))))
+
+(add-to-list 'org-agenda-custom-commands
+             `("r" "Reading" todo ""
+               ((org-agenda-files '(,(concat duy/org-agenda-directory "reading.org"))))))
+(setq org-todo-keywords
+      '((sequence "TODO(t)" "NEXT(n)" "|" "DONE(d)")
+        (sequence "WAITING(w@/!)" "HOLD(h@/!)" "|" "CANCELLED(c@/!)")))
+
+(setq org-log-done 'time
+      org-log-into-drawer t
+      org-log-state-notes-insert-after-drawers nil)
+
+(setq org-tag-alist (quote (("@errand" . ?e)
+                            ("@office" . ?o)
+                            ("@home" . ?h)
+                            ("@school" . ?s)
+                            (:newline)
+                            ("WAITING" . ?w)
+                            ("HOLD" . ?H)
+                            ("CANCELLED" . ?c))))
+
+(setq org-fast-tag-selection-single-key nil)
+
+;; https://github.com/syl20bnr/spacemacs/issues/3094
+(setq org-refile-use-outline-path 'file
+      org-outline-path-complete-in-steps nil)
+(setq org-refile-allow-creating-parent-nodes 'confirm)
+(setq org-refile-targets '(("tasks.org" :level . 0)
+                           ("someday.org" :level . 0)
+                           ("projects.org" :maxlevel . 1)))
+
+(setq duy/org-agenda-todo-view
+      `(" " "Agenda"
+        ((agenda ""
+                 ((org-agenda-span 'day)
+                  (org-deadline-warning-days 365)))
+         (todo "TODO"
+               ((org-agenda-overriding-header "To Refile")
+                (org-agenda-files '(,(concat duy/org-agenda-directory "inbox.org")
+                                    ,(concat nw/org-agenda-directory "inbox.org")))))
+         ;; (todo "TODO"
+         ;;       ((org-agenda-overriding-header "Emails")
+         ;;        (org-agenda-files '(,(concat duy/org-agenda-directory "emails.org")))))
+         (todo "NEXT"
+               ((org-agenda-overriding-header "In Progress")
+                (org-agenda-files '(,(concat duy/org-agenda-directory "someday.org")
+                                    ,(concat nw/org-agenda-directory "someday.org")
+                                    ,(concat duy/org-agenda-directory "projects.org")
+                                    ,(concat nw/org-agenda-directory "projects.org")
+                                    ,(concat duy/org-agenda-directory "tasks.org")
+                                    ,(concat nw/org-agenda-directory "tasks.org")))
+                ))
+         (todo "TODO"
+               ((org-agenda-overriding-header "Projects")
+                (org-agenda-files '(,(concat duy/org-agenda-directory "projects.org")
+                                    ,(concat nw/org-agenda-directory "projects.org")))
+                ))
+         (todo "TODO"
+               ((org-agenda-overriding-header "One-off Tasks")
+                (org-agenda-files '(,(concat duy/org-agenda-directory "tasks.org")
+                                    ,(concat nw/org-agenda-directory "tasks.org")))
+                (org-agenda-skip-function '(org-agenda-skip-entry-if 'deadline 'scheduled))))
+         nil)))
+
+(add-to-list 'org-agenda-custom-commands `,duy/org-agenda-todo-view)
+#+end_src
+
 * Markdown
 
 #+begin_src emacs-lisp
@@ -780,7 +989,9 @@ Disable line numbers, line highlight and exit confirmation
   :mode (("README\\.md\\'" . gfm-mode)
          ("\\.md\\'" . markdown-mode)
          ("\\.markdown\\'" . markdown-mode))
-  :init (setq markdown-command "multimarkdown"))
+  :custom
+  (markdown-command "multimarkdown")
+  (markdown-indent-on-enter 'indent-and-new-item))
 
 #+end_src
 

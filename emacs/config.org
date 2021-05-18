@@ -897,25 +897,35 @@ Disable line numbers, line highlight and exit confirmation
 
 ;; Setup org-protocol
 (require 'org-protocol)
+
+(defvar duy/org-capture-directory 
+  (cond ((eq system-type 'gnu/linux) "~/org/work/")
+	((eq system-type 'darwin) "~/org/personal/")
+	(t "~/org/personal/"))
+    "Org folder to use for capture templates")
+
 (require 'org-capture)
 (add-to-list 'org-capture-templates
-             `("i" "inbox" entry (file ,(concat duy/org-agenda-directory "inbox.org"))
+             `("i" "inbox" entry (file ,(concat duy/org-capture-directory "inbox.org"))
                "* TODO %?"))
 (add-to-list 'org-capture-templates
-             `("e" "email" entry (file+headline ,(concat duy/org-agenda-directory "emails.org") "Emails")
-               "* TODO [#A] Reply: %a :@home:@school:"
-               :immediate-finish t))
+             `("j" "journal" entry (file+olp+datetree ,(concat duy/org-capture-directory "journal.org"))
+               "\n* %<%I:%M %p> - Journal :journal:\n\n%?\n\n"
+               :clock-in :clock-resume
+               :empty-lines 1))
 (add-to-list 'org-capture-templates
-             `("c" "org-protocol-capture" entry (file ,(concat duy/org-agenda-directory "inbox.org"))
-               "* TODO [[%:link][%:description]]\n\n %i"
-               :immediate-finish t))
+             `("m" "meeting" entry (file+olp+datetree ,(concat duy/org-capture-directory "meetings.org"))
+               "* %<%I:%M %p> - %a :meetings:\n\n%?\n\n"
+               :clock-in :clock-resume
+               :empty-lines 1))
 (add-to-list 'org-capture-templates
-             `("w" "Weekly Review" entry (file+olp+datetree ,(concat duy/org-agenda-directory "reviews.org"))
-               (file ,(concat duy/org-agenda-directory "templates/weekly_review.org"))))
+             `("w" "Weekly Review" entry (file+olp+datetree ,(concat duy/org-capture-directory "reviews.org"))
+               (file ,(concat duy/org-capture-directory "templates/weekly_review.org"))))
 
 (add-to-list 'org-agenda-custom-commands
              `("r" "Reading" todo ""
-               ((org-agenda-files '(,(concat duy/org-agenda-directory "reading.org"))))))
+               ((org-agenda-files '(,(concat duy/org-capture-directory "reading.org"))))))
+
 (setq org-todo-keywords
       '((sequence "TODO(t)" "NEXT(n)" "|" "DONE(d)")
         (sequence "WAITING(w@/!)" "HOLD(h@/!)" "|" "CANCELLED(c@/!)")))

@@ -893,8 +893,6 @@ Disable line numbers, line highlight and exit confirmation
 (setq org-agenda-files
       (find-lisp-find-files duy/org-agenda-directory "\.org$"))
 
-(setq org-agenda-files "~/org/duy.org")
-
 ;; Setup org-protocol
 (require 'org-protocol)
 

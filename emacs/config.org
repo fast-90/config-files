@@ -1000,6 +1000,15 @@ Install org-super-agenda.
          nil)))
 
 (add-to-list 'org-agenda-custom-commands `,duy/org-agenda-todo-view)
+
+(defun duy/org-agenda-process-inbox-item ()
+  "Process a single item in the org-agenda."
+  (org-with-wide-buffer
+   (org-agenda-set-tags)
+   (org-agenda-priority)
+   (org-agenda-refile nil nil t)))
+
+(define-key org-agenda-mode-map "r" 'duy/org-agenda-process-inbox-item)
 #+end_src
 
 * Markdown

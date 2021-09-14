@@ -1,0 +1,34 @@
+{
+    "MR image": {
+        "prefix": "img",
+        "scope": "markdown",
+        "body": [
+            "![${1:Long caption}](${2:path}){#fig:${3:id} ${4:short-caption=\"${5:Short caption}\"} ${6|width,height|}=${7:100}%}"
+        ],
+        "description": "Image for mrconvert"
+    },
+    "MR finding": {
+        "prefix": "finding",
+        "scope": "markdown",
+        "body": [
+            "::: {.finding name=\"${1:Short name}\" #fin:${2:id}}",
+            "${3:Long description of finding}",
+            ":::"
+        ],
+        "description": "Finding for mrconvert"
+    },
+    "MR reference": {
+        "prefix": "ref",
+        "scope": "markdown",
+        "body": [
+            "[${3:}@${1|fig,sec,fin,tbl,eq|}:${2:id}]"
+        ],
+        "description": "Cross-reference for mrconvert"
+    },
+    "MR label": {
+        "scope": "markdown",
+        "prefix": "label",
+        "body": "{#${1|fig,sec,fin,tbl,eq|}:${2:id}}",
+        "description": "Label for cross-referencing mrconvert"
+    }
+}

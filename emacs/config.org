@@ -1027,6 +1027,22 @@ Install org-super-agenda.
 
 #+end_src
 
+* reStructuredText
+
+#+begin_src emacs-lisp
+(defun duy/rst-nl-indent ()
+  (interactive)
+  (newline)
+  (indent-relative-first-indent-point))
+
+(evil-define-key '(normal insert visual) rst-mode-map (kbd "C-j") 'duy/rst-nl-indent)
+
+(defun duy/rst-mode-hook ()
+  (electric-indent-local-mode -1))
+(add-hook 'rst-mode-hook #'duy/rst-mode-hook)
+
+#+end_src
+
 * Development
 
 ** Language Server Protocol (lsp-mode)
@@ -1184,7 +1200,11 @@ on save for Python mode.
 
 *** Pyright (Python lsp)
 
-Before using lsp-pyright, make sure sure you have installed node.js through your package manager (the npm command should be available in your terminal). Then, install pyright globally by running the following command in your terminal:
+Before using lsp-pyright, make sure sure you have installed node.js through
+your package manager (the npm command should be available in your
+terminal). Check out the nvm package for a node version manager (as pyright
+requires a specific version of node). Then, install pyright globally by running
+the following command in your terminal:
 
 #+begin_src bash
 

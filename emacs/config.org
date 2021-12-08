@@ -136,7 +136,7 @@ Ivy-enhanced version of Isearch.
 #+begin_src emacs-lisp
 (use-package ivy
   :ensure t
-  :diminish
+  :delight
   :bind (("C-s" . swiper)
          :map ivy-minibuffer-map
          ("C-l" . ivy-alt-done)
@@ -151,16 +151,32 @@ Ivy-enhanced version of Isearch.
          ("C-d" . ivy-reverse-i-search-kill))
   :config
   (ivy-mode 1))
+
 (use-package counsel
   :ensure t
   :after ivy
-  :config (counsel-mode))
+  :config (counsel-mode 1))
+
 (use-package swiper
   :ensure t
   :after ivy)
+
+(use-package ivy-xref
+  :ensure t
+  :init
+  ;; xref initialization is different in Emacs 27 - there are two different
+  ;; variables which can be set rather than just one
+  (when (>= emacs-major-version 27)
+    (setq xref-show-definitions-function #'ivy-xref-show-defs))
+  ;; Necessary in Emacs <27. In Emacs 27 it will affect all xref-based
+  ;; commands other than xref-find-definitions (e.g. project-find-regexp)
+  ;; as well
+  (setq xref-show-xrefs-function #'ivy-xref-show-xrefs))
+
 ;; Ivy rich to add description to M-x and other menus
 (use-package ivy-rich
   :ensure t
+  :delight
   :after ivy
   :custom
   (ivy-virtual-abbreviate 'full
@@ -224,6 +240,52 @@ variables.
 (use-package counsel-projectile
   :ensure t
   :after projectile)
+
+(use-package projectile
+  :ensure t
+  :delight projectile-mode
+  :hook
+  (after-init . projectile-mode)
+  :bind-keymap
+  ("C-c p" . projectile-command-map)
+  :init
+  ;; NOTE: Set this to the folder where you keep your Git repos!
+  (when (file-directory-p "~/PythonProjects")
+    (setq projectile-project-search-path '("~/PythonProjects")))
+  (setq projectile-switch-project-action #'projectile-dired)
+  :custom
+  (projectile-completion-system 'ivy)
+  (projectile-dynamic-mode-line nil)
+  (projectile-enable-caching t)
+  (projectile-indexing-method 'hybrid)
+  (projectile-track-known-projects-automatically nil))
+
+(use-package counsel-projectile
+  :config (counsel-projectile-mode))
+#+end_src
+
+** prescient
+
+#+begin_src emacs-lisp
+(use-package ivy-prescient
+  :ensure t
+  :after counsel
+  :init
+  (ivy-prescient-mode)
+  (prescient-persist-mode)
+  )
+(use-package prescient
+  :ensure t
+  :delight
+  :config
+  )
+#+end_src
+
+** Treemacs
+
+#+begin_src emacs-lisp
+(use-package treemacs
+  :ensure t)
 #+end_src
 
 * Other useful packages
@@ -241,10 +303,24 @@ Related commands start with "clm" in the M-x menu
 ** Yasnippet
 
 #+begin_src emacs-lisp
+(use-package yasnippet-snippets
+  :ensure t)
+
 (use-package yasnippet
   :ensure t
-  :init
-  (yas-global-mode 1))
+  :delight yas-minor-mode
+  :config
+    (yas-reload-all)
+)
+#+end_src
+
+** Eldoc
+
+#+begin_src emacs-lisp
+(use-package eldoc
+  :ensure t
+  :delight eldoc-mode
+  )
 #+end_src
 
 * Window management
@@ -367,7 +443,8 @@ Evil nerd commenter for line comment.
 
 #+begin_src emacs-lisp
 (use-package evil-nerd-commenter
-  :ensure t)
+  :ensure t
+  :bind ("M-/" . evilnc-comment-or-uncomment-lines))
 #+end_src
 
 Evil-org adds evil bindings to org-agenda.
@@ -599,6 +676,19 @@ evil-snipe is simulates Vim sneak.
   "o t" '(org-todo :which-key "Todo"))
 #+end_src
 * Shells and terminals
+
+** exec-path-from-shell
+
+Ensures $PATH environment variable in emacs is the same as main shell (zshrc for my macbook).
+
+#+begin_src emacs-lisp
+(use-package exec-path-from-shell
+  :ensure t)
+
+(exec-path-from-shell-initialize)
+
+#+end_src
+
 ** Eshell
 
 #+begin_src emacs-lisp
@@ -1055,25 +1145,35 @@ Install org-super-agenda.
 (use-package lsp-mode
   :ensure t
   :commands (lsp lsp-deferred)
-  :hook (lsp-mode . lsp-mode-setup)
+  :hook 
+  (lsp-mode . lsp-enable-which-key-integration)
+  :custom
+  (lsp-diagnostics-provider :capf)
+  (lsp-headerline-breadcrumb-enable t)
+  (lsp-headerline-breadcrumb-segments '(project file symbols))
+  (lsp-lens-enable nil)
+  (lsp-disabled-clients '((python-mode . pyls)))
   :init
-  (setq lsp-keymap-prefix "C-c l")  ;; Or 'C-l', 's-l'
+  (setq lsp-keymap-prefix "C-c l") ;; Or 'C-l', 's-l'
   :config
-  (lsp-enable-which-key-integration t))
+  )
 
 (use-package lsp-ui
-  :ensure t
   :hook (lsp-mode . lsp-ui-mode)
+  :after lsp-mode
   :custom
-  (lsp-ui-doc-position 'bottom))
+  (lsp-ui-doc-show-with-cursor nil)
+  :config
+  (setq lsp-ui-doc-position 'bottom)
+  )
 
 (use-package lsp-treemacs
   :ensure t
-  :after lsp)
+  :after (lsp-mode treemacs))
 
 (use-package lsp-ivy
   :ensure t
-  :after lsp)
+  :after lsp-mode)
 #+end_src
 
 The following lines are required to tune and improve LSP performance (see also [[https://emacs-lsp.github.io/lsp-mode/page/performance/][here]]):
@@ -1114,19 +1214,32 @@ The following lines are required to tune and improve LSP performance (see also [
 #+begin_src emacs-lisp
 (use-package company
   :ensure t
-  :after lsp-mode
-  :hook (lsp-mode . company-mode)
+  :delight company-mode
   :bind (:map company-active-map
-              ("<tab>" . company-complete-selection))
+              ("<tab>" . nil)
+              ("TAB" . nil)
+              ("M-<tab>" . company-complete-common-or-cycle)
+              ("M-<tab>" . company-complete-selection))
   (:map lsp-mode-map
-        ("<tab>" . company-indent-or-complete-common))
+        ("M-<tab>" . company-indent-or-complete-common))
   :custom
-  (company-minimum-prefix-length 1)
-  (company-idle-delay 0.0))
+  (company-minimum-prefix-length 2)
+  (company-idle-delay 0.01)
+  :config
+  )
 
-(use-package company-box
+(use-package company-prescient
   :ensure t
-  :hook (company-mode . company-box-mode))
+  :after company
+  :config
+  (company-prescient-mode 1)
+  (prescient-persist-mode)
+  )
+
+;; (use-package company-box
+;;   :ensure t
+;;   :hook (company-mode . company-box-mode))
+
 #+end_src
 
 ** Python
@@ -1136,17 +1249,17 @@ The following lines are required to tune and improve LSP performance (see also [
 #+begin_src emacs-lisp
 
 (use-package python-mode
-  :ensure t
   :hook
-  (python-mode . (lambda ()
-		   (lsp-deferred)))
+  ;; (python-mode . pyvenv-mode)
+  (python-mode . flycheck-mode)
+  (python-mode . company-mode)
+  (python-mode . blacken-mode)
+  (python-mode . yas-minor-mode)
   :custom
   ;; NOTE: Set these if Python 3 is called "python3" on your system!
-  ;; (python-shell-interpreter "python3")
-  ;; (dap-python-executable "python3")
-  (dap-python-debugger 'debugpy)
+  (python-shell-interpreter "python3")
   :config
-  (require 'dap-python))
+  )
 
 (use-package conda
   :ensure t
@@ -1185,13 +1298,21 @@ on save for Python mode.
 
 (use-package flycheck
   :ensure t
-  :hook
-  (python-mode . (lambda () (flycheck-add-next-checker 'lsp 'python-flake8)))
-  :config
-  (setq flycheck-python-flake8-executable "flake8")) ; Ensure flake8 is in path
-
+  :delight flycheck-mode
+  :init
+  (setq flycheck-check-syntax-automatically '(save new-line)
+        flycheck-idle-change-delay 5.0
+        flycheck-display-errors-delay 0.9
+        flycheck-highlighting-mode 'symbols
+        flycheck-indication-mode 'left-fringe
+        flycheck-standard-error-navigation t
+        flycheck-deferred-syntax-check nil)
+  )
 (use-package blacken
   :ensure t
+  :init
+  (setq-default blacken-fast-unsafe t)
+  (setq-default blacken-line-length 80)
   :hook
   (python-mode . (lambda () (add-hook 'before-save-hook 'blacken-buffer))))
 
@@ -1216,28 +1337,18 @@ sudo npm update -g pyright
 
 #+begin_src emacs-lisp
 
-(defun restart-lsp-python()
-  "Restart LSP server in Python mode"
-  (when (eq major-mode 'python-mode)
-    (lambda()
-    (lsp-restart-workspace)
-    (lsp))))
+;; (defun restart-lsp-python()
+;;   "Restart LSP server in Python mode"
+;;   (when (eq major-mode 'python-mode)
+;;     (lambda()
+;;     (lsp-restart-workspace)
+;;     (lsp))))
 
 (use-package lsp-pyright
-  :ensure t
-  :hook (python-mode . (lambda ()
-                         (require 'lsp-pyright)
-                         (lsp-deferred)
-			 (flycheck-add-next-checker 'lsp 'python-flake8)))
-  :config
-  (add-hook 'pyvenv-post-activate-hooks (lambda () (lsp-restart-workspace)))
-  (add-hook 'conda-postactivate-hook (lambda () (lsp-restart-workspace)))
-  (add-hook 'conda-postdeactivate-hook (lambda () (lsp-restart-workspace)))) ; or lsp-deferred
-  ;; (add-hook 'pyvenv-post-activate-hooks (lambda () (lsp-restart-workspace)))
-  ;; (add-hook 'conda-postactivate-hook (lambda () (lsp-restart-workspace) (lsp)))
-  ;; (add-hook 'conda-postdeactivate-hook (lambda () (lsp-restart-workspace) (lsp)))) ; or lsp-deferred
-;; (add-hook 'conda-postactivate-hook 'restart-lsp-python) ; or lsp-deferred
-;; (add-hook 'conda-postdeactivate-hook 'restart-lsp-python)) ; or lsp-deferred
+  :hook
+  (python-mode . (lambda ()
+                   (require 'lsp-pyright)
+                   (lsp-deferred))))
 
 #+end_src
 
@@ -1258,6 +1369,24 @@ This is an alternative solution to Pyright. Currently using Pyright on work desk
 #   (add-hook 'conda-postdeactivate-hook (lambda () (lsp-restart-workspace)))) ; or lsp-deferred
 # #+end_src
 
+*** Pyvenv
+
+#+begin_src emacs-lisp
+;; (use-package pyvenv
+;;   :ensure t
+;;   :init
+;;   (setenv "WORKON_HOME" "~/.venvs/")
+;;   :config
+;;   ;; (pyvenv-mode t)
+
+;;   ;; Set correct Python interpreter
+;;   (setq pyvenv-post-activate-hooks
+;;         (list (lambda ()
+;;                 (setq python-shell-interpreter (concat pyvenv-virtual-env "bin/python")))))
+;;   (setq pyvenv-post-deactivate-hooks
+;;         (list (lambda ()
+;;                 (setq python-shell-interpreter "python3")))))
+#+end_src
 * Spell check
 
 Spell checking is done with flyspell and aspell. Aspell needs to be installed

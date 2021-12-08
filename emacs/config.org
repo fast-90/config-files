@@ -1008,7 +1008,7 @@ Install org-super-agenda.
    (org-agenda-priority)
    (org-agenda-refile nil nil t)))
 
-(define-key org-agenda-mode-map "r" 'duy/org-agenda-process-inbox-item)
+(define-key org-agenda-mode-map "r" (lambda() (interactive) (duy/org-agenda-process-inbox-item)))
 #+end_src
 
 * Markdown

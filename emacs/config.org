@@ -599,6 +599,17 @@ evil-snipe is simulates Vim sneak.
   "o t" '(org-todo :which-key "Todo"))
 #+end_src
 * Shells and terminals
+** exec-path-from-shell
+
+Ensures $PATH environment variable in emacs is the same as main shell (zshrc for my macbook).
+
+#+begin_src emacs-lisp
+(use-package exec-path-from-shell
+  :ensure t)
+
+(exec-path-from-shell-initialize)
+
+#+end_src
 ** Eshell
 
 #+begin_src emacs-lisp

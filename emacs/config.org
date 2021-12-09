@@ -1176,6 +1176,18 @@ Install org-super-agenda.
   :after lsp-mode)
 #+end_src
 
+The follow lines fix the TABs (white spaces) in the lsp function descriptions
+(when running lsp-describe-thing-at-point).
+
+#+begin_src emacs-lisp
+
+(defun render-markup-content (kind content)
+    (message kind)
+    (replace-regexp-in-string " " " " content))
+  (setq lsp-render-markdown-markup-content #'render-markup-content)
+
+#+end_src
+
 The following lines are required to tune and improve LSP performance (see also [[https://emacs-lsp.github.io/lsp-mode/page/performance/][here]]):
 
 #+begin_src emacs-lisp

@@ -213,12 +213,31 @@ variables.
 
 * Project management
 
-** TODO Magit
+** Magit
 
 #+begin_src emacs-lisp
 (use-package magit
   :ensure t
   :bind ("C-x g" . magit-status))
+#+end_src
+
+** Smerge
+
+To resolve merge conflicts.
+
+#+begin_src emacs-lisp
+  (defhydra activate-smerge-mode ()
+    "Smerge mode"
+    ("j" smerge-next "next")
+    ("k" smerge-prev "prev")
+    ("u" smerge-keep-upper "keep upper")
+    ("l" smerge-keep-lower "keep lower")
+    ("c" smerge-keep-current "keep current")
+    ("h" smerge-refine "highlight")
+    ("d" smerge-kill-current "delete current")
+    ("a" smerge-keep-all "keep all")
+    ("b" smerge-keep-base "keep base")
+    ("q" nil "quit"))
 #+end_src
 
 ** Projectile
@@ -575,7 +594,8 @@ Keybindings for buffer management.
 #+begin_src emacs-lisp
 (leader-keys
   "g"   '(:ignore t :which-key "Git")
-  "g s" '(magit :which-key "Magit status"))
+  "g s" '(magit :which-key "Magit status")
+  "g m"   '(activate-smerge-mode/body :which-key "Smerge"))
 #+end_src
 *** General text bindings
 #+begin_src emacs-lisp

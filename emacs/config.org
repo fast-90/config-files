@@ -1408,6 +1408,9 @@ This is an alternative solution to Pyright. Currently using Pyright on work desk
 (use-package jupyter
   :ensure t)
 
+(use-package ein
+  :ensure t)
+
 (setq org-babel-default-header-args:jupyter-python '((:async . "yes")
                                                     (:session . "py")
                                                     (:kernel . "python3")))

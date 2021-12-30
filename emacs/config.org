@@ -1127,6 +1127,45 @@ Install org-super-agenda.
 (define-key org-agenda-mode-map "r" (lambda() (interactive) (duy/org-agenda-process-inbox-item)))
 #+end_src
 
+** Org roam
+
+#+begin_src emacs-lisp
+(use-package org-roam
+  :ensure t
+  :init
+  (setq org-roam-v2-ack t)
+  :custom
+  (org-roam-directory "~/org-roam-notes")
+  (org-roam-completion-everywhere t)
+  (org-roam-capture-templates
+   '(("d" "default" plain
+      "%?"
+      :if-new (file+head "%<%Y%m%d%H%M%S>-${slug}.org" "#+title: ${title}\n#+date: %U\n")
+      :unnarrowed t)))
+  (org-roam-dailies-capture-templates
+   '(("d" "default" entry "* %<%I:%M %p>: %?"
+      :if-new (file+head "%<%Y-%m-%d>.org" "#+title: %<%Y-%m-%d>\n"))))
+  :bind (:map org-mode-map
+              ("C-M-i" . completion-at-point)
+	      :map org-roam-dailies-map
+              ("Y" . org-roam-dailies-capture-yesterday)
+              ("T" . org-roam-dailies-capture-tomorrow))
+  :config
+  (require 'org-roam-dailies) ;; Ensure the keymap is available
+  (setq org-roam-node-display-template #("${title:*} ${tags:40}" 11 21
+					 (face org-tag)))
+  (org-roam-db-autosync-mode))
+
+(leader-keys
+  "n"   '(:ignore t :which-key "Roam")
+  "n l" '(org-roam-buffer-toggle :which-key "Buffer toggle")
+  "n f" '(org-roam-node-find :which-key "Find")
+  "n i" '(org-roam-node-insert :which-key "Insert")
+  "n t" '(org-roam-tag-add :which-key "Add tag")
+  "n T" '(org-roam-tag-remove :which-key "Remove tag")
+  "n d" '(org-roam-dailies-map :which-key "Dailies"))
+#+end_src
+
 * Markdown
 
 #+begin_src emacs-lisp

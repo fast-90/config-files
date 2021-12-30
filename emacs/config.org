@@ -46,6 +46,10 @@
 #+begin_src emacs-lisp
 (setq-default fill-column 79)
 #+end_src
+** Set back up folders for emacs files (files with ~)
+#+begin_src emacs-lisp
+(setq backup-directory-alist `(("." . "~/.saves")))
+#+end_src
 
 * Package management
 

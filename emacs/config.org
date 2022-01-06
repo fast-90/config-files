@@ -1014,49 +1014,49 @@ Install org-super-agenda.
   (interactive)
   (org-map-entries 'org-archive-subtree "/DONE" 'file))
 
-(defun duy/org-combine-directories (filename)
-  "Get org files from both personal and work folders"
-  (list (concat duy/org-agenda-directory filename)
-    (concat nw/org-agenda-directory filename)))
+;; (defun duy/org-combine-directories (filename)
+;;   "Get org files from both personal and work folders"
+;;   (list (concat duy/org-agenda-directory filename)
+;;     (concat nw/org-agenda-directory filename)))
 
-(require 'find-lisp)
-(setq duy/org-agenda-directory "~/org/personal/")
-(setq nw/org-agenda-directory "~/org/work/")
+;; (require 'find-lisp)
+;; (setq duy/org-agenda-directory "~/org/personal/")
+;; (setq nw/org-agenda-directory "~/org/work/")
 
-(setq org-agenda-files
-      (append (find-lisp-find-files duy/org-agenda-directory "\.org$")
-      (find-lisp-find-files nw/org-agenda-directory "\.org$")))
+;; (setq org-agenda-files
+;;       (append (find-lisp-find-files duy/org-agenda-directory "\.org$")
+;;       (find-lisp-find-files nw/org-agenda-directory "\.org$")))
 
-;; Setup org-protocol
-(require 'org-protocol)
+;; ;; Setup org-protocol
+;; (require 'org-protocol)
 
-(defvar duy/org-main-directory 
-  (cond ((eq system-type 'gnu/linux) nw/org-agenda-directory)
-	((eq system-type 'darwin) duy/org-agenda-directory)  ;;"~/org/personal/"
-	(t duy/org-agenda-directory))
-    "Main org folder to use for capture templates")
+;; (defvar duy/org-main-directory 
+;;   (cond ((eq system-type 'gnu/linux) nw/org-agenda-directory)
+;; 	((eq system-type 'darwin) duy/org-agenda-directory)  ;;"~/org/personal/"
+;; 	(t duy/org-agenda-directory))
+;;     "Main org folder to use for capture templates")
 
-(require 'org-capture)
-(add-to-list 'org-capture-templates
-             `("i" "inbox" entry (file ,(concat duy/org-main-directory "inbox.org"))
-               "* TODO %?"))
-(add-to-list 'org-capture-templates
-             `("j" "journal" entry (file+olp+datetree ,(concat duy/org-main-directory "journal.org"))
-               "\n* %<%I:%M %p> - Journal :journal:\n\n%?\n\n"
-               :clock-in :clock-resume
-               :empty-lines 1))
-(add-to-list 'org-capture-templates
-             `("m" "meeting" entry (file+olp+datetree ,(concat duy/org-main-directory "meetings.org"))
-               "* %<%I:%M %p> - %a :meetings:\n\n%?\n\n"
-               :clock-in :clock-resume
-               :empty-lines 1))
-(add-to-list 'org-capture-templates
-             `("w" "Weekly Review" entry (file+olp+datetree ,(concat duy/org-main-directory "reviews.org"))
-               (file ,(concat duy/org-main-directory "templates/weekly_review.org"))))
+;; (require 'org-capture)
+;; (add-to-list 'org-capture-templates
+;;              `("i" "inbox" entry (file ,(concat duy/org-main-directory "inbox.org"))
+;;                "* TODO %?"))
+;; (add-to-list 'org-capture-templates
+;;              `("j" "journal" entry (file+olp+datetree ,(concat duy/org-main-directory "journal.org"))
+;;                "\n* %<%I:%M %p> - Journal :journal:\n\n%?\n\n"
+;;                :clock-in :clock-resume
+;;                :empty-lines 1))
+;; (add-to-list 'org-capture-templates
+;;              `("m" "meeting" entry (file+olp+datetree ,(concat duy/org-main-directory "meetings.org"))
+;;                "* %<%I:%M %p> - %a :meetings:\n\n%?\n\n"
+;;                :clock-in :clock-resume
+;;                :empty-lines 1))
+;; (add-to-list 'org-capture-templates
+;;              `("w" "Weekly Review" entry (file+olp+datetree ,(concat duy/org-main-directory "reviews.org"))
+;;                (file ,(concat duy/org-main-directory "templates/weekly_review.org"))))
 
-(add-to-list 'org-agenda-custom-commands
-             `("r" "Reading" todo ""
-               ((org-agenda-files '(,(concat duy/org-main-directory "reading.org"))))))
+;; (add-to-list 'org-agenda-custom-commands
+;;              `("r" "Reading" todo ""
+;;                ((org-agenda-files '(,(concat duy/org-main-directory "reading.org"))))))
 
 (setq org-todo-keywords
       '((sequence "TODO(t)" "NEXT(n)" "|" "DONE(d)")
@@ -1077,51 +1077,51 @@ Install org-super-agenda.
 
 (setq org-fast-tag-selection-single-key nil)
 
-;; https://github.com/syl20bnr/spacemacs/issues/3094
-(setq org-refile-use-outline-path 'file
-      org-outline-path-complete-in-steps nil)
-(setq org-refile-allow-creating-parent-nodes 'confirm)
-(setq org-refile-targets '(("tasks.org" :level . 0)
-                           ("someday.org" :level . 0)
-                           ("projects.org" :maxlevel . 1)))
+;; ;; https://github.com/syl20bnr/spacemacs/issues/3094
+;; (setq org-refile-use-outline-path 'file
+;;       org-outline-path-complete-in-steps nil)
+;; (setq org-refile-allow-creating-parent-nodes 'confirm)
+;; (setq org-refile-targets '(("tasks.org" :level . 0)
+;;                            ("someday.org" :level . 0)
+;;                            ("projects.org" :maxlevel . 1)))
 
-(setq duy/org-agenda-todo-view
-      `(" " "Agenda"
-        ((agenda ""
-                 ((org-agenda-span 'day)
-                  (org-deadline-warning-days 365)))
-         (todo "TODO"
-               ((org-agenda-overriding-header "To Refile")
-                (org-agenda-files '(,(concat duy/org-main-directory "inbox.org")))))
-         ;; (todo "TODO"
-         ;;       ((org-agenda-overriding-header "Emails")
-         ;;        (org-agenda-files '(,(concat duy/org-agenda-directory "emails.org")))))
-         (todo "NEXT"
-               ((org-agenda-overriding-header "In Progress")
-                (org-super-agenda-groups
-                  '((:auto-outline-path t)))
-                (org-agenda-files (append (duy/org-combine-directories "tasks.org")
-                                          (duy/org-combine-directories "projects.org")
-                                          (duy/org-combine-directories "someday.org")))))
-         (todo "TODO"
-               ((org-agenda-overriding-header "Projects")
-                (org-super-agenda-groups
-                  '((:auto-outline-path t)))
-                (org-agenda-files (duy/org-combine-directories "projects.org"))
-                ))
-         (todo "TODO"
-               ((org-agenda-overriding-header "One-off Tasks")
-                (org-agenda-files (duy/org-combine-directories "tasks.org"))
-                (org-agenda-skip-function '(org-agenda-skip-entry-if 'deadline 'scheduled))))
-         nil)))
+;; (setq duy/org-agenda-todo-view
+;;       `(" " "Agenda"
+;;         ((agenda ""
+;;                  ((org-agenda-span 'day)
+;;                   (org-deadline-warning-days 365)))
+;;          (todo "TODO"
+;;                ((org-agenda-overriding-header "To Refile")
+;;                 (org-agenda-files '(,(concat duy/org-main-directory "inbox.org")))))
+;;          ;; (todo "TODO"
+;;          ;;       ((org-agenda-overriding-header "Emails")
+;;          ;;        (org-agenda-files '(,(concat duy/org-agenda-directory "emails.org")))))
+;;          (todo "NEXT"
+;;                ((org-agenda-overriding-header "In Progress")
+;;                 (org-super-agenda-groups
+;;                   '((:auto-outline-path t)))
+;;                 (org-agenda-files (append (duy/org-combine-directories "tasks.org")
+;;                                           (duy/org-combine-directories "projects.org")
+;;                                           (duy/org-combine-directories "someday.org")))))
+;;          (todo "TODO"
+;;                ((org-agenda-overriding-header "Projects")
+;;                 (org-super-agenda-groups
+;;                   '((:auto-outline-path t)))
+;;                 (org-agenda-files (duy/org-combine-directories "projects.org"))
+;;                 ))
+;;          (todo "TODO"
+;;                ((org-agenda-overriding-header "One-off Tasks")
+;;                 (org-agenda-files (duy/org-combine-directories "tasks.org"))
+;;                 (org-agenda-skip-function '(org-agenda-skip-entry-if 'deadline 'scheduled))))
+;;          nil)))
 
-(add-to-list 'org-agenda-custom-commands `,duy/org-agenda-todo-view)
+;; (add-to-list 'org-agenda-custom-commands `,duy/org-agenda-todo-view)
 
 (defun duy/org-agenda-process-inbox-item ()
   "Process a single item in the org-agenda."
   (org-with-wide-buffer
    (org-agenda-set-tags)
-   (org-agenda-priority)
+   ;; (org-agenda-priority)
    (org-agenda-refile nil nil t)))
 
 (define-key org-agenda-mode-map "r" (lambda() (interactive) (duy/org-agenda-process-inbox-item)))
@@ -1190,6 +1190,9 @@ s.el is an emacs string manipulation package.
 #+end_src
 
 *** Dynamic org-agenda
+
+- Update nodes with "project" tag if it has a TODO item.
+- Set agenda files to nodes which have a "project" tag.
 
 #+begin_src emacs-lisp
 (defun vulpea-project-p ()
@@ -1302,6 +1305,27 @@ Refer to `org-agenda-prefix-format' for more information."
       result)))
 #+end_src
 
+*** Inbox capture settings and templates
+
+#+begin_src emacs-lisp
+(setq org-capture-templates
+      '(("t" "Todo" plain (file "~/org-roam-notes/20220101143145-inbox.org")
+         "* TODO %?\n%U\n" :clock-in t :clock-resume t)))
+#+end_src
+
+*** Org refile settings
+
+Refile targets are set to all files in the org-roam-notes folder.
+
+#+begin_src emacs-lisp
+(setq myroamfiles (directory-files org-roam-directory t "org$"))
+
+;; -------- refile settings -----
+(setq org-refile-targets '((org-agenda-files :maxlevel . 5) (myroamfiles :maxlevel . 5)))
+(setq org-refile-use-outline-path 'file)  ;; 'file or nil
+(setq org-outline-path-complete-in-steps nil)
+(setq org-refile-allow-creating-parent-nodes 'confirm)
+#+end_src
 * Markdown
 
 #+begin_src emacs-lisp

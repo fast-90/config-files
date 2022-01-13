@@ -996,140 +996,6 @@ Disable line numbers, line highlight and exit confirmation
 
 #+end_src
 
-** Workflow
-
-Install org-super-agenda.
-
-#+begin_src emacs-lisp
-
-(use-package org-super-agenda
-  :ensure t
-  :config
-  (add-hook 'org-agenda-mode-hook 'org-super-agenda-mode)
-  (setq org-super-agenda-header-map (make-sparse-keymap)))
-
-#+end_src
-
-#+begin_src emacs-lisp
-
-(defun duy/org-archive-done-tasks ()
-  "Archive all done tasks."
-  (interactive)
-  (org-map-entries 'org-archive-subtree "/DONE" 'file))
-
-;; (defun duy/org-combine-directories (filename)
-;;   "Get org files from both personal and work folders"
-;;   (list (concat duy/org-agenda-directory filename)
-;;     (concat nw/org-agenda-directory filename)))
-
-;; (require 'find-lisp)
-;; (setq duy/org-agenda-directory "~/org/personal/")
-;; (setq nw/org-agenda-directory "~/org/work/")
-
-;; (setq org-agenda-files
-;;       (append (find-lisp-find-files duy/org-agenda-directory "\.org$")
-;;       (find-lisp-find-files nw/org-agenda-directory "\.org$")))
-
-;; ;; Setup org-protocol
-;; (require 'org-protocol)
-
-;; (defvar duy/org-main-directory 
-;;   (cond ((eq system-type 'gnu/linux) nw/org-agenda-directory)
-;; 	((eq system-type 'darwin) duy/org-agenda-directory)  ;;"~/org/personal/"
-;; 	(t duy/org-agenda-directory))
-;;     "Main org folder to use for capture templates")
-
-;; (require 'org-capture)
-;; (add-to-list 'org-capture-templates
-;;              `("i" "inbox" entry (file ,(concat duy/org-main-directory "inbox.org"))
-;;                "* TODO %?"))
-;; (add-to-list 'org-capture-templates
-;;              `("j" "journal" entry (file+olp+datetree ,(concat duy/org-main-directory "journal.org"))
-;;                "\n* %<%I:%M %p> - Journal :journal:\n\n%?\n\n"
-;;                :clock-in :clock-resume
-;;                :empty-lines 1))
-;; (add-to-list 'org-capture-templates
-;;              `("m" "meeting" entry (file+olp+datetree ,(concat duy/org-main-directory "meetings.org"))
-;;                "* %<%I:%M %p> - %a :meetings:\n\n%?\n\n"
-;;                :clock-in :clock-resume
-;;                :empty-lines 1))
-;; (add-to-list 'org-capture-templates
-;;              `("w" "Weekly Review" entry (file+olp+datetree ,(concat duy/org-main-directory "reviews.org"))
-;;                (file ,(concat duy/org-main-directory "templates/weekly_review.org"))))
-
-;; (add-to-list 'org-agenda-custom-commands
-;;              `("r" "Reading" todo ""
-;;                ((org-agenda-files '(,(concat duy/org-main-directory "reading.org"))))))
-
-(setq org-todo-keywords
-      '((sequence "TODO(t)" "NEXT(n)" "|" "DONE(d)")
-        (sequence "WAITING(w@/!)" "HOLD(h@/!)" "|" "CANCELLED(c@/!)")))
-
-(setq org-log-done 'time
-      org-log-into-drawer t
-      org-log-state-notes-insert-after-drawers nil)
-
-(setq org-tag-alist (quote (("@errand" . ?e)
-                            ("@office" . ?o)
-                            ("@home" . ?h)
-                            ("@school" . ?s)
-                            (:newline)
-                            ("WAITING" . ?w)
-                            ("HOLD" . ?H)
-                            ("CANCELLED" . ?c))))
-
-(setq org-fast-tag-selection-single-key nil)
-
-;; ;; https://github.com/syl20bnr/spacemacs/issues/3094
-;; (setq org-refile-use-outline-path 'file
-;;       org-outline-path-complete-in-steps nil)
-;; (setq org-refile-allow-creating-parent-nodes 'confirm)
-;; (setq org-refile-targets '(("tasks.org" :level . 0)
-;;                            ("someday.org" :level . 0)
-;;                            ("projects.org" :maxlevel . 1)))
-
-;; (setq duy/org-agenda-todo-view
-;;       `(" " "Agenda"
-;;         ((agenda ""
-;;                  ((org-agenda-span 'day)
-;;                   (org-deadline-warning-days 365)))
-;;          (todo "TODO"
-;;                ((org-agenda-overriding-header "To Refile")
-;;                 (org-agenda-files '(,(concat duy/org-main-directory "inbox.org")))))
-;;          ;; (todo "TODO"
-;;          ;;       ((org-agenda-overriding-header "Emails")
-;;          ;;        (org-agenda-files '(,(concat duy/org-agenda-directory "emails.org")))))
-;;          (todo "NEXT"
-;;                ((org-agenda-overriding-header "In Progress")
-;;                 (org-super-agenda-groups
-;;                   '((:auto-outline-path t)))
-;;                 (org-agenda-files (append (duy/org-combine-directories "tasks.org")
-;;                                           (duy/org-combine-directories "projects.org")
-;;                                           (duy/org-combine-directories "someday.org")))))
-;;          (todo "TODO"
-;;                ((org-agenda-overriding-header "Projects")
-;;                 (org-super-agenda-groups
-;;                   '((:auto-outline-path t)))
-;;                 (org-agenda-files (duy/org-combine-directories "projects.org"))
-;;                 ))
-;;          (todo "TODO"
-;;                ((org-agenda-overriding-header "One-off Tasks")
-;;                 (org-agenda-files (duy/org-combine-directories "tasks.org"))
-;;                 (org-agenda-skip-function '(org-agenda-skip-entry-if 'deadline 'scheduled))))
-;;          nil)))
-
-;; (add-to-list 'org-agenda-custom-commands `,duy/org-agenda-todo-view)
-
-(defun duy/org-agenda-process-inbox-item ()
-  "Process a single item in the org-agenda."
-  (org-with-wide-buffer
-   (org-agenda-set-tags)
-   ;; (org-agenda-priority)
-   (org-agenda-refile nil nil t)))
-
-(define-key org-agenda-mode-map "r" (lambda() (interactive) (duy/org-agenda-process-inbox-item)))
-#+end_src
-
 ** Org roam
 
 #+begin_src emacs-lisp
@@ -1214,24 +1080,24 @@ tasks."
        (org-element-property :todo-type h)))))
 
 (defun vulpea-project-update-tag ()
-    "Update PROJECT tag in the current buffer."
-    (when (and (not (active-minibuffer-window))
-               (vulpea-buffer-p))
-      (save-excursion
-        (goto-char (point-min))
-        (let* ((tags (vulpea-buffer-tags-get))
-               (original-tags tags))
-          (if (vulpea-project-p)
-              (setq tags (cons "project" tags))
-            (setq tags (remove "project" tags)))
+  "Update PROJECT tag in the current buffer."
+  (when (and (not (active-minibuffer-window))
+             (vulpea-buffer-p))
+    (save-excursion
+      (goto-char (point-min))
+      (let* ((tags (vulpea-buffer-tags-get))
+             (original-tags tags))
+        (if (vulpea-project-p)
+            (setq tags (cons "project" tags))
+          (setq tags (remove "project" tags)))
 
-          ;; cleanup duplicates
-          (setq tags (seq-uniq tags))
+        ;; cleanup duplicates
+        (setq tags (seq-uniq tags))
 
-          ;; update tags if changed
-          (when (or (seq-difference tags original-tags)
-                    (seq-difference original-tags tags))
-            (apply #'vulpea-buffer-tags-set tags))))))
+        ;; update tags if changed
+        (when (or (seq-difference tags original-tags)
+                  (seq-difference original-tags tags))
+          (apply #'vulpea-buffer-tags-set tags))))))
 
 (defun vulpea-buffer-p ()
   "Return non-nil if the currently visited buffer is a note."
@@ -1241,16 +1107,16 @@ tasks."
         (file-name-directory buffer-file-name))))
 
 (defun vulpea-project-files ()
-    "Return a list of note files containing 'project' tag." ;
-    (seq-uniq
-     (seq-map
-      #'car
-      (org-roam-db-query
-       [:select [nodes:file]
-        :from tags
-        :left-join nodes
-        :on (= tags:node-id nodes:id)
-        :where (like tag (quote "%\"project\"%"))]))))
+  "Return a list of note files containing 'project' tag." ;
+  (seq-uniq
+   (seq-map
+    #'car
+    (org-roam-db-query
+     [:select [nodes:file]
+              :from tags
+              :left-join nodes
+              :on (= tags:node-id nodes:id)
+              :where (like tag (quote "%\"project\"%"))]))))
 
 (defun vulpea-agenda-files-update (&rest _)
   "Update the value of `org-agenda-files'."
@@ -1269,7 +1135,7 @@ tasks."
       '((agenda . " %i %(vulpea-agenda-category 12)%?-12t% s")
         (todo . " %i %(vulpea-agenda-category 12) ")
         (tags . " %i %(vulpea-agenda-category 12) ")
-        (search . " %i %(vaulpea-agenda-category 12) ")))
+        (search . " %i %(vulpea-agenda-category 12) ")))
 
 (defun vulpea-agenda-category (&optional len)
   "Get category of item at point for agenda.
@@ -1308,12 +1174,128 @@ Refer to `org-agenda-prefix-format' for more information."
       result)))
 #+end_src
 
+*** org-super-agenda
+
+Use org-super-agenda to group TODOs in agenda view.
+
+#+begin_src emacs-lisp
+
+(use-package org-super-agenda
+  :ensure t
+  :config
+  (add-hook 'org-agenda-mode-hook 'org-super-agenda-mode)
+  (setq org-super-agenda-header-map (make-sparse-keymap)))
+
+#+end_src
+
+*** TODOs, tags etc.
+
+Set todo keywords, tags etc.
+
+#+begin_src emacs-lisp
+
+(setq org-todo-keywords
+      '((sequence "TODO(t)" "NEXT(n)" "|" "DONE(d)")
+        (sequence "WAITING(w@/!)" "HOLD(h@/!)" "|" "CANCELLED(c)")))
+
+(setq org-log-done 'time
+      org-log-into-drawer t
+      org-log-state-notes-insert-after-drawers nil)
+
+(setq org-tag-alist (quote (("@errand" . ?e)
+                            ("@office" . ?o)
+                            ("@home" . ?h)
+                            ("@school" . ?s)
+                            (:newline)
+                            ("WAITING" . ?w)
+                            ("HOLD" . ?H)
+                            ("CANCELLED" . ?c))))
+
+(setq org-fast-tag-selection-single-key nil)
+#+end_src
+
+*** Archiving
+
+Function to archive all done task in current org file.
+
+#+begin_src emacs-lisp
+(defun duy/org-archive-done-tasks ()
+  "Archive all done tasks."
+  (interactive)
+  (org-map-entries 'org-archive-subtree "/DONE" 'file))
+#+end_src
+
+*** org-agenda layout
+
+Function to automatically group TODOs by title.
+
+#+begin_src emacs-lisp
+
+(org-super-agenda--def-auto-group title "title of org file"
+  :key-form (org-super-agenda--when-with-marker-buffer (org-super-agenda--get-marker item)
+              (org-roam-db--file-title))
+  :header-form key)
+
+#+end_src
+
+Layout of agenda.
+
+#+begin_src emacs-lisp
+(setq duy/agenda-group-main
+      '(
+	(:discard (:scheduled today))
+	(:name "To refile"
+	       :tag "refile")
+	(:name "Next"
+	       :todo "NEXT")
+	(:discard (:anything t))
+	))
+
+(setq duy/agenda-group-today
+      '(
+	(:name "Today"
+	       :time-grid t
+	       :date today
+	       :scheduled today)
+	))
+
+(setq duy/agenda-group-backlog
+'(
+(:auto-title t) ;; defined with org-super-agenda--def-auto-group
+))
+
+(setq org-agenda-custom-commands
+      `((" " "Agenda"
+	 ((agenda "" ((org-agenda-span 'day)
+		      (org-super-agenda-groups duy/agenda-group-today)))
+	  (todo "" ((org-agenda-overriding-header "Tasks")
+		    (org-super-agenda-groups duy/agenda-group-main)))
+	  ))
+	("b" "Backlog"
+	 ((todo "TODO" ((org-agenda-overriding-header "Backlog")
+		    (org-super-agenda-groups duy/agenda-group-backlog))))
+	 )))
+#+end_src
+
 *** Inbox capture settings and templates
 
 #+begin_src emacs-lisp
 (setq org-capture-templates
-      '(("t" "Todo" plain (file "~/org-roam-notes/20220101143145-inbox.org")
-         "* TODO %?\n%U\n" :clock-in t :clock-resume t)))
+    '(("t" "Todo" plain (file "~/org-roam-notes/20220101143145-inbox.org")
+        "* TODO %?\n%U\n" :clock-in t :clock-resume t)))
+#+end_src
+
+Function to process inbox item.
+
+#+begin_src emacs-lisp
+(defun duy/org-agenda-process-inbox-item ()
+  "Process a single item in the org-agenda."
+  (org-with-wide-buffer
+   (org-agenda-set-tags)
+   ;; (org-agenda-priority)
+   (org-agenda-refile nil nil t)))
+
+(define-key org-agenda-mode-map "r" (lambda() (interactive) (duy/org-agenda-process-inbox-item)))
 #+end_src
 
 *** Org refile settings
@@ -1329,6 +1311,22 @@ Refile targets are set to all files in the org-roam-notes folder.
 (setq org-outline-path-complete-in-steps nil)
 (setq org-refile-allow-creating-parent-nodes 'confirm)
 #+end_src
+
+#+begin_src emacs-lisp
+(defun vulpea-roam-files-update (&rest _)
+  "Update the value of `myroamfiles'."
+  (setq myroamfiles (directory-files org-roam-directory t "org$")))
+
+(advice-add 'org-agenda :before #'vulpea-roam-files-update)
+#+end_src
+
+Some ideas for the future:
+
+- Project nodes have "project" tags, which are added by myself.
+- Nodes have "task" tags based on existence of TODO items.
+- Org agenda items are nodes with a "task" tag.
+- Refile targets are nodes with a "project" or "task" tag.
+
 * Markdown
 
 #+begin_src emacs-lisp

@@ -695,6 +695,8 @@ evil-snipe is simulates Vim sneak.
 
 (leader-keys
   "o"   '(:ignore t :which-key "Org")
+  "a"   '(org-agenda :which-key "Agenda")
+  "c"   '(org-capture :which-key "Capture")
   "o a" '(org-agenda :which-key "Agenda")
   "o c" '(org-capture :which-key "Capture")
   "o t" '(org-todo :which-key "Todo"))
@@ -945,6 +947,7 @@ Disable line numbers, line highlight and exit confirmation
   (org-hide-emphasis-markers nil)
   (org-pretty-entities nil)
   (org-adapt-indentation t)
+  (org-agenda-tags-column 0)
   :init
   (with-eval-after-load 'flycheck
     (flycheck-add-mode 'proselint 'org-mode))

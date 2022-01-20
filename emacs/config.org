@@ -1406,7 +1406,7 @@ Some ideas for the future:
   :custom
   (lsp-diagnostics-provider :capf)
   (lsp-headerline-breadcrumb-enable t)
-  (lsp-headerline-breadcrumb-segments '(project file symbols))
+  (lsp-headerline-breadcrumb-segments '(path-up-to-project file symbols))
   (lsp-lens-enable nil)
   (lsp-disabled-clients '((python-mode . pyls)))
   :init

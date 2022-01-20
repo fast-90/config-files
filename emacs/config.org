@@ -1244,8 +1244,6 @@ Layout of agenda.
 (setq duy/agenda-group-main
       '(
 	(:discard (:scheduled today))
-	(:name "To refile"
-	       :tag "refile")
 	(:name "Next"
 	       :todo "NEXT")
 	(:discard (:anything t))
@@ -1260,9 +1258,17 @@ Layout of agenda.
 	))
 
 (setq duy/agenda-group-backlog
-'(
-(:auto-title t) ;; defined with org-super-agenda--def-auto-group
-))
+      '(
+(:discard (:tag "refile"))
+	(:auto-title t) ;; defined with org-super-agenda--def-auto-group
+	))
+
+(setq duy/agenda-group-inbox
+      '(
+	(:name "To refile"
+	       :tag "refile")
+(:discard (:anything t))
+	))
 
 (setq org-agenda-custom-commands
       `((" " "Agenda"
@@ -1270,10 +1276,14 @@ Layout of agenda.
 		      (org-super-agenda-groups duy/agenda-group-today)))
 	  (todo "" ((org-agenda-overriding-header "Tasks")
 		    (org-super-agenda-groups duy/agenda-group-main)))
+	  (todo "" ((org-agenda-overriding-header "Inbox")
+		    (org-super-agenda-groups duy/agenda-group-inbox)))
+	  (todo "TODO" ((org-agenda-overriding-header "Backlog")
+			(org-super-agenda-groups duy/agenda-group-backlog)))
 	  ))
 	("b" "Backlog"
 	 ((todo "TODO" ((org-agenda-overriding-header "Backlog")
-		    (org-super-agenda-groups duy/agenda-group-backlog))))
+			(org-super-agenda-groups duy/agenda-group-backlog))))
 	 )))
 #+end_src
 
@@ -1282,7 +1292,7 @@ Layout of agenda.
 #+begin_src emacs-lisp
 (setq org-capture-templates
     '(("t" "Todo" plain (file "~/org-roam-notes/20220101143145-inbox.org")
-        "* TODO %?\n%U\n" :clock-in t :clock-resume t)))
+        "* TODO %?\n%U\n" :clock-in nil :clock-resume t)))
 #+end_src
 
 Function to process inbox item.
@@ -1327,6 +1337,26 @@ Some ideas for the future:
 - Org agenda items are nodes with a "task" tag.
 - Refile targets are nodes with a "project" or "task" tag.
 
+** Keybindings
+
+#+begin_src emacs-lisp
+(defun duy/org-agenda-remove-schedule ()
+  (interactive)
+  (let ((current-prefix-arg '(4)))
+    (call-interactively #'org-agenda-schedule)))
+#+end_src
+
+#+begin_src emacs-lisp
+(general-define-key
+ :states '(normal motion override)
+ :keymaps '(org-agenda-mode-map)
+ "c"   '(:ignore t :which-key "Prefix")
+ "c s" '(org-agenda-schedule :which-key "Schedule")
+ "c r" '(hidden-command :which-key t)
+ "c S" '(org-agenda-schedule :which-key "Remove schedule")
+ "c t" '(org-agenda-set-tags :which-key "Tags"))
+#+end_src
+
 * Markdown
 
 #+begin_src emacs-lisp
@@ -1364,9 +1394,9 @@ Some ideas for the future:
 ** Language Server Protocol (lsp-mode)
 
 #+begin_src emacs-lisp
-(defun lsp-mode-setup ()
-  (setq lsp-headerline-breadcrumb-segments '(path-up-to-project file symbols))
-  (lsp-headerline-breadcrumb-mode))
+;; (defun lsp-mode-setup ()
+;;   (setq lsp-headerline-breadcrumb-segments '(path-up-to-project file symbols))
+;;   (lsp-headerline-breadcrumb-mode))
 
 (use-package lsp-mode
   :ensure t

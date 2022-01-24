@@ -1251,6 +1251,8 @@ Layout of agenda.
 	(:discard (:scheduled today))
 	(:name "Next"
 	       :todo "NEXT")
+	(:name "Focus"
+	       :tag "focus")
 	(:discard (:anything t))
 	))
 

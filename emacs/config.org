@@ -762,6 +762,8 @@ Ensures $PATH environment variable in emacs is the same as main shell (zshrc for
 
 See also [[http://www.modernemacs.com/post/custom-eshell/][here]].
 
+An alternative can be found [[https://marcohassan.github.io/bits-of-experience/pages/emacs/][here]]. I used this at NatWest (WSL emacs setup) as the icons did not show up correctly.
+
 **** Macros and functions
 
 Define a macro esh-section taking a name, an icon, a form or variable to be

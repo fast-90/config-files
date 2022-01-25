@@ -1682,10 +1682,10 @@ This is an alternative solution to Pyright. Currently using Pyright on work desk
 "c" '(ein:worksheet-execute-cell-km :which-key "Run cell")
 "r" '(ein:worksheet-execute-all-cells :which-key "Run all cells")
 "C" '(ein:worksheet-execute-cell-and-insert-below-km :which-key "Run and insert cell")
-"a" '(ein:worksheet-cell-above-km :which-key "Insert cell above")
-"b" '(ein:worksheet-cell-below-km :which-key "Insert cell below")
+"a" '(ein:worksheet-insert-cell-above-km :which-key "Insert cell above")
+"b" '(ein:worksheet-insert-cell-below-km :which-key "Insert cell below")
 "d" '(ein:worksheet-kill-cell-km :which-key "Delete cell")
-"s" '(ein:worksheet-notebook-save-notebook-command-km :which-key "Save notebook")
+"s" '(ein:notebook-save-notebook-command-km :which-key "Save notebook")
 )
 
 (setq org-babel-default-header-args:jupyter-python '((:async . "yes")

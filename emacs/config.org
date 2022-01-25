@@ -1,4 +1,4 @@
-* General UI settings
+* General UI settings 
 
 ** Do not show startup screen
 
@@ -45,6 +45,10 @@
 ** Set default fill-column
 #+begin_src emacs-lisp
 (setq-default fill-column 79)
+#+end_src
+** Set back up folders for emacs files (files with ~)
+#+begin_src emacs-lisp
+(setq backup-directory-alist `(("." . "~/.saves")))
 #+end_src
 
 * Package management
@@ -136,7 +140,7 @@ Ivy-enhanced version of Isearch.
 #+begin_src emacs-lisp
 (use-package ivy
   :ensure t
-  :diminish
+  :delight
   :bind (("C-s" . swiper)
          :map ivy-minibuffer-map
          ("C-l" . ivy-alt-done)
@@ -151,16 +155,32 @@ Ivy-enhanced version of Isearch.
          ("C-d" . ivy-reverse-i-search-kill))
   :config
   (ivy-mode 1))
+
 (use-package counsel
   :ensure t
   :after ivy
-  :config (counsel-mode))
+  :config (counsel-mode 1))
+
 (use-package swiper
   :ensure t
   :after ivy)
+
+(use-package ivy-xref
+  :ensure t
+  :init
+  ;; xref initialization is different in Emacs 27 - there are two different
+  ;; variables which can be set rather than just one
+  (when (>= emacs-major-version 27)
+    (setq xref-show-definitions-function #'ivy-xref-show-defs))
+  ;; Necessary in Emacs <27. In Emacs 27 it will affect all xref-based
+  ;; commands other than xref-find-definitions (e.g. project-find-regexp)
+  ;; as well
+  (setq xref-show-xrefs-function #'ivy-xref-show-xrefs))
+
 ;; Ivy rich to add description to M-x and other menus
 (use-package ivy-rich
   :ensure t
+  :delight
   :after ivy
   :custom
   (ivy-virtual-abbreviate 'full
@@ -197,12 +217,31 @@ variables.
 
 * Project management
 
-** TODO Magit
+** Magit
 
 #+begin_src emacs-lisp
 (use-package magit
   :ensure t
   :bind ("C-x g" . magit-status))
+#+end_src
+
+** Smerge
+
+To resolve merge conflicts.
+
+#+begin_src emacs-lisp
+  (defhydra activate-smerge-mode ()
+    "Smerge mode"
+    ("j" smerge-next "next")
+    ("k" smerge-prev "prev")
+    ("u" smerge-keep-upper "keep upper")
+    ("l" smerge-keep-lower "keep lower")
+    ("c" smerge-keep-current "keep current")
+    ("h" smerge-refine "highlight")
+    ("d" smerge-kill-current "delete current")
+    ("a" smerge-keep-all "keep all")
+    ("b" smerge-keep-base "keep base")
+    ("q" nil "quit"))
 #+end_src
 
 ** Projectile
@@ -224,6 +263,52 @@ variables.
 (use-package counsel-projectile
   :ensure t
   :after projectile)
+
+(use-package projectile
+  :ensure t
+  :delight projectile-mode
+  :hook
+  (after-init . projectile-mode)
+  :bind-keymap
+  ("C-c p" . projectile-command-map)
+  :init
+  ;; NOTE: Set this to the folder where you keep your Git repos!
+  (when (file-directory-p "~/PythonProjects")
+    (setq projectile-project-search-path '("~/PythonProjects")))
+  (setq projectile-switch-project-action #'projectile-dired)
+  :custom
+  (projectile-completion-system 'ivy)
+  (projectile-dynamic-mode-line nil)
+  (projectile-enable-caching t)
+  (projectile-indexing-method 'hybrid)
+  (projectile-track-known-projects-automatically nil))
+
+(use-package counsel-projectile
+  :config (counsel-projectile-mode))
+#+end_src
+
+** prescient
+
+#+begin_src emacs-lisp
+(use-package ivy-prescient
+  :ensure t
+  :after counsel
+  :init
+  (ivy-prescient-mode)
+  (prescient-persist-mode)
+  )
+(use-package prescient
+  :ensure t
+  :delight
+  :config
+  )
+#+end_src
+
+** Treemacs
+
+#+begin_src emacs-lisp
+(use-package treemacs
+  :ensure t)
 #+end_src
 
 * Other useful packages
@@ -241,10 +326,24 @@ Related commands start with "clm" in the M-x menu
 ** Yasnippet
 
 #+begin_src emacs-lisp
+(use-package yasnippet-snippets
+  :ensure t)
+
 (use-package yasnippet
   :ensure t
-  :init
-  (yas-global-mode 1))
+  :delight yas-minor-mode
+  :config
+    (yas-reload-all)
+)
+#+end_src
+
+** Eldoc
+
+#+begin_src emacs-lisp
+(use-package eldoc
+  :ensure t
+  :delight eldoc-mode
+  )
 #+end_src
 
 * Window management
@@ -367,7 +466,8 @@ Evil nerd commenter for line comment.
 
 #+begin_src emacs-lisp
 (use-package evil-nerd-commenter
-  :ensure t)
+  :ensure t
+  :bind ("M-/" . evilnc-comment-or-uncomment-lines))
 #+end_src
 
 Evil-org adds evil bindings to org-agenda.
@@ -416,7 +516,12 @@ function (similar to Spacemacs/Doom/VSpaceCode).
   (general-create-definer leader-keys
     :states '(normal visual emacs motion) ; consider adding motion for using with easymotion
     :keymaps 'override 
-    :prefix "SPC"))
+    :prefix "SPC")
+  (general-create-definer local-leader-keys
+    :states '(normal visual emacs motion) ; consider adding motion for using with easymotion
+    :keymaps 'override 
+    :prefix "SPC m")
+)
 #+end_src
 
 *** Buffer management
@@ -498,7 +603,8 @@ Keybindings for buffer management.
 #+begin_src emacs-lisp
 (leader-keys
   "g"   '(:ignore t :which-key "Git")
-  "g s" '(magit :which-key "Magit status"))
+  "g s" '(magit :which-key "Magit status")
+  "g m"   '(activate-smerge-mode/body :which-key "Smerge"))
 #+end_src
 *** General text bindings
 #+begin_src emacs-lisp
@@ -594,11 +700,14 @@ evil-snipe is simulates Vim sneak.
 
 (leader-keys
   "o"   '(:ignore t :which-key "Org")
+  "a"   '(org-agenda :which-key "Agenda")
+  "c"   '(org-capture :which-key "Capture")
   "o a" '(org-agenda :which-key "Agenda")
   "o c" '(org-capture :which-key "Capture")
   "o t" '(org-todo :which-key "Todo"))
 #+end_src
 * Shells and terminals
+
 ** exec-path-from-shell
 
 Ensures $PATH environment variable in emacs is the same as main shell (zshrc for my macbook).
@@ -610,6 +719,7 @@ Ensures $PATH environment variable in emacs is the same as main shell (zshrc for
 (exec-path-from-shell-initialize)
 
 #+end_src
+
 ** Eshell
 
 #+begin_src emacs-lisp
@@ -651,6 +761,8 @@ Ensures $PATH environment variable in emacs is the same as main shell (zshrc for
 *** Custom prompt
 
 See also [[http://www.modernemacs.com/post/custom-eshell/][here]].
+
+An alternative can be found [[https://marcohassan.github.io/bits-of-experience/pages/emacs/][here]]. I used this at NatWest (WSL emacs setup) as the icons did not show up correctly.
 
 **** Macros and functions
 
@@ -804,6 +916,7 @@ Disable line numbers, line highlight and exit confirmation
    '((emacs-lisp . t)
      (python . t)
      (dot . t)
+     (jupyter .t)
      (R . t)))
   (org-confirm-babel-evaluate nil)
   (org-use-speed-commands t)
@@ -829,6 +942,7 @@ Disable line numbers, line highlight and exit confirmation
                                   ("E" . "export")
                                   ("l" . "export latex")
                                   ("py" . "src python")
+                                  ("ju" . "src jupyter-python")
                                   ("q" . "quote")
                                   ("s" . "src")
                                   ("v" . "verse")
@@ -840,6 +954,7 @@ Disable line numbers, line highlight and exit confirmation
   (org-hide-emphasis-markers nil)
   (org-pretty-entities nil)
   (org-adapt-indentation t)
+  (org-agenda-tags-column 0)
   :init
   (with-eval-after-load 'flycheck
     (flycheck-add-mode 'proselint 'org-mode))
@@ -888,9 +1003,187 @@ Disable line numbers, line highlight and exit confirmation
 
 #+end_src
 
-** Workflow
+** Org roam
 
-Install org-super-agenda.
+#+begin_src emacs-lisp
+(use-package org-roam
+  :ensure t
+  :init
+  (setq org-roam-v2-ack t)
+  :custom
+  (org-roam-directory "~/org-roam-notes")
+  (org-roam-completion-everywhere t)
+  (org-roam-capture-templates
+   '(("d" "default" plain
+      "%?"
+      :if-new (file+head "%<%Y%m%d%H%M%S>-${slug}.org" "#+title: ${title}\n#+date: %U\n")
+      :unnarrowed t)))
+  (org-roam-dailies-capture-templates
+   '(("d" "default" entry "* %<%I:%M %p>: %?"
+      :if-new (file+head "%<%Y-%m-%d>.org" "#+title: %<%Y-%m-%d>\n"))))
+  :bind (:map org-mode-map
+              ("C-M-i" . completion-at-point)
+	      :map org-roam-dailies-map
+              ("Y" . org-roam-dailies-capture-yesterday)
+              ("T" . org-roam-dailies-capture-tomorrow))
+  :config
+  (require 'org-roam-dailies) ;; Ensure the keymap is available
+  (setq org-roam-node-display-template #("${title:*} ${tags:40}" 11 21
+					 (face org-tag)))
+  (org-roam-db-autosync-mode))
+
+(leader-keys
+  "n"   '(:ignore t :which-key "Roam")
+  "n l" '(org-roam-buffer-toggle :which-key "Buffer toggle")
+  "n f" '(org-roam-node-find :which-key "Find")
+  "n i" '(org-roam-node-insert :which-key "Insert")
+  "n t" '(org-roam-tag-add :which-key "Add tag")
+  "n T" '(org-roam-tag-remove :which-key "Remove tag")
+  "n d" '(org-roam-dailies-map :which-key "Dailies"))
+#+end_src
+
+** Org roam agenda setup
+
+This setup primarily follows the setup from d12frosted's [[https://d12frosted.io/posts/2020-06-23-task-management-with-roam-vol1.html][blog]].
+
+*** Vulpea
+
+Vulpea is a package written by d12frosted with additional functions for org and
+org-roam. See also [[https://github.com/d12frosted/vulpea][here]].
+
+#+begin_src emacs-lisp
+(use-package vulpea
+  :ensure t)
+#+end_src
+
+*** s.el
+
+s.el is an emacs string manipulation package.
+
+#+begin_src emacs-lisp
+(use-package s
+  :ensure t)
+#+end_src
+
+*** Dynamic org-agenda
+
+- Update nodes with "project" tag if it has a TODO item.
+- Set agenda files to nodes which have a "project" tag.
+
+#+begin_src emacs-lisp
+(defun vulpea-project-p ()
+  "Return non-nil if current buffer has any todo entry.
+
+TODO entries marked as done are ignored, meaning the this
+function returns nil if current buffer contains only completed
+tasks."
+  (seq-find                                 ; (3)
+   (lambda (type)
+     (eq type 'todo))
+   (org-element-map                         ; (2)
+       (org-element-parse-buffer 'headline) ; (1)
+       'headline
+     (lambda (h)
+       (org-element-property :todo-type h)))))
+
+(defun vulpea-project-update-tag ()
+  "Update PROJECT tag in the current buffer."
+  (when (and (not (active-minibuffer-window))
+             (vulpea-buffer-p))
+    (save-excursion
+      (goto-char (point-min))
+      (let* ((tags (vulpea-buffer-tags-get))
+             (original-tags tags))
+        (if (vulpea-project-p)
+            (setq tags (cons "project" tags))
+          (setq tags (remove "project" tags)))
+
+        ;; cleanup duplicates
+        (setq tags (seq-uniq tags))
+
+        ;; update tags if changed
+        (when (or (seq-difference tags original-tags)
+                  (seq-difference original-tags tags))
+          (apply #'vulpea-buffer-tags-set tags))))))
+
+(defun vulpea-buffer-p ()
+  "Return non-nil if the currently visited buffer is a note."
+  (and buffer-file-name
+       (string-prefix-p
+        (expand-file-name (file-name-as-directory org-roam-directory))
+        (file-name-directory buffer-file-name))))
+
+(defun vulpea-project-files ()
+  "Return a list of note files containing 'project' tag." ;
+  (seq-uniq
+   (seq-map
+    #'car
+    (org-roam-db-query
+     [:select [nodes:file]
+              :from tags
+              :left-join nodes
+              :on (= tags:node-id nodes:id)
+              :where (like tag (quote "%\"project\"%"))]))))
+
+(defun vulpea-agenda-files-update (&rest _)
+  "Update the value of `org-agenda-files'."
+  (setq org-agenda-files (vulpea-project-files)))
+
+(add-hook 'find-file-hook #'vulpea-project-update-tag)
+(add-hook 'before-save-hook #'vulpea-project-update-tag)
+
+(advice-add 'org-agenda :before #'vulpea-agenda-files-update)
+#+end_src
+
+*** Fix title org-roam file in todo list
+
+#+begin_src emacs-lisp
+(setq org-agenda-prefix-format
+      '((agenda . " %i %(vulpea-agenda-category 12)%?-12t% s")
+        (todo . " %i %(vulpea-agenda-category 12) ")
+        (tags . " %i %(vulpea-agenda-category 12) ")
+        (search . " %i %(vulpea-agenda-category 12) ")))
+
+(defun vulpea-agenda-category (&optional len)
+  "Get category of item at point for agenda.
+
+Category is defined by one of the following items:
+
+- CATEGORY property
+- TITLE keyword
+- TITLE property
+- filename without directory and extension
+
+When LEN is a number, resulting string is padded right with
+spaces and then truncated with ... on the right if result is
+longer than LEN.
+
+Usage example:
+
+  (setq org-agenda-prefix-format
+        '((agenda . \" %(vulpea-agenda-category) %?-12t %12s\")))
+
+Refer to `org-agenda-prefix-format' for more information."
+  (let* ((file-name (when buffer-file-name
+                      (file-name-sans-extension
+                       (file-name-nondirectory buffer-file-name))))
+         (title (vulpea-buffer-prop-get "title"))
+         (category (org-get-category))
+         (result
+          (or (if (and
+                   title
+                   (string-equal category file-name))
+                  title
+                category)
+              "")))
+    (if (numberp len)
+        (s-truncate len (s-pad-right len " " result))
+      result)))
+#+end_src
+
+*** org-super-agenda
+
+Use org-super-agenda to group TODOs in agenda view.
 
 #+begin_src emacs-lisp
 
@@ -902,60 +1195,15 @@ Install org-super-agenda.
 
 #+end_src
 
+*** TODOs, tags etc.
+
+Set todo keywords, tags etc.
+
 #+begin_src emacs-lisp
-
-(defun duy/org-archive-done-tasks ()
-  "Archive all done tasks."
-  (interactive)
-  (org-map-entries 'org-archive-subtree "/DONE" 'file))
-
-(defun duy/org-combine-directories (filename)
-  "Get org files from both personal and work folders"
-  (list (concat duy/org-agenda-directory filename)
-    (concat nw/org-agenda-directory filename)))
-
-(require 'find-lisp)
-(setq duy/org-agenda-directory "~/org/personal/")
-(setq nw/org-agenda-directory "~/org/work/")
-
-(setq org-agenda-files
-      (append (find-lisp-find-files duy/org-agenda-directory "\.org$")
-      (find-lisp-find-files nw/org-agenda-directory "\.org$")))
-
-;; Setup org-protocol
-(require 'org-protocol)
-
-(defvar duy/org-main-directory 
-  (cond ((eq system-type 'gnu/linux) nw/org-agenda-directory)
-	((eq system-type 'darwin) duy/org-agenda-directory)  ;;"~/org/personal/"
-	(t duy/org-agenda-directory))
-    "Main org folder to use for capture templates")
-
-(require 'org-capture)
-(add-to-list 'org-capture-templates
-             `("i" "inbox" entry (file ,(concat duy/org-main-directory "inbox.org"))
-               "* TODO %?"))
-(add-to-list 'org-capture-templates
-             `("j" "journal" entry (file+olp+datetree ,(concat duy/org-main-directory "journal.org"))
-               "\n* %<%I:%M %p> - Journal :journal:\n\n%?\n\n"
-               :clock-in :clock-resume
-               :empty-lines 1))
-(add-to-list 'org-capture-templates
-             `("m" "meeting" entry (file+olp+datetree ,(concat duy/org-main-directory "meetings.org"))
-               "* %<%I:%M %p> - %a :meetings:\n\n%?\n\n"
-               :clock-in :clock-resume
-               :empty-lines 1))
-(add-to-list 'org-capture-templates
-             `("w" "Weekly Review" entry (file+olp+datetree ,(concat duy/org-main-directory "reviews.org"))
-               (file ,(concat duy/org-main-directory "templates/weekly_review.org"))))
-
-(add-to-list 'org-agenda-custom-commands
-             `("r" "Reading" todo ""
-               ((org-agenda-files '(,(concat duy/org-main-directory "reading.org"))))))
 
 (setq org-todo-keywords
       '((sequence "TODO(t)" "NEXT(n)" "|" "DONE(d)")
-        (sequence "WAITING(w@/!)" "HOLD(h@/!)" "|" "CANCELLED(c@/!)")))
+        (sequence "WAITING(w@/!)" "HOLD(h@/!)" "|" "CANCELLED(c)")))
 
 (setq org-log-done 'time
       org-log-into-drawer t
@@ -971,55 +1219,151 @@ Install org-super-agenda.
                             ("CANCELLED" . ?c))))
 
 (setq org-fast-tag-selection-single-key nil)
+#+end_src
 
-;; https://github.com/syl20bnr/spacemacs/issues/3094
-(setq org-refile-use-outline-path 'file
-      org-outline-path-complete-in-steps nil)
-(setq org-refile-allow-creating-parent-nodes 'confirm)
-(setq org-refile-targets '(("tasks.org" :level . 0)
-                           ("someday.org" :level . 0)
-                           ("projects.org" :maxlevel . 1)))
+*** Archiving
 
-(setq duy/org-agenda-todo-view
-      `(" " "Agenda"
-        ((agenda ""
-                 ((org-agenda-span 'day)
-                  (org-deadline-warning-days 365)))
-         (todo "TODO"
-               ((org-agenda-overriding-header "To Refile")
-                (org-agenda-files '(,(concat duy/org-main-directory "inbox.org")))))
-         ;; (todo "TODO"
-         ;;       ((org-agenda-overriding-header "Emails")
-         ;;        (org-agenda-files '(,(concat duy/org-agenda-directory "emails.org")))))
-         (todo "NEXT"
-               ((org-agenda-overriding-header "In Progress")
-                (org-super-agenda-groups
-                  '((:auto-outline-path t)))
-                (org-agenda-files (append (duy/org-combine-directories "tasks.org")
-                                          (duy/org-combine-directories "projects.org")
-                                          (duy/org-combine-directories "someday.org")))))
-         (todo "TODO"
-               ((org-agenda-overriding-header "Projects")
-                (org-super-agenda-groups
-                  '((:auto-outline-path t)))
-                (org-agenda-files (duy/org-combine-directories "projects.org"))
-                ))
-         (todo "TODO"
-               ((org-agenda-overriding-header "One-off Tasks")
-                (org-agenda-files (duy/org-combine-directories "tasks.org"))
-                (org-agenda-skip-function '(org-agenda-skip-entry-if 'deadline 'scheduled))))
-         nil)))
+Function to archive all done task in current org file.
 
-(add-to-list 'org-agenda-custom-commands `,duy/org-agenda-todo-view)
+#+begin_src emacs-lisp
+(defun duy/org-archive-done-tasks ()
+  "Archive all done tasks."
+  (interactive)
+  (org-map-entries 'org-archive-subtree "/DONE" 'file))
+#+end_src
 
+*** org-agenda layout
+
+Function to automatically group TODOs by title.
+
+#+begin_src emacs-lisp
+
+(org-super-agenda--def-auto-group title "title of org file"
+  :key-form (org-super-agenda--when-with-marker-buffer (org-super-agenda--get-marker item)
+              (org-roam-db--file-title))
+  :header-form key)
+
+#+end_src
+
+Layout of agenda.
+
+#+begin_src emacs-lisp
+(setq duy/agenda-group-main
+      '(
+	(:discard (:scheduled today))
+	(:name "Next"
+	       :todo "NEXT")
+	(:name "Focus"
+	       :tag "focus")
+	(:discard (:anything t))
+	))
+
+(setq duy/agenda-group-today
+      '(
+	(:name "Today"
+	       :time-grid t
+	       :date today
+	       :scheduled today)
+	))
+
+(setq duy/agenda-group-backlog
+      '(
+(:discard (:tag "refile"))
+	(:auto-title t) ;; defined with org-super-agenda--def-auto-group
+	))
+
+(setq duy/agenda-group-inbox
+      '(
+	(:name "To refile"
+	       :tag "refile")
+(:discard (:anything t))
+	))
+
+(setq org-agenda-custom-commands
+      `((" " "Agenda"
+	 ((agenda "" ((org-agenda-span 'day)
+		      (org-super-agenda-groups duy/agenda-group-today)))
+	  (todo "" ((org-agenda-overriding-header "Tasks")
+		    (org-super-agenda-groups duy/agenda-group-main)))
+	  (todo "" ((org-agenda-overriding-header "Inbox")
+		    (org-super-agenda-groups duy/agenda-group-inbox)))
+	  (todo "TODO" ((org-agenda-overriding-header "Backlog")
+			(org-super-agenda-groups duy/agenda-group-backlog)))
+	  ))
+	("b" "Backlog"
+	 ((todo "TODO" ((org-agenda-overriding-header "Backlog")
+			(org-super-agenda-groups duy/agenda-group-backlog))))
+	 )))
+#+end_src
+
+*** Inbox capture settings and templates
+
+#+begin_src emacs-lisp
+(setq org-capture-templates
+    '(("t" "Todo" plain (file "~/org-roam-notes/20220101143145-inbox.org")
+        "* TODO %?\n%U\n" :clock-in nil :clock-resume t)))
+#+end_src
+
+Function to process inbox item.
+
+#+begin_src emacs-lisp
 (defun duy/org-agenda-process-inbox-item ()
   "Process a single item in the org-agenda."
   (org-with-wide-buffer
    (org-agenda-set-tags)
-   (org-agenda-priority)
+   ;; (org-agenda-priority)
    (org-agenda-refile nil nil t)))
 
 (define-key org-agenda-mode-map "r" (lambda() (interactive) (duy/org-agenda-process-inbox-item)))
+#+end_src
+
+*** Org refile settings
+
+Refile targets are set to all files in the org-roam-notes folder.
+
+#+begin_src emacs-lisp
+(setq myroamfiles (directory-files org-roam-directory t "org$"))
+
+;; -------- refile settings -----
+(setq org-refile-targets '((org-agenda-files :maxlevel . 5) (myroamfiles :maxlevel . 5)))
+(setq org-refile-use-outline-path 'file)  ;; 'file or nil
+(setq org-outline-path-complete-in-steps nil)
+(setq org-refile-allow-creating-parent-nodes 'confirm)
+#+end_src
+
+#+begin_src emacs-lisp
+(defun vulpea-roam-files-update (&rest _)
+  "Update the value of `myroamfiles'."
+  (setq myroamfiles (directory-files org-roam-directory t "org$")))
+
+(advice-add 'org-agenda :before #'vulpea-roam-files-update)
+#+end_src
+
+Some ideas for the future:
+
+- Project nodes have "project" tags, which are added by myself.
+- Nodes have "task" tags based on existence of TODO items.
+- Org agenda items are nodes with a "task" tag.
+- Refile targets are nodes with a "project" or "task" tag.
+
+** Keybindings
+
+#+begin_src emacs-lisp
+(defun duy/org-agenda-remove-schedule ()
+  (interactive)
+  (let ((current-prefix-arg '(4)))
+    (call-interactively #'org-agenda-schedule)))
+#+end_src
+
+#+begin_src emacs-lisp
+(general-define-key
+ :states '(normal motion override)
+ :keymaps '(org-agenda-mode-map)
+ "c"   '(:ignore t :which-key "Prefix")
+ "c s" '(org-agenda-schedule :which-key "Schedule")
+ "c r" '(hidden-command :which-key t)
+ "c S" '(org-agenda-schedule :which-key "Remove schedule")
+ "c t" '(org-agenda-set-tags :which-key "Tags"))
 #+end_src
 
 * Markdown
@@ -1059,32 +1403,54 @@ Install org-super-agenda.
 ** Language Server Protocol (lsp-mode)
 
 #+begin_src emacs-lisp
-(defun lsp-mode-setup ()
-  (setq lsp-headerline-breadcrumb-segments '(path-up-to-project file symbols))
-  (lsp-headerline-breadcrumb-mode))
+;; (defun lsp-mode-setup ()
+;;   (setq lsp-headerline-breadcrumb-segments '(path-up-to-project file symbols))
+;;   (lsp-headerline-breadcrumb-mode))
 
 (use-package lsp-mode
   :ensure t
   :commands (lsp lsp-deferred)
-  :hook (lsp-mode . lsp-mode-setup)
+  :hook 
+  (lsp-mode . lsp-enable-which-key-integration)
+  :custom
+  (lsp-diagnostics-provider :capf)
+  (lsp-headerline-breadcrumb-enable t)
+  (lsp-headerline-breadcrumb-segments '(path-up-to-project file symbols))
+  (lsp-lens-enable nil)
+  (lsp-disabled-clients '((python-mode . pyls)))
   :init
-  (setq lsp-keymap-prefix "C-c l")  ;; Or 'C-l', 's-l'
+  (setq lsp-keymap-prefix "C-c l") ;; Or 'C-l', 's-l'
   :config
-  (lsp-enable-which-key-integration t))
+  )
 
 (use-package lsp-ui
-  :ensure t
   :hook (lsp-mode . lsp-ui-mode)
+  :after lsp-mode
   :custom
-  (lsp-ui-doc-position 'bottom))
+  (lsp-ui-doc-show-with-cursor nil)
+  :config
+  (setq lsp-ui-doc-position 'bottom)
+  )
 
 (use-package lsp-treemacs
   :ensure t
-  :after lsp)
+  :after (lsp-mode treemacs))
 
 (use-package lsp-ivy
   :ensure t
-  :after lsp)
+  :after lsp-mode)
+#+end_src
+
+The follow lines fix the TABs (white spaces) in the lsp function descriptions
+(when running lsp-describe-thing-at-point).
+
+#+begin_src emacs-lisp
+
+(defun render-markup-content (kind content)
+    (message kind)
+    (replace-regexp-in-string " " " " content))
+  (setq lsp-render-markdown-markup-content #'render-markup-content)
+
 #+end_src
 
 The following lines are required to tune and improve LSP performance (see also [[https://emacs-lsp.github.io/lsp-mode/page/performance/][here]]):
@@ -1125,19 +1491,32 @@ The following lines are required to tune and improve LSP performance (see also [
 #+begin_src emacs-lisp
 (use-package company
   :ensure t
-  :after lsp-mode
-  :hook (lsp-mode . company-mode)
+  :delight company-mode
   :bind (:map company-active-map
-              ("<tab>" . company-complete-selection))
+              ("<tab>" . nil)
+              ("TAB" . nil)
+              ("M-<tab>" . company-complete-common-or-cycle)
+              ("M-<tab>" . company-complete-selection))
   (:map lsp-mode-map
-        ("<tab>" . company-indent-or-complete-common))
+        ("M-<tab>" . company-indent-or-complete-common))
   :custom
-  (company-minimum-prefix-length 1)
-  (company-idle-delay 0.0))
+  (company-minimum-prefix-length 2)
+  (company-idle-delay 0.01)
+  :config
+  )
 
-(use-package company-box
+(use-package company-prescient
   :ensure t
-  :hook (company-mode . company-box-mode))
+  :after company
+  :config
+  (company-prescient-mode 1)
+  (prescient-persist-mode)
+  )
+
+;; (use-package company-box
+;;   :ensure t
+;;   :hook (company-mode . company-box-mode))
+
 #+end_src
 
 ** Python
@@ -1147,17 +1526,17 @@ The following lines are required to tune and improve LSP performance (see also [
 #+begin_src emacs-lisp
 
 (use-package python-mode
-  :ensure t
   :hook
-  (python-mode . (lambda ()
-		   (lsp-deferred)))
+  ;; (python-mode . pyvenv-mode)
+  (python-mode . flycheck-mode)
+  (python-mode . company-mode)
+  (python-mode . blacken-mode)
+  (python-mode . yas-minor-mode)
   :custom
   ;; NOTE: Set these if Python 3 is called "python3" on your system!
-  ;; (python-shell-interpreter "python3")
-  ;; (dap-python-executable "python3")
-  (dap-python-debugger 'debugpy)
+  (python-shell-interpreter "python3")
   :config
-  (require 'dap-python))
+  )
 
 (use-package conda
   :ensure t
@@ -1196,13 +1575,21 @@ on save for Python mode.
 
 (use-package flycheck
   :ensure t
-  :hook
-  (python-mode . (lambda () (flycheck-add-next-checker 'lsp 'python-flake8)))
-  :config
-  (setq flycheck-python-flake8-executable "flake8")) ; Ensure flake8 is in path
-
+  :delight flycheck-mode
+  :init
+  (setq flycheck-check-syntax-automatically '(save new-line)
+        flycheck-idle-change-delay 5.0
+        flycheck-display-errors-delay 0.9
+        flycheck-highlighting-mode 'symbols
+        flycheck-indication-mode 'left-fringe
+        flycheck-standard-error-navigation t
+        flycheck-deferred-syntax-check nil)
+  )
 (use-package blacken
   :ensure t
+  :init
+  (setq-default blacken-fast-unsafe t)
+  (setq-default blacken-line-length 80)
   :hook
   (python-mode . (lambda () (add-hook 'before-save-hook 'blacken-buffer))))
 
@@ -1227,28 +1614,18 @@ sudo npm update -g pyright
 
 #+begin_src emacs-lisp
 
-(defun restart-lsp-python()
-  "Restart LSP server in Python mode"
-  (when (eq major-mode 'python-mode)
-    (lambda()
-    (lsp-restart-workspace)
-    (lsp))))
+;; (defun restart-lsp-python()
+;;   "Restart LSP server in Python mode"
+;;   (when (eq major-mode 'python-mode)
+;;     (lambda()
+;;     (lsp-restart-workspace)
+;;     (lsp))))
 
 (use-package lsp-pyright
-  :ensure t
-  :hook (python-mode . (lambda ()
-                         (require 'lsp-pyright)
-                         (lsp-deferred)
-			 (flycheck-add-next-checker 'lsp 'python-flake8)))
-  :config
-  (add-hook 'pyvenv-post-activate-hooks (lambda () (lsp-restart-workspace)))
-  (add-hook 'conda-postactivate-hook (lambda () (lsp-restart-workspace)))
-  (add-hook 'conda-postdeactivate-hook (lambda () (lsp-restart-workspace)))) ; or lsp-deferred
-  ;; (add-hook 'pyvenv-post-activate-hooks (lambda () (lsp-restart-workspace)))
-  ;; (add-hook 'conda-postactivate-hook (lambda () (lsp-restart-workspace) (lsp)))
-  ;; (add-hook 'conda-postdeactivate-hook (lambda () (lsp-restart-workspace) (lsp)))) ; or lsp-deferred
-;; (add-hook 'conda-postactivate-hook 'restart-lsp-python) ; or lsp-deferred
-;; (add-hook 'conda-postdeactivate-hook 'restart-lsp-python)) ; or lsp-deferred
+  :hook
+  (python-mode . (lambda ()
+                   (require 'lsp-pyright)
+                   (lsp-deferred))))
 
 #+end_src
 
@@ -1268,6 +1645,55 @@ This is an alternative solution to Pyright. Currently using Pyright on work desk
 #   (add-hook 'conda-postactivate-hook (lambda () (lsp-restart-workspace)))
 #   (add-hook 'conda-postdeactivate-hook (lambda () (lsp-restart-workspace)))) ; or lsp-deferred
 # #+end_src
+
+*** Pyvenv
+
+#+begin_src emacs-lisp
+;; (use-package pyvenv
+;;   :ensure t
+;;   :init
+;;   (setenv "WORKON_HOME" "~/.venvs/")
+;;   :config
+;;   ;; (pyvenv-mode t)
+
+;;   ;; Set correct Python interpreter
+;;   (setq pyvenv-post-activate-hooks
+;;         (list (lambda ()
+;;                 (setq python-shell-interpreter (concat pyvenv-virtual-env "bin/python")))))
+;;   (setq pyvenv-post-deactivate-hooks
+;;         (list (lambda ()
+;;                 (setq python-shell-interpreter "python3")))))
+#+end_src
+
+*** Jupyter
+
+#+begin_src emacs-lisp
+(use-package jupyter
+  :ensure t)
+
+(use-package ein
+  :ensure t)
+
+(local-leader-keys
+:keymaps 'ein:ipynb-mode-map
+"o" '(ein:process-find-file-callback :which-key "Open notebook")
+)
+
+(local-leader-keys
+:keymaps '(ein:notebook-mode-map)
+"c" '(ein:worksheet-execute-cell-km :which-key "Run cell")
+"r" '(ein:worksheet-execute-all-cells :which-key "Run all cells")
+"C" '(ein:worksheet-execute-cell-and-insert-below-km :which-key "Run and insert cell")
+"a" '(ein:worksheet-insert-cell-above-km :which-key "Insert cell above")
+"b" '(ein:worksheet-insert-cell-below-km :which-key "Insert cell below")
+"d" '(ein:worksheet-kill-cell-km :which-key "Delete cell")
+"s" '(ein:notebook-save-notebook-command-km :which-key "Save notebook")
+)
+
+(setq org-babel-default-header-args:jupyter-python '((:async . "yes")
+                                                    (:session . "py")
+                                                    (:kernel . "python3")))
+#+end_src
 
 * Spell check
 

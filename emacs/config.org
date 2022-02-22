@@ -1466,24 +1466,19 @@ The following lines are required to tune and improve LSP performance (see also [
 ** Debugging with dap
 
 #+begin_src emacs-lisp
-(use-package dap-mode
-  :ensure t
-  ;; Uncomment the config below if you want all UI panes to be hidden by default!
-  ;; :custom
-  ;; (lsp-enable-dap-auto-configure nil)
-  ;; :config
-  ;; (dap-ui-mode 1)
-  :commands dap-debug
-  :config
-  ;; Set up Node debugging
-  (require 'dap-node)
-  (dap-node-setup) ;; Automatically installs Node debug adapter if needed
 
-  ;; Bind `C-c l d` to `dap-hydra` for easy access
-  (general-define-key
-   :keymaps 'lsp-mode-map
-   :prefix lsp-keymap-prefix
-   "d" '(dap-hydra t :wk "debugger")))
+(use-package dap-mode
+  :after lsp-mode
+  :commands dap-debug
+  :hook ((python-mode . dap-ui-mode)
+	 (python-mode . dap-mode))
+  :config
+  (eval-when-compile
+    (require 'cl))
+  (require 'dap-python)
+  (require 'dap-lldb)
+)
+
 #+end_src
 
 ** Company for completion

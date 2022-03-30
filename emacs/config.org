@@ -1590,9 +1590,7 @@ on save for Python mode.
   :ensure t
   :init
   (setq-default blacken-fast-unsafe t)
-  (setq-default blacken-line-length 80)
-  :hook
-  (python-mode . (lambda () (add-hook 'before-save-hook 'blacken-buffer))))
+  (setq-default blacken-line-length nil)) ; setting to nil is required to use pyproject.toml settings
 
 #+end_src
 
@@ -1653,6 +1651,13 @@ This is an alternative solution to Pyright. Currently using Pyright on work desk
 ;; (use-package pyvenv
 ;;   :ensure t
 ;;   :init
+;;   (setenv "WORKON_HOME" "~/.cache/pypoetry/virtualenvs")) ; or wherever the envs are installed
+#+end_src
+
+#+begin_src emacs-lisp
+;; (use-package pyvenv
+;;   :ensure t
+;;   :init
 ;;   (setenv "WORKON_HOME" "~/.venvs/")
 ;;   :config
 ;;   ;; (pyvenv-mode t)
@@ -1666,6 +1671,24 @@ This is an alternative solution to Pyright. Currently using Pyright on work desk
 ;;                 (setq python-shell-interpreter "python3")))))
 #+end_src
 
+*** Pytest
+
+#+begin_src emacs-lisp
+(use-package python-pytest
+  :ensure t
+  :after python
+  :custom
+  (python-pytest-arguments
+   '("--color"
+     "--failed-first"
+     ))
+  :config
+  (leader-keys
+    :keymaps '(python-mode-map)
+    "t" '(python-pytest-popup :wk "Pytest")
+    ))
+#+end_src
+
 *** Jupyter
 
 #+begin_src emacs-lisp
@@ -1676,24 +1699,38 @@ This is an alternative solution to Pyright. Currently using Pyright on work desk
   :ensure t)
 
 (local-leader-keys
-:keymaps 'ein:ipynb-mode-map
-"o" '(ein:process-find-file-callback :which-key "Open notebook")
-)
+  :keymaps 'ein:ipynb-mode-map
+  "o" '(ein:process-find-file-callback :which-key "Open notebook")
+  )
 
 (local-leader-keys
-:keymaps '(ein:notebook-mode-map)
-"c" '(ein:worksheet-execute-cell-km :which-key "Run cell")
-"r" '(ein:worksheet-execute-all-cells :which-key "Run all cells")
-"C" '(ein:worksheet-execute-cell-and-insert-below-km :which-key "Run and insert cell")
-"a" '(ein:worksheet-insert-cell-above-km :which-key "Insert cell above")
-"b" '(ein:worksheet-insert-cell-below-km :which-key "Insert cell below")
-"d" '(ein:worksheet-kill-cell-km :which-key "Delete cell")
-"s" '(ein:notebook-save-notebook-command-km :which-key "Save notebook")
-)
+  :keymaps '(ein:notebook-mode-map)
+  "c" '(ein:worksheet-execute-cell-km :which-key "Run cell")
+  "r" '(ein:worksheet-execute-all-cells :which-key "Run all cells")
+  "C" '(ein:worksheet-execute-cell-and-insert-below-km :which-key "Run and insert cell")
+  "a" '(ein:worksheet-insert-cell-above-km :which-key "Insert cell above")
+  "b" '(ein:worksheet-insert-cell-below-km :which-key "Insert cell below")
+  "d" '(ein:worksheet-kill-cell-km :which-key "Delete cell")
+  "s" '(ein:notebook-save-notebook-command-km :which-key "Save notebook")
+  "t" '(ein:worksheet-toggle-cell-type :which-key "Toggle cell type")
+  "u" '(ein:worksheet-change-cell-type :which-key "Change cell type")
+  "w" '(ein:worksheet-copy-cell-km :which-key "Copy cell")
+  "y" '(ein:worksheet-yank-cell-km :which-key "Yank cell")
+  )
 
 (setq org-babel-default-header-args:jupyter-python '((:async . "yes")
-                                                    (:session . "py")
-                                                    (:kernel . "python3")))
+                                                     (:session . "py")
+                                                     (:kernel . "python3")))
+  #+end_src
+
+** Running any shell command
+
+#+begin_src emacs-lisp
+(defun run-cmd-on-buffer-file ()
+  (interactive)
+  (message "Using cmd to do XYZ" (buffer-name))
+  (shell-command (concat "cmd " (buffer-file-name) " --arguments"))
+  (message "Command completed!"))
 #+end_src
 
 * Spell check

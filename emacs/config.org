@@ -1346,6 +1346,12 @@ Some ideas for the future:
 - Org agenda items are nodes with a "task" tag.
 - Refile targets are nodes with a "project" or "task" tag.
 
+*** Launch org-agenda on startup
+
+#+begin_src emacs-lisp
+(add-hook 'after-init-hook '(lambda () (org-agenda nil " ") (delete-other-windows)))
+#+end_src
+
 ** Keybindings
 
 #+begin_src emacs-lisp

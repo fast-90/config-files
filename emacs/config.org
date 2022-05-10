@@ -69,7 +69,9 @@ Put the following in ~/.emacs.d/init.el:
 (setq package-archives
       '(("melpa" . "https://melpa.org/packages/")
         ("gnu" . "https://elpa.gnu.org/packages/")
-        ("org" . "http://orgmode.org/elpa/")))
+	("nongnu" . "https://elpa.nongnu.org/nongnu/")
+        ;; ("org" . "http://orgmode.org/elpa/")
+	))
 (package-initialize)
 
 #+end_src

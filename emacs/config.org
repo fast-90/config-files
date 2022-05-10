@@ -908,7 +908,7 @@ Disable line numbers, line highlight and exit confirmation
 #+begin_src emacs-lisp
 
 (use-package org
-  :ensure org-plus-contrib
+  :ensure org-contrib
   :mode ("\\.org\\'" . org-mode)
   :bind
   (("C-c l" . org-store-link)

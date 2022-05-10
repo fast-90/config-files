@@ -1828,3 +1828,20 @@ Also install pdftotext in your OS (e.g. via sudo apt on Ubuntu).
   :ensure t)
 #+end_src
 
+* Atomic Chrome
+
+#+begin_src emacs-lisp
+(use-package atomic-chrome
+  ;; dependency Atomic Chrome extension (in Chrome)
+  :ensure t
+  :init
+  (setq atomic-chrome-default-major-mode 'markdown-mode)
+  (setq atomic-chrome-extension-type-list '(ghost-text))
+  (setq atomic-chrome-buffer-open-style 'frame) 
+  (setq atomic-chrome-url-major-mode-alist
+	'(("github\\.com" . gfm-mode)
+          ("mail.google.com" . html-mode)))
+  :config
+  (atomic-chrome-start-server))
+#+end_src
+

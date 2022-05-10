@@ -8,6 +8,14 @@
 
 #+end_src
 
+** Launch emacs in maximum window
+
+Put the following in ~/.emacs.d/init.el:
+
+#+begin_src emacs-lisp
+(add-hook 'window-setup-hook 'toggle-frame-maximized t)
+#+end_src
+
 ** Disable tool bar, menu bar and scroll bar
 
 #+begin_src emacs-lisp

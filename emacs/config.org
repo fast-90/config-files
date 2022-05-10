@@ -1234,19 +1234,29 @@ Set todo keywords, tags etc.
 
 *** Archiving
 
-Function to archive all done task in current org file.
+Function to archive all done task in current org agenda/file.
 
 #+begin_src emacs-lisp
-(defun duy/org-archive-done-tasks ()
-  "Archive all done tasks."
+(defun duy/org-archive-done-tasks-agenda ()
   (interactive)
-  (org-map-entries 'org-archive-subtree "/DONE" 'file))
+  (org-map-entries
+   (lambda ()
+     (org-archive-subtree)
+     (setq org-map-continue-from (org-element-property :begin (org-element-at-point))))
+   "/DONE" 'agenda))
+
+(defun duy/org-archive-done-tasks-file ()
+  (interactive)
+  (org-map-entries
+   (lambda ()
+     (org-archive-subtree)
+     (setq org-map-continue-from (org-element-property :begin (org-element-at-point))))
+   "/DONE" 'file))
 #+end_src
 
 *** org-agenda layout
 
 Function to automatically group TODOs by title.
-
 #+begin_src emacs-lisp
 
 (org-super-agenda--def-auto-group title "title of org file"

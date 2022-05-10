@@ -468,7 +468,7 @@ Bind jk in insert mode to ESC.
 (use-package key-chord
   :ensure t
   :init
-  (setq key-chord-two-keys-delay 0.5)
+  (setq key-chord-two-keys-delay 0.2)
   (key-chord-define evil-insert-state-map "jk" 'evil-normal-state)
   (key-chord-mode 1))
 #+end_src

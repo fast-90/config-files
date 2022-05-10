@@ -443,6 +443,7 @@ The Evil package(s) enable Vim-like keybindings
   (setq evil-want-C-u-scroll t)
   (setq evil-vsplit-window-right t)
   (setq evil-split-window-below t)
+  (setq evil-want-C-i-jump nil)
   :config
   (evil-mode)
   ;; Use visual line motions (e.g. for when a long line is wrapped)

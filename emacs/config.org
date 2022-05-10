@@ -1405,9 +1405,22 @@ Some ideas for the future:
  :keymaps '(org-agenda-mode-map)
  "c"   '(:ignore t :which-key "Prefix")
  "c s" '(org-agenda-schedule :which-key "Schedule")
+ "c d" '(org-agenda-deadline :which-key "Deadline")
  "c r" '(hidden-command :which-key t)
- "c S" '(org-agenda-schedule :which-key "Remove schedule")
- "c t" '(org-agenda-set-tags :which-key "Tags"))
+ "c S" '(duy/org-agenda-remove-schedule :which-key "Remove schedule")
+ "c D" '(duy/org-agenda-remove-deadline :which-key "Remove deadline")
+ "c t" '(org-agenda-set-tags :which-key "Tags")
+ "r"   '(:ignore t :which-key "Refile")
+ "r r" '(duy/org-agenda-process-inbox-item :which-key "Refile item")
+ "r i" '(duy/org-process-inbox :which-key "Process inbox")
+ "c a" '(duy/org-archive-done-tasks-agenda :which-key "Archive all done tasks")
+)
+#+end_src
+* Htmlize
+
+#+begin_src emacs-lisp
+(use-package htmlize
+  :ensure t)
 #+end_src
 
 * Markdown

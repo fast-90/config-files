@@ -1392,6 +1392,11 @@ Some ideas for the future:
   (interactive)
   (let ((current-prefix-arg '(4)))
     (call-interactively #'org-agenda-schedule)))
+
+(defun duy/org-agenda-remove-deadline ()
+  (interactive)
+  (let ((current-prefix-arg '(4)))
+    (call-interactively #'org-agenda-deadline)))
 #+end_src
 
 #+begin_src emacs-lisp

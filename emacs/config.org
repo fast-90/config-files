@@ -1272,10 +1272,13 @@ Layout of agenda.
 (setq duy/agenda-group-main
       '(
 	(:discard (:scheduled today))
+	(:discard (:scheduled past))
 	(:name "Next"
 	       :todo "NEXT")
 	(:name "Focus"
 	       :tag "focus")
+  (:name "Scheduled"
+	       :scheduled future)
 	(:discard (:anything t))
 	))
 
@@ -1285,6 +1288,8 @@ Layout of agenda.
 	       :time-grid t
 	       :date today
 	       :scheduled today)
+  (:name "Upcoming deadlines"
+         :deadline future)
 	))
 
 (setq duy/agenda-group-backlog
@@ -1293,9 +1298,16 @@ Layout of agenda.
 	(:auto-title t) ;; defined with org-super-agenda--def-auto-group
 	))
 
+(setq duy/agenda-group-backlog-unscheduled
+      '(
+(:discard (:tag "refile"))
+(:discard (:scheduled t))
+	(:auto-title t) ;; defined with org-super-agenda--def-auto-group
+	))
+
 (setq duy/agenda-group-inbox
       '(
-	(:name "To refile"
+	(:name ""
 	       :tag "refile")
 (:discard (:anything t))
 	))
@@ -1309,7 +1321,7 @@ Layout of agenda.
 	  (todo "" ((org-agenda-overriding-header "Inbox")
 		    (org-super-agenda-groups duy/agenda-group-inbox)))
 	  (todo "TODO" ((org-agenda-overriding-header "Backlog")
-			(org-super-agenda-groups duy/agenda-group-backlog)))
+			(org-super-agenda-groups duy/agenda-group-backlog-unscheduled)))
 	  ))
 	("b" "Backlog"
 	 ((todo "TODO" ((org-agenda-overriding-header "Backlog")

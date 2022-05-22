@@ -1302,6 +1302,7 @@ Layout of agenda.
       '(
 (:discard (:tag "refile"))
 (:discard (:scheduled t))
+(:discard (:deadline today))
 	(:auto-title t) ;; defined with org-super-agenda--def-auto-group
 	))
 
@@ -1342,12 +1343,49 @@ Function to process inbox item.
 #+begin_src emacs-lisp
 (defun duy/org-agenda-process-inbox-item ()
   "Process a single item in the org-agenda."
+  (interactive)
   (org-with-wide-buffer
    (org-agenda-set-tags)
    ;; (org-agenda-priority)
    (org-agenda-refile nil nil t)))
+#+end_src
 
-(define-key org-agenda-mode-map "r" (lambda() (interactive) (duy/org-agenda-process-inbox-item)))
+Function to process inbox.
+
+#+begin_src emacs-lisp
+(defun duy/bulk-process-entries ()
+  (if (not (null org-agenda-bulk-marked-entries))
+      (let ((entries (reverse org-agenda-bulk-marked-entries))
+            (processed 0)
+            (skipped 0))
+        (dolist (e entries)
+          (let ((pos (text-property-any (point-min) (point-max) 'org-hd-marker e)))
+            (if (not pos)
+                (progn (message "Skipping removed entry at %s" e)
+                       (cl-incf skipped))
+              (goto-char pos)
+              (let (org-loop-over-headlines-in-active-region) (funcall 'duy/org-agenda-process-inbox-item))
+              ;; `post-command-hook' is not run yet.  We make sure any
+              ;; pending log note is processed.
+              (when (or (memq 'org-add-log-note (default-value 'post-command-hook))
+                        (memq 'org-add-log-note post-command-hook))
+                (org-add-log-note))
+              (cl-incf processed))))
+        (org-agenda-redo)
+        (unless org-agenda-persistent-marks (org-agenda-bulk-unmark-all))
+        (message "Acted on %d entries%s%s"
+                 processed
+                 (if (= skipped 0)
+                     ""
+                   (format ", skipped %d (disappeared before their turn)"
+                           skipped))
+                 (if (not org-agenda-persistent-marks) "" " (kept marked)")))))
+
+(defun duy/org-process-inbox ()
+  "Called in org-agenda-mode, processes all inbox items."
+  (interactive)
+  (org-agenda-bulk-mark-regexp "refile:")
+  (duy/bulk-process-entries))
 #+end_src
 
 *** Org refile settings

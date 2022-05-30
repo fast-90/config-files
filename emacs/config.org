@@ -1335,8 +1335,14 @@ Layout of agenda.
 *** Inbox capture settings and templates
 
 #+begin_src emacs-lisp
+(if (string= system-name "Duys-MBP.home")
+    (setq inbox-file "~/org-roam-notes/20220101143145-inbox.org")
+  (if (string= system-name "NL5CG1462QH6")
+      (setq inbox-file "~/org-roam-notes/20220522180401-inbox.org"))
+  (nil))
+
 (setq org-capture-templates
-    '(("t" "Todo" plain (file "~/org-roam-notes/20220101143145-inbox.org")
+    '(("t" "Todo" plain (file inbox-file)
         "* TODO %?\n%U\n" :clock-in nil :clock-resume t)))
 #+end_src
 

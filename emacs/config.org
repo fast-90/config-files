@@ -1710,6 +1710,7 @@ sudo npm update -g pyright
 ;;     (lsp))))
 
 (use-package lsp-pyright
+  :ensure t
   :hook
   (python-mode . (lambda ()
                    (require 'lsp-pyright)

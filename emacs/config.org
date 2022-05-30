@@ -1892,3 +1892,14 @@ Also install pdftotext in your OS (e.g. via sudo apt on Ubuntu).
   (atomic-chrome-start-server))
 #+end_src
 
+* WSL2 specific
+
+#+begin_src emacs-lisp
+(when (and (eq system-type 'gnu/linux)
+           (getenv "WSLENV"))
+
+  ;; Set first buffer to org-agenda for usage with emacslient
+  (setq initial-buffer-choice '(lambda () (get-buffer org-agenda-buffer-name)))
+  )
+#+end_src
+

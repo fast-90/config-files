@@ -1279,6 +1279,8 @@ Layout of agenda.
 	       :tag "focus")
   (:name "Scheduled"
 	       :scheduled future)
+	(:name "Waiting"
+	       :todo "WAITING")
 	(:discard (:anything t))
 	))
 

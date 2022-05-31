@@ -1896,7 +1896,7 @@ Also install pdftotext in your OS (e.g. via sudo apt on Ubuntu).
 
 #+begin_src emacs-lisp
 (when (and (eq system-type 'gnu/linux)
-           (getenv "WSLENV"))
+           (string-match "WSL" operating-system-release))
 
   ;; Set first buffer to org-agenda for usage with emacslient
   (setq initial-buffer-choice '(lambda () (get-buffer org-agenda-buffer-name)))

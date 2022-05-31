@@ -1,0 +1,18 @@
+* Custom key mappings
+
+mapkey <c-g> <c-[>
+map s Vomnibar.activate keyword=g
+map <c-j> previousTab
+map <c-k> nextTab
+map <c-h> goBack
+map <c-l> goForward
+map J moveTabLeft
+map K move TabRight
+map <c-d> scrollPageDown
+map <c-u> scrollPageUp
+
+* Custom search engines
+
+g: https://www.google.com/search?q=%s Google
+
+

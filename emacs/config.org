@@ -99,7 +99,6 @@ Put the following in ~/.emacs.d/init.el:
 
 ** General theme
 
-Currently using doom-one from doom-themes
 
 #+begin_src emacs-lisp
 
@@ -108,7 +107,7 @@ Currently using doom-one from doom-themes
   :init
   (setq doom-themes-enable-bold t
 	doom-themes-enable-italic t)
-  (load-theme 'doom-one t))
+  (load-theme 'doom-dark+ t))  ;; Ones I liked and used: doom-one, doom-dark+
 
 #+end_src
 ** Doom modeline 

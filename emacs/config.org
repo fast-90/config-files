@@ -1908,6 +1908,15 @@ Also install pdftotext in your OS (e.g. via sudo apt on Ubuntu).
 
   ;; Set first buffer to org-agenda for usage with emacslient
   (setq initial-buffer-choice '(lambda () (get-buffer org-agenda-buffer-name)))
+
+  ;; Set custom fonts
+  (defun duy/setup-font-faces()
+    (when (display-graphic-p)
+      (set-face-attribute 'default nil :font (font-spec :family "FiraMono Nerd Font Mono"))
+      (set-face-attribute 'fixed-pitch nil :font (font-spec :family "FiraMono Nerd Font Mono"))
+  ))
+  (add-hook 'after-init-hook 'duy/setup-font-faces)
+  (add-hook 'server-after-make-frame-hook 'duy/setup-font-faces)
   )
 #+end_src
 

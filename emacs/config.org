@@ -1337,8 +1337,8 @@ Layout of agenda.
 (if (string= system-name "Duys-MBP.home")
     (setq inbox-file "~/org-roam-notes/20220101143145-inbox.org")
   (if (string= system-name "NL5CG1462QH6")
-      (setq inbox-file "~/org-roam-notes/20220522180401-inbox.org"))
-  (setq inbox-file nil))
+      (setq inbox-file "~/org-roam-notes/20220522180401-inbox.org")
+  (setq inbox-file nil)))
 
 (setq org-capture-templates
     '(("t" "Todo" plain (file inbox-file)

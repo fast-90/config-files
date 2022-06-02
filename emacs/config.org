@@ -457,7 +457,7 @@ Evil collection is a collection of Evil bindings for the parts of Emacs that Evi
   :ensure t
   :after evil
   :config
-  (setq evil-collection-mode-list '(dashboard dired ibuffer magit pdf doc-view company)) ; Modes to activate Evil keybindings for
+  (setq evil-collection-mode-list '(vterm dashboard dired ibuffer magit pdf doc-view company)) ; Modes to activate Evil keybindings for
   (evil-collection-init))
 #+end_src
 
@@ -1889,6 +1889,15 @@ Also install pdftotext in your OS (e.g. via sudo apt on Ubuntu).
           ("mail.google.com" . html-mode)))
   :config
   (atomic-chrome-start-server))
+#+end_src
+
+* vterm
+
+#+begin_src emacs-lisp
+(use-package vterm
+    :ensure t
+    :config
+    (add-hook 'vterm-mode-hook (lambda () (setq-local global-hl-line-mode nil))))
 #+end_src
 
 * WSL2 specific

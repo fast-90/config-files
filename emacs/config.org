@@ -1457,6 +1457,29 @@ Some ideas for the future:
  "c a" '(duy/org-archive-done-tasks-agenda :which-key "Archive all done tasks")
  )
 #+end_src
+
+Rebind movement in org calendar:
+
+#+begin_src emacs-lisp
+(defmacro my-org-in-calendar (command)
+  (let ((name (intern (format "my-org-in-calendar-%s" command))))
+    `(progn
+       (defun ,name ()
+         (interactive)
+         (org-eval-in-calendar '(call-interactively #',command)))
+       #',name)))
+
+(general-def org-read-date-minibuffer-local-map
+  "h" (my-org-in-calendar calendar-backward-day)
+  "l" (my-org-in-calendar calendar-forward-day)
+  "k" (my-org-in-calendar calendar-backward-week)
+  "j" (my-org-in-calendar calendar-forward-week)
+  "C-h" (my-org-in-calendar calendar-backward-month)
+  "C-l" (my-org-in-calendar calendar-forward-month)
+  "C-k" (my-org-in-calendar calendar-backward-year)
+  "C-j" (my-org-in-calendar calendar-forward-year))
+#+end_src
+
 * Htmlize
 
 #+begin_src emacs-lisp

@@ -531,7 +531,7 @@ function (similar to Spacemacs/Doom/VSpaceCode).
     :states '(normal visual emacs motion) ; consider adding motion for using with easymotion
     :keymaps 'override 
     :prefix "SPC m")
-)
+  )
 #+end_src
 
 *** Buffer management
@@ -676,8 +676,8 @@ evil-snipe is simulates Vim sneak.
   (evil-snipe-repeat-scope 'whole-visible)
   (evil-snipe-spillover-scope 'whole-buffer))
 
-  (evil-snipe-mode +1)
-  (evil-snipe-override-mode +1)
+(evil-snipe-mode +1)
+(evil-snipe-override-mode +1)
 
 #+end_src
 
@@ -699,11 +699,6 @@ evil-snipe is simulates Vim sneak.
   "e e"   '(eval-expression :which-key "Eval elisp expression")
   "e l"   '(eval-last-sexp :which-key "Eval last sexression")
   "e r"   '(eval-region :which-key "Eval region"))
-#+end_src
-*** Shells and terminals
-#+begin_src emacs-lisp
-(leader-keys
-  "'" '(sh :which-key "Start zsh"))
 #+end_src
 *** Org mode
 #+begin_src emacs-lisp
@@ -895,7 +890,8 @@ Disable line numbers, line highlight and exit confirmation
 #+begin_src emacs-lisp
 (dolist (mode '(term-mode-hook
 		shell-mode-hook
-            eshell-mode-hook))
+		vterm-mode-hook
+		eshell-mode-hook))
   (add-hook mode (lambda () (display-line-numbers-mode 0)))
   (add-hook mode (lambda () (setq-local global-hl-line-mode nil)))
   (add-hook mode 'set-no-process-query-on-exit))
@@ -1276,7 +1272,7 @@ Layout of agenda.
 	       :todo "NEXT")
 	(:name "Focus"
 	       :tag "focus")
-  (:name "Scheduled"
+	(:name "Scheduled"
 	       :scheduled future)
 	(:name "Waiting"
 	       :todo "WAITING")
@@ -1289,21 +1285,21 @@ Layout of agenda.
 	       :time-grid t
 	       :date today
 	       :scheduled today)
-  (:name "Upcoming deadlines"
-         :deadline future)
+	(:name "Upcoming deadlines"
+               :deadline future)
 	))
 
 (setq duy/agenda-group-backlog
       '(
-(:discard (:tag "refile"))
+	(:discard (:tag "refile"))
 	(:auto-title t) ;; defined with org-super-agenda--def-auto-group
 	))
 
 (setq duy/agenda-group-backlog-unscheduled
       '(
-(:discard (:tag "refile"))
-(:discard (:scheduled t))
-(:discard (:deadline today))
+	(:discard (:tag "refile"))
+	(:discard (:scheduled t))
+	(:discard (:deadline today))
 	(:auto-title t) ;; defined with org-super-agenda--def-auto-group
 	))
 
@@ -1311,7 +1307,7 @@ Layout of agenda.
       '(
 	(:name ""
 	       :tag "refile")
-(:discard (:anything t))
+	(:discard (:anything t))
 	))
 
 (setq org-agenda-custom-commands
@@ -1338,11 +1334,11 @@ Layout of agenda.
     (setq inbox-file "~/org-roam-notes/20220101143145-inbox.org")
   (if (string= system-name "NL5CG1462QH6")
       (setq inbox-file "~/org-roam-notes/20220522180401-inbox.org")
-  (setq inbox-file nil)))
+    (setq inbox-file nil)))
 
 (setq org-capture-templates
-    '(("t" "Todo" plain (file inbox-file)
-        "* TODO %?\n%U\n" :clock-in nil :clock-resume t)))
+      '(("t" "Todo" plain (file inbox-file)
+         "* TODO %?\n%U\n" :clock-in nil :clock-resume t)))
 #+end_src
 
 Function to process inbox item.
@@ -1459,7 +1455,7 @@ Some ideas for the future:
  "r r" '(duy/org-agenda-process-inbox-item :which-key "Refile item")
  "r i" '(duy/org-process-inbox :which-key "Process inbox")
  "c a" '(duy/org-archive-done-tasks-agenda :which-key "Archive all done tasks")
-)
+ )
 #+end_src
 * Htmlize
 
@@ -1549,9 +1545,9 @@ The follow lines fix the TABs (white spaces) in the lsp function descriptions
 #+begin_src emacs-lisp
 
 (defun render-markup-content (kind content)
-    (message kind)
-    (replace-regexp-in-string " " " " content))
-  (setq lsp-render-markdown-markup-content #'render-markup-content)
+  (message kind)
+  (replace-regexp-in-string " " " " content))
+(setq lsp-render-markdown-markup-content #'render-markup-content)
 
 #+end_src
 
@@ -1579,7 +1575,7 @@ The following lines are required to tune and improve LSP performance (see also [
     (require 'cl))
   (require 'dap-python)
   (require 'dap-lldb)
-)
+  )
 
 #+end_src
 
@@ -1818,7 +1814,7 @@ This is an alternative solution to Pyright. Currently using Pyright on work desk
 (setq org-babel-default-header-args:jupyter-python '((:async . "yes")
                                                      (:session . "py")
                                                      (:kernel . "python3")))
-  #+end_src
+#+end_src
 
 ** Running any shell command
 
@@ -1895,9 +1891,33 @@ Also install pdftotext in your OS (e.g. via sudo apt on Ubuntu).
 
 #+begin_src emacs-lisp
 (use-package vterm
-    :ensure t
-    :config
-    (add-hook 'vterm-mode-hook (lambda () (setq-local global-hl-line-mode nil))))
+  :ensure t
+  :config
+  (add-hook 'vterm-mode-hook (lambda () (setq-local global-hl-line-mode nil))))
+#+end_src
+
+#+begin_src emacs-lisp
+(use-package vterm-toggle
+  :ensure t
+  :config
+  (setq vterm-toggle-fullscreen-p nil)
+  (add-to-list 'display-buffer-alist
+               '((lambda (buffer-or-name _)
+                   (let ((buffer (get-buffer buffer-or-name)))
+                     (with-current-buffer buffer
+                       (or (equal major-mode 'vterm-mode)
+                           (string-prefix-p vterm-buffer-name (buffer-name buffer))))))
+                 (display-buffer-reuse-window display-buffer-at-bottom)
+                 (display-buffer-reuse-window display-buffer-in-direction)
+                 ;;display-buffer-in-direction/direction/dedicated is added in emacs27
+                 ;;(direction . bottom)
+                 (dedicated . t) ;dedicated is supported in emacs27
+                 (reusable-frames . visible)
+                 (window-height . 0.3)))
+  (leader-keys
+    "'" '(vterm-toggle :wk "vterm")
+    )
+  )
 #+end_src
 
 * WSL2 specific

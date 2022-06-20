@@ -1340,14 +1340,19 @@ Layout of agenda.
 
 #+begin_src emacs-lisp
 (if (string= system-name "Duys-MBP.home")
-    (setq inbox-file "~/org-roam-notes/20220101143145-inbox.org")
+    (setq inbox-file "~/org-roam-notes/20220101143145-inbox.org"
+          general-task-file "~/org-roam-notes/20220101143545-tasks.org")
   (if (string= system-name "NL5CG1462QH6")
-      (setq inbox-file "~/org-roam-notes/20220522180401-inbox.org")
+      (setq inbox-file "~/org-roam-notes/20220522180401-inbox.org"
+            general-task-file "~/org-roam-notes/20220522181915-general_tasks.org")
     (setq inbox-file nil)))
 
 (setq org-capture-templates
-      '(("t" "Todo" plain (file inbox-file)
-         "* TODO %?\n%U\n" :clock-in nil :clock-resume t)))
+      '(("i" "Inbox" plain (file inbox-file)
+         "* TODO %?\n%U\n" :clock-in nil :clock-resume t)
+        ("t" "Today" plain (file general-task-file)
+         "* TODO %?\n SCHEDULED: %t\n%U\n" :clock-in nil :clock-resume t)
+        ))
 #+end_src
 
 Function to process inbox item.

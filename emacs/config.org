@@ -81,7 +81,7 @@ Put the following in ~/.emacs.d/init.el:
 
 (when (not (package-installed-p 'use-package))
   (package-refresh-contents)
-  (package-install 'usepackage))
+  (package-install 'use-package))
 
 #+end_src
 

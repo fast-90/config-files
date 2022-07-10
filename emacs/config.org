@@ -223,6 +223,11 @@ variables.
   ([remap describe-key] . helpful-key))
 #+end_src
 
+* Hydra
+#+begin_src emacs-lisp
+(use-package hydra
+  :ensure t)
+#+end_src
 * Project management
 
 ** Magit
@@ -320,11 +325,6 @@ To resolve merge conflicts.
 #+end_src
 
 * Other useful packages
-** Hydra
-#+begin_src emacs-lisp
-(use-package hydra
-  :ensure t)
-#+end_src
 ** Command log mode to show keypress and command
 Related commands start with "clm" in the M-x menu
 #+begin_src emacs-lisp

@@ -58,16 +58,6 @@ Put the following in ~/.emacs.d/init.el:
 #+begin_src emacs-lisp
 (setq backup-directory-alist `(("." . "~/.saves")))
 #+end_src
-** Dashboard
-
-#+begin_src emacs-lisp
-(use-package dashboard
-  :ensure t
-  :config
-  (dashboard-setup-startup-hook)
-  (setq initial-buffer-choice (lambda () (get-buffer "*dashboard*"))))
-#+end_src
-
 * Package management
 
 ** Add MELPA to package archives
@@ -362,6 +352,16 @@ Related commands start with "clm" in the M-x menu
   :ensure t
   :delight eldoc-mode
   )
+#+end_src
+
+** Dashboard
+
+#+begin_src emacs-lisp
+(use-package dashboard
+  :ensure t
+  :config
+  (dashboard-setup-startup-hook)
+  (setq initial-buffer-choice (lambda () (get-buffer "*dashboard*"))))
 #+end_src
 
 * Window management
@@ -977,7 +977,7 @@ Disable line numbers, line highlight and exit confirmation
   (advice-add 'org-refile :after (lambda (&rest _) (org-save-all-org-buffers)))
   (require 'org-habit)
   (require 'org-tempo)
-  (require 'ol-notmuch))
+  )
 
 (require 'org)
 

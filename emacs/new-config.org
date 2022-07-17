@@ -5,18 +5,18 @@
 Add MELPA/ELPA/Non-GNU/ELPA-dev to package archives.
 
 #+begin_src emacs-lisp
-(require 'package)
+  (require 'package)
 
-(setq package-archives
-      '(("melpa" . "https://melpa.org/packages/")
-        ("elpa" . "https://elpa.gnu.org/packages/")
-        ("nongnu" . "https://elpa.nongnu.org/nongnu/")
-        ("elpa-devel" . "https://elpa.gnu.org/devel/")))
+  (setq package-archives
+        '(("melpa" . "https://melpa.org/packages/")
+          ("elpa" . "https://elpa.gnu.org/packages/")
+          ("nongnu" . "https://elpa.nongnu.org/nongnu/")
+          ("elpa-devel" . "https://elpa.gnu.org/devel/")))
 
-;; Initialize the packages, avoiding a re-initialization.
+  ;; Initialize the packages, avoiding a re-initialization.
 
-(unless (bound-and-true-p package--initialized)
-  (package-initialize))
+  (unless (bound-and-true-p package--initialized)
+    (package-initialize))
 #+end_src
 
 ** Setup use-package
@@ -91,22 +91,23 @@ Add MELPA/ELPA/Non-GNU/ELPA-dev to package archives.
 ** Useful packages
 
 #+begin_src emacs-lisp
-(use-package eldoc
-  :delight eldoc-mode)
+  (use-package eldoc
+    :delight eldoc-mode)
 
-(use-package autorevert
-  :defer 2
-  :delight auto-revert-mode)
+  (use-package autorevert
+    :defer 2
+    :delight auto-revert-mode)
 
-(use-package recentf
-  :defer 2
-  :init
-  (recentf-mode 1))
+  (use-package recentf
+    :defer 2
+    :init
+    (recentf-mode 1))
 
-(use-package undo-tree
-  :ensure t
-  :init
-  (global-undo-tree-mode))
+  (use-package undo-tree
+    :ensure t
+    :init
+    (setq undo-tree-auto-save-history nil)
+    (global-undo-tree-mode))
 #+end_src
 
 ** MacOS specific settings
@@ -247,14 +248,14 @@ function (similar to Spacemacs/Doom/VSpaceCode).
 
 #+begin_src emacs-lisp
   (use-package dired
-    :after evil evil-collection
+    :after evil evil-collection general
     ;; :commands (dired dired-jump)
     ;; :bind (("C-x C-j" . dired-jump))
     :custom ((dired-listing-switches "-agho --group-directories-first"))
     :init
     (when (string= system-type "darwin")
       (setq dired-use-ls-dired t
-	    insert-directory-program "/usr/local/bin/gls"))
+            insert-directory-program "/usr/local/bin/gls"))
     :config
     (evil-collection-define-key 'normal 'dired-mode-map
       "h" 'dired-single-up-directory
@@ -263,22 +264,24 @@ function (similar to Spacemacs/Doom/VSpaceCode).
       "d" '(dired :wk "dired")
       "j d" '(dired-jump :wk "dired-jump")))
 
-    (use-package dired-single
-      :ensure t
-      :after dired)
+  (use-package dired-single
+    :ensure t
+    :after dired)
 
-    (use-package all-the-icons-dired
-      :ensure t
-      :after dired
-      :hook (dired-mode . all-the-icons-dired-mode))
+  (use-package all-the-icons-dired
+    :ensure t
+    :after dired
+    :hook (dired-mode . all-the-icons-dired-mode)
+    :init
+    )
 
-    (use-package dired-hide-dotfiles
-      :ensure t
-      :after dired
-      :hook (dired-mode . dired-hide-dotfiles-mode)
-      :config
-      (evil-collection-define-key 'normal 'dired-mode-map
-	"H" 'dired-hide-dotfiles-mode))
+  (use-package dired-hide-dotfiles
+    :ensure t
+    :after dired
+    :hook (dired-mode . dired-hide-dotfiles-mode)
+    :init
+    (evil-collection-define-key 'normal 'dired-mode-map
+      "H" 'dired-hide-dotfiles-mode))
 #+end_src
 
 *** MacOS specific setting for Dired
@@ -436,15 +439,31 @@ Settings for daemon mode:
 
 * Terminals
 
+** Function to disable exit confirmation query for shells and terminals
+
+#+begin_src emacs-lisp
+(defun set-no-process-query-on-exit ()
+  (let ((proc (get-buffer-process (current-buffer))))
+    (when (processp proc)
+      (set-process-query-on-exit-flag proc nil))))
+#+end_src
+
+
 ** vterm
 
 #+begin_src emacs-lisp
-(use-package vterm
-  :ensure t
-  :bind (:map vterm-mode-map
-              ("C-b" . vterm-send-C-b))
-  :config
-  (add-hook 'vterm-mode-hook (lambda () (setq-local global-hl-line-mode nil))))
+  (use-package vterm
+    :ensure t
+    :bind (:map vterm-mode-map
+                ("C-b" . vterm-send-C-b))
+    :config
+    (dolist (mode '(term-mode-hook
+                    shell-mode-hook
+                    vterm-mode-hook
+                    eshell-mode-hook))
+      (add-hook mode (lambda () (display-line-numbers-mode 0)))
+      (add-hook mode (lambda () (setq-local global-hl-line-mode nil)))
+      (add-hook mode 'set-no-process-query-on-exit)))
 #+end_src
 
 ** vterm-toggle

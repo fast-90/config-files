@@ -1,0 +1,1185 @@
+* Package management
+** Set package archives
+
+Add MELPA/ELPA/Non-GNU/ELPA-dev to package archives.
+
+#+begin_src emacs-lisp
+(require 'package)
+
+(setq package-archives
+      '(("melpa" . "https://melpa.org/packages/")
+        ("elpa" . "https://elpa.gnu.org/packages/")
+        ("nongnu" . "https://elpa.nongnu.org/nongnu/")
+        ("elpa-devel" . "https://elpa.gnu.org/devel/")))
+
+;; Initialize the packages, avoiding a re-initialization.
+
+(unless (bound-and-true-p package--initialized)
+  (package-initialize))
+#+end_src
+
+** Setup use-package
+
+#+begin_src emacs-lisp
+;; Make sure `use-package' is available.
+
+(unless (package-installed-p 'use-package)
+  (package-refresh-contents)
+  (package-install 'use-package))
+
+;; Configure `use-package' prior to loading it.
+
+(eval-and-compile
+  (setq use-package-always-ensure nil)
+  (setq use-package-always-defer nil)
+  (setq use-package-always-demand nil)
+  (setq use-package-expand-minimally nil)
+  (setq use-package-enable-imenu-support t)
+  (setq use-package-compute-statistics nil)
+  ;; The following is VERY IMPORTANT.  Write hooks using their real name
+  ;; instead of a shorter version: after-init ==> `after-init-hook'.
+  ;;
+  ;; This is to empower help commands with their contextual awareness,
+  ;; such as `describe-symbol'.
+  (setq use-package-hook-name-suffix nil))
+
+(eval-when-compile
+  (require 'use-package))
+
+(use-package diminish :ensure t :after use-package) ;; if you use :diminish
+(use-package bind-key :ensure t :after use-package) ;; if you use any :bind variant
+(use-package delight :ensure t :after use-package)  ;; Use delighting for modes
+#+end_src
+* Default settings 
+
+#+begin_src emacs-lisp
+(setq-default cursor-type 'bar)               ; Line-style cursor similar to other text editors
+(setq inhibit-startup-screen t)               ; Disable startup screen
+(setq initial-scratch-message "")	        ; Make *scratch* buffer blank
+(setq-default frame-title-format '("%b"))     ; Make window title the buffer name
+(setq confirm-kill-processes nil)		; Stop confirming the killing of processes
+(setq use-short-answers t)                    ; y-or-n-p makes answering questions faster
+(show-paren-mode t)                           ; Visually indicates pair of matching parentheses
+(delete-selection-mode t)                     ; Start writing straight after deletion
+(put 'narrow-to-region 'disabled nil)	        ; Allows narrowing bound to C-x n n (region) and C-x n w (widen)
+(setq read-process-output-max (* 1024 1024))  ; Increase the amount of data which Emacs reads from the process
+(global-hl-line-mode 1)			; Highlight the current line to make it more visible
+(global-display-line-numbers-mode t)          ; Enable line numbers
+(setq display-line-numbers-type 'relative)    ; Set relative line numbers
+(setq create-lockfiles nil)                   ; lock files kill `npm start'
+(setq-default fill-column 79)		        ; Set fill column to 80 rather than 70, in all cases.
+(pixel-scroll-precision-mode 1)	        ; Precision scrolling
+(setq ring-bell-function 'ignore)		; Disable bell sound
+
+(setq backup-directory-alist `(("." . "~/.saves")))
+#+end_src
+
+** Garbage collection
+
+#+begin_src emacs-lisp
+(use-package gcmh
+  :ensure t
+  :diminish gcmh-mode
+  :custom
+  (gcmh-mode 1)
+  (gcmh-idle-delay 5)
+  (gcmh-high-cons-threshold (* 16 1024 1024))
+  (gc-cons-percentage 0.1))
+#+end_src
+
+** Useful packages
+
+#+begin_src emacs-lisp
+(use-package eldoc
+  :delight eldoc-mode)
+
+(use-package autorevert
+  :defer 2
+  :delight auto-revert-mode)
+
+(use-package recentf
+  :defer 2
+  :init
+  (recentf-mode 1))
+
+(use-package undo-tree
+  :ensure t
+  :init
+  (global-undo-tree-mode))
+#+end_src
+
+** MacOS specific settings
+
+Set cmd as meta-key (to align with Windows/Linux location), and set option as super-key.
+
+#+begin_src emacs-lisp
+(when (string= system-type "darwin")
+  (setq mac-command-modifier 'meta
+        mac-option-modifier 'super))
+#+end_src
+
+* Evil keybindings (general)
+
+** Evil
+
+The Evil package(s) enable Vim-like keybindings.
+
+#+begin_src emacs-lisp
+(use-package evil
+  :ensure t
+  :init      ;; tweak evil's configuration before loading it
+  (setq evil-want-integration t) ;; This is optional since it's already set to t by default.
+  (setq evil-want-keybinding nil)
+  (setq evil-want-C-u-scroll t)
+  (setq evil-vsplit-window-right t)
+  (setq evil-split-window-below t)
+  (setq evil-want-C-i-jump nil)
+  :config
+  (evil-mode)
+  (evil-set-undo-system 'undo-tree)
+  ;; Use visual line motions (e.g. for when a long line is wrapped)
+  (evil-global-set-key 'motion "j" 'evil-next-visual-line)
+  (evil-global-set-key 'motion "k" 'evil-previous-visual-line)
+  (global-set-key (kbd "C-M-u") 'universal-argument))
+#+end_src
+
+Evil collection is a collection of Evil bindings for the parts of Emacs that Evil does not cover properly by default.
+
+#+begin_src emacs-lisp
+(use-package evil-collection
+  :ensure t
+  :after evil
+  :config
+  (setq evil-collection-mode-list '(vterm dashboard dired ibuffer magit pdf doc-view company)) ; Modes to activate Evil keybindings for
+  (evil-collection-init))
+#+end_src
+
+Bind kj in insert mode to ESC.
+
+#+begin_src emacs-lisp
+(use-package evil-escape
+  :ensure t
+  :init
+  (evil-escape-mode 1)
+  (setq evil-escape-key-sequence "kj")
+  (setq evil-escape-delay 0.2))
+#+end_src
+
+Evil nerd commenter for line comment.
+
+#+begin_src emacs-lisp
+(use-package evil-nerd-commenter
+  :ensure t
+  :bind ("M-/" . evilnc-comment-or-uncomment-lines))
+#+end_src
+
+
+Evil-org adds evil bindings to org-agenda.
+
+#+begin_src emacs-lisp
+
+(use-package evil-org
+  :ensure t
+  :after org
+  :hook (org-mode . (lambda () evil-org-mode))
+  :config
+  (require 'evil-org-agenda)
+  (evil-org-agenda-set-keys))
+
+#+end_src
+
+evil-surround enables surrounding of (Vim) text objects (e.g. brackets or quotes)
+
+#+begin_src emacs-lisp
+(use-package evil-surround
+  :ensure t
+  :config
+  (global-evil-surround-mode 1))
+#+end_src
+** General
+
+
+The config in this section enable SPC as a prefix to a useful and commonly used
+function (similar to Spacemacs/Doom/VSpaceCode).
+
+#+begin_src emacs-lisp
+(use-package general
+  :ensure t
+  :init
+  (setq general-override-states '(insert
+                                  emacs
+                                  hybrid
+                                  normal
+                                  visual
+                                  motion
+                                  operator
+                                  replace))
+  :after evil
+  :config
+  (general-evil-setup t)
+  (general-create-definer leader-keys
+    :states '(normal visual emacs motion) ; consider adding motion for using with easymotion
+    :keymaps 'override 
+    :prefix "SPC")
+  (general-create-definer local-leader-keys
+    :states '(normal visual emacs motion) ; consider adding motion for using with easymotion
+    :keymaps 'override 
+    :prefix "SPC m")
+  )
+#+end_src
+
+*** Eval keybindings
+
+#+begin_src emacs-lisp
+(leader-keys
+  "e"     '(:ignore t       :wk "Eval")
+  "e b"   '(eval-buffer     :wk "Eval elisp in buffer")
+  "e d"   '(eval-defun      :wk "Eval defun")
+  "e e"   '(eval-expression :wk "Eval elisp expression")
+  "e l"   '(eval-last-sexp  :wk "Eval last sexression")
+  "e r"   '(eval-region     :wk "Eval region"))
+#+end_src
+
+* Navigation
+
+** Dired
+
+#+begin_src emacs-lisp
+  (use-package dired
+    :after evil evil-collection
+    ;; :commands (dired dired-jump)
+    ;; :bind (("C-x C-j" . dired-jump))
+    :custom ((dired-listing-switches "-agho --group-directories-first"))
+    :init
+    (when (string= system-type "darwin")
+      (setq dired-use-ls-dired t
+	    insert-directory-program "/usr/local/bin/gls"))
+    :config
+    (evil-collection-define-key 'normal 'dired-mode-map
+      "h" 'dired-single-up-directory
+      "l" 'dired-single-buffer)
+    (leader-keys
+      "d" '(dired :wk "dired")
+      "j d" '(dired-jump :wk "dired-jump")))
+
+    (use-package dired-single
+      :ensure t
+      :after dired)
+
+    (use-package all-the-icons-dired
+      :ensure t
+      :after dired
+      :hook (dired-mode . all-the-icons-dired-mode))
+
+    (use-package dired-hide-dotfiles
+      :ensure t
+      :after dired
+      :hook (dired-mode . dired-hide-dotfiles-mode)
+      :config
+      (evil-collection-define-key 'normal 'dired-mode-map
+	"H" 'dired-hide-dotfiles-mode))
+#+end_src
+
+*** MacOS specific setting for Dired
+
+OS X's ls function does not support the --group-directories-first switch. In order to enable this, install GNU core utils:
+
+#+begin_src shell
+
+brew install coreutils
+
+#+end_src
+
+** Buffer management
+
+Add function to kill all buffers except current one.
+
+#+begin_src emacs-lisp
+(defun kill-other-buffers ()
+  "Kill all other buffers."
+  (interactive)
+  (mapc 'kill-buffer (delq (current-buffer) (buffer-list))))
+#+end_src
+
+Keybindings for buffer management.
+#+begin_src emacs-lisp
+(leader-keys
+  "TAB" '(consult-buffer                     :wk "Switch buffer")
+  "b"   '(:ignore t                          :wk "Buffer")
+  "b b" '(ibuffer                            :wk "Ibuffer")
+  "b c" '(clone-indirect-buffer-other-window :wk "Clone indirect buffer other window")
+  "b k" '(kill-current-buffer                :wk "Kill current buffer")
+  "b n" '(next-buffer                        :wk "Next buffer")
+  "b p" '(previous-buffer                    :wk "Previous buffer")
+  "b B" '(ibuffer-list-buffers               :wk "Ibuffer list buffers")
+  "b K" '(kill-buffer                        :wk "Kill buffer")
+  "b 1" '(kill-other-buffers                 :wk "Kill other buffers"))
+#+end_src
+
+** File management
+
+#+begin_src emacs-lisp
+(leader-keys
+ "f"   '(:ignore t           :wk "File")
+ "."   '(find-file           :wk "Find file")
+ "f f" '(find-file           :wk "Find file")
+ "f F" '(consult-find        :wk "Consult find")
+ "f g" '(consult-ripgrep     :wk "Consult ripgrep")
+ "f r" '(consult-recent-file :wk "Recent files")
+ "f s" '(save-buffer         :wk "Save file")
+ "f u" '(sudo-edit-find-file :wk "Sudo find file")
+ "f C" '(copy-file           :wk "Copy file")
+ "f D" '(delete-file         :wk "Delete file")
+ "f R" '(rename-file         :wk "Rename file")
+ "f S" '(write-file          :wk "Save file as...")
+ "f U" '(sudo-edit           :wk "Sudo edit file"))
+#+End_src
+
+** Avy
+
+Package to easily navigate cursor within buffers. Using this over evil-easymotion because Avy does not distinguish between forward and backward and allows jumping across visible buffers.
+
+#+begin_src emacs-lisp
+    (use-package avy
+      :ensure t
+      :after consult
+      :config
+      (leader-keys
+        "j"	'(:ignore t           :wk "Jump to")
+        "j f"	'(avy-goto-char       :wk "Find char")
+        "j s"	'(avy-goto-char-2     :wk "Find char 2")
+        "j c"	'(avy-goto-char-timer :wk "Find char timer")
+        "j j"	'(avy-goto-char-timer :wk "Find char timer")
+        "j l"	'(avy-goto-line       :wk "Jump to line")
+        "j h" '(consult-outline     :wk "Jump to heading")))
+#+end_src
+
+* Themes and fonts
+
+** Theme
+
+#+begin_src emacs-lisp
+(use-package doom-themes
+  :ensure t
+  :init
+  (setq doom-themes-enable-bold t
+	doom-themes-enable-italic t)
+  (load-theme 'doom-one t))  ;; Ones I liked and used: doom-one, doom-dark+, doom-solarized-light
+#+end_src
+
+** Doom modeline
+
+This package depends on all-the-icons package. When installing Doom modeline for the first time, please run 'all-the-icons-install-fonts' via M-x first.
+
+#+begin_src emacs-lisp
+(use-package doom-modeline
+  :ensure t
+  :init
+  (doom-modeline-mode 1))
+#+end_src
+
+Ensure icons are used in Daemon mode:
+
+#+begin_src emacs-lisp
+(add-hook 'server-after-make-frame-hook
+ (lambda ()
+     (setq doom-modeline-icon (display-graphic-p))))
+#+end_src
+
+NOTE: ~(doom-modeline-mode)~ results in ~(error "bar is not a defined segment")~ in emacs@29. See also: https://githubhot.com/repo/seagle0128/doom-modeline/issues/505
+
+To fix, run this code *once*:
+
+#+begin_src emacs-lisp
+;; (setq doom-modeline-fn-alist
+;;       (--map
+;;        (cons (remove-pos-from-symbol (car it)) (cdr it))
+;;        doom-modeline-fn-alist))
+#+end_src
+
+** Fonts
+
+The used fonts have different names on different computers:
+
+#+begin_src emacs-lisp
+  (if (string= system-name "Duys-MBP.home")
+      (setq duy/default-font "Fira Code"
+            duy/variable-font "IBM Plex Sans")
+    (if (string= system-name "NL5CG1462QH6")
+        (setq duy/default-font "FiraMono Nerd Font Mono"
+              duy/variable-font "FiraMono Nerd Font Mono")
+      (setq duy/default-font nil
+            duy/variable-font nil)))
+#+end_src
+
+Set fonts:
+
+#+begin_src emacs-lisp
+  (set-face-attribute 'default nil :font (font-spec :family duy/default-font))
+  (set-face-attribute 'fixed-pitch nil :font (font-spec :family duy/default-font))
+  (set-face-attribute 'variable-pitch nil :font (font-spec :family duy/variable-font))
+#+end_src
+
+Settings for daemon mode:
+
+#+begin_src emacs-lisp
+  (defun duy/setup-font-faces-daemon()
+    (when (display-graphic-p)
+      (set-face-attribute 'default nil :font (font-spec :family duy/default-font))
+      (set-face-attribute 'fixed-pitch nil :font (font-spec :family duy/default-font))
+      (set-face-attribute 'variable-pitch nil :font (font-spec :family duy/variable-font))))
+
+  (add-hook 'after-init-hook 'duy/setup-font-faces-daemon)
+  (add-hook 'server-after-make-frame-hook 'duy/setup-font-faces-daemon)
+#+end_src
+
+* Terminals
+
+** vterm
+
+#+begin_src emacs-lisp
+(use-package vterm
+  :ensure t
+  :bind (:map vterm-mode-map
+              ("C-b" . vterm-send-C-b))
+  :config
+  (add-hook 'vterm-mode-hook (lambda () (setq-local global-hl-line-mode nil))))
+#+end_src
+
+** vterm-toggle
+
+#+begin_src emacs-lisp
+(use-package vterm-toggle
+  :ensure t
+  :config
+  (setq vterm-toggle-fullscreen-p nil)
+  (add-to-list 'display-buffer-alist
+               '((lambda (buffer-or-name _)
+                   (let ((buffer (get-buffer buffer-or-name)))
+                     (with-current-buffer buffer
+                       (or (equal major-mode 'vterm-mode)
+                           (string-prefix-p vterm-buffer-name (buffer-name buffer))))))
+                 (display-buffer-reuse-window display-buffer-at-bottom)
+                 (display-buffer-reuse-window display-buffer-in-direction)
+                 ;;display-buffer-in-direction/direction/dedicated is added in emacs27
+                 ;;(direction . bottom)
+                 (dedicated . t) ;dedicated is supported in emacs27
+                 (reusable-frames . visible)
+                 (window-height . 0.3)))
+  (leader-keys
+    "'" '(vterm-toggle :wk "vterm")
+    )
+  )
+#+end_src
+** exec-path-from-shell
+
+#+begin_src emacs-lisp
+(use-package exec-path-from-shell
+  :ensure t
+  :defer nil
+  :config
+  (exec-path-from-shell-copy-env "PATH")
+  (when (memq window-system '(mac ns x))
+    (exec-path-from-shell-initialize))
+  (when (daemonp)
+    (exec-path-from-shell-initialize)))
+#+end_src
+
+* Completion and navigation
+** Vertico
+
+#+begin_src emacs-lisp
+(use-package vertico
+  :ensure t
+  :bind (:map vertico-map
+              ("C-j" . vertico-next)
+              ("C-k" . vertico-previous)
+              ("C-f" . vertico-exit)
+              :map minibuffer-local-map
+              ("M-h" . backward-kill-word))
+  :custom
+  (vertico-cycle t)
+  :init
+  (vertico-mode))
+#+end_src
+
+** Orderless
+
+#+begin_src emacs-lisp
+(use-package orderless
+  :ensure t
+  :custom
+  (completion-styles '(partial-completion orderless flex))
+  (completion-category-defaults nil)
+  (read-file-name-completion-ignore-case t)
+  (completion-category-overrides '((file (styles partial-completion))
+                                   (minibuffer (initials orderless)))))
+#+end_src
+
+** Savehist
+
+#+begin_src emacs-lisp
+;; Persist history over Emacs restarts. Vertico sorts by history position.
+(use-package savehist
+  :ensure t
+  :defer 2
+  :config
+  (savehist-mode))
+#+end_src
+
+** Marginalia
+
+#+begin_src emacs-lisp
+(use-package marginalia
+  :pin melpa
+  :ensure t
+  :defer 3
+  :custom (marginalia-annotators '(marginalia-annotators-light))
+  :config
+  (marginalia-mode))
+#+end_src
+
+** Which-key
+
+#+begin_src emacs-lisp
+(use-package which-key
+  :ensure t
+  :defer 4
+  :diminish which-key-mode
+  :config
+  (which-key-mode 1))
+#+end_src
+
+** Company
+
+#+begin_src emacs-lisp
+(use-package company
+  :ensure t
+  :defer t
+  :diminish ""
+  :custom
+  (company-dabbrev-other-buffers t)
+  (company-dabbrev-code-other-buffers t)
+  ;; M-<num> to select an option according to its number.
+  (company-show-numbers t)
+  ;; Only 2 letters required for completion to activate.
+  (company-minimum-prefix-length 3)
+  ;; Do not downcase completions by default.
+  (company-dabbrev-downcase nil)
+  ;; Even if I write something with the wrong case,
+  ;; provide the correct casing.
+  (company-dabbrev-ignore-case t)
+  ;; company completion wait
+  (company-idle-delay 0.2)
+  ;; No company-mode in shell & eshell
+  (company-global-modes '(not eshell-mode shell-mode))
+  :hook ((text-mode-hook . company-mode)
+         (prog-mode-hook . company-mode)))
+#+end_src
+
+** Consult
+
+#+begin_src emacs-lisp
+(use-package consult
+  :ensure t
+  :bind (("C-s" . consult-line)))
+#+end_src
+
+** Embark
+
+#+begin_src emacs-lisp
+(use-package embark
+  :ensure t
+
+  :bind
+  (("C-;" . embark-act)          ;; pick some comfortable binding
+   ("C-:" . embark-dwim)         ;; good alternative: M-.
+   ("C-h B" . embark-bindings)))
+   ;; :map minibuffer-local-map
+   ;; (("C-." . embark-act)))) ;; alternative for `describe-bindings'
+
+(use-package embark-consult
+  :ensure t
+  :after (embark consult)
+  :demand t ; only necessary if you have the hook below
+  ;; if you want to have consult previews as you move around an
+  ;; auto-updating embark collect buffer
+  :hook
+  (embark-collect-mode . consult-preview-at-point-mode))
+#+end_src
+
+** Treemacs
+
+#+begin_src emacs-lisp
+(use-package treemacs
+  :ensure t
+  :defer t
+  :custom
+  (treemacs-no-png-images t)
+  (treemacs-width 24)
+  :bind ("C-c t" . treemacs))
+#+end_src
+
+* Windows and movement
+
+** ace-window
+
+#+begin_src emacs-lisp
+(use-package ace-window
+  :ensure t
+  :config
+    (setq aw-keys '(?a ?s ?d ?f ?g ?h ?j ?k ?l)
+          aw-dispatch-always t)
+    (leader-keys
+      "w" '(ace-window :wk "ace-window")))
+#+end_src
+  
+* Spell / syntax checking
+* Version control
+
+#+begin_src emacs-lisp
+(use-package magit
+  :ensure t
+  :config
+  (leader-keys
+    "g"   '(:ignore t                 :wk "Git")
+    "g s" '(magit                     :wk "Magit status")
+    "g m" '(activate-smerge-mode/body :wk "Smerge")))
+#+end_src
+
+* Org mode
+
+** Basic setup
+
+#+begin_src emacs-lisp
+    (defun duy/org-mode-setup ()
+      (variable-pitch-mode 1)
+      (visual-line-mode 1)
+      (display-line-numbers-mode 0))
+#+end_src
+
+#+begin_src emacs-lisp
+  (use-package org
+    :ensure t
+    :custom
+    (org-babel-load-languages            ; Languages allowed to run in Org Src blocks
+     '((emacs-lisp . t)
+       (python . t)
+       (jupyter .t)))
+    (org-confirm-babel-evaluate nil)     ; Do not ask for confirmation when evaluating src blocks
+    (org-catch-invisible-edits 'show)    ; When making invisible edits, show the location of the edit
+    (org-ellipsis " ▼ ")
+    (org-src-fontify-natively t)         ; Fontify code in src blocks
+    (org-edit-src-content-indentation 2) ; Identation within the src blocks
+    (org-startup-indented t)             ; Org headings are indented, as is the text within the headings
+    (org-hide-leading-stars nil)
+    (org-hide-emphasis-markers t)        ; Hide markers around emphasised word (e.g. *bold*, /italic/ etc.)
+    (org-adapt-indentation t)
+    (org-agenda-tags-column "auto")      ; tags right-aligned in org agenda
+    (org-structure-template-alist '(("a" . "export ascii")
+                                    ("c" . "center")
+                                    ("C" . "comment")
+                                    ("e" . "example")
+                                    ("E" . "export")
+                                    ("l" . "export latex")
+                                    ("py" . "src python")
+                                    ("ju" . "src jupyter-python")
+                                    ("q" . "quote")
+                                    ("s" . "src")
+                                    ("v" . "verse")
+                                    ("el" . "src emacs-lisp")
+                                    ("d" . "definition")
+                                    ("t" . "theorem")))
+    ;; :custom-face
+    ;; (variable-pitch ((t (:family "IBM Plex Sans"))))
+    (org-document-title ((t (:weight bold :height 1.5))))
+    (org-done ((t (:strike-through t :weight bold))))
+    (org-headline-done ((t (:strike-through t))))
+    (org-level-1 ((t (:height 1.3 :weight bold))))
+    (org-level-2 ((t (:height 1.2 :weight bold))))
+    (org-level-3 ((t (:height 1.1 :weight bold))))
+    (org-image-actual-width (/ (display-pixel-width) 2))
+    (org-block ((nil (:foreground nil :inherit 'fixed-pitch))))
+    (org-table ((nil (:inherit 'fixed-pitch))))
+    (org-formula ((nil (:inherit 'fixed-pitch))))
+    (org-code ((nil (:inherit '(shadow fixed-pitch)))))
+    (org-indent ((nil (:inherit '(org-hide fixed-pitch)))))
+    (org-verbatim ((nil (:inherit '(shadow fixed-pitch)))))
+    (org-special-keyword ((nil (:inherit '(font-lock-comment-face fixed-pitch)))))
+    (org-meta-line ((nil (:inherit '(font-lock-comment-face fixed-pitch)))))
+    (org-checkbox ((nil (:inherit 'fixed-pitch))))
+    (org-block-begin-line ((nil (:inherit 'fixed-pitch))))
+    :init
+    (with-eval-after-load 'flycheck
+      (flycheck-add-mode 'proselint 'org-mode))
+    (add-hook 'org-mode-hook #'duy/org-mode-setup)
+                                          ; Change bullets to actual bullets
+    (font-lock-add-keywords 'org-mode
+                            '(("^ *\\([-]\\) "
+                               (0 (prog1 () (compose-region (match-beginning 1) (match-end 1) "•"))))))
+    :config
+    (advice-add 'org-refile :after (lambda (&rest _) (org-save-all-org-buffers)))
+    (require 'org-habit)
+    (require 'org-tempo)
+    (leader-keys
+      "o"   '(:ignore t :which-key "Org")
+      "a"   '(org-agenda :which-key "Agenda")
+      "c"   '(org-capture :which-key "Capture")
+      "C"   '(org-capture :which-key "Capture"))
+    (local-leader-keys
+      "o" '(org-open-at-point :wk "Open link")))
+#+end_src
+
+** Capture templates
+
+#+begin_src emacs-lisp
+(if (string= system-name "Duys-MBP.home")
+    (setq inbox-file "~/org-roam-notes/20220101143145-inbox.org"
+          general-task-file "~/org-roam-notes/20220101143545-tasks.org")
+  (if (string= system-name "NL5CG1462QH6")
+      (setq inbox-file "~/org-roam-notes/20220522180401-inbox.org"
+            general-task-file "~/org-roam-notes/20220522181915-general_tasks.org")
+    (setq inbox-file nil)))
+
+(setq org-capture-templates
+      '(("i" "Inbox" plain (file inbox-file)
+         "* TODO %?\n%U\n" :clock-in nil :clock-resume t)
+        ("t" "Today" plain (file general-task-file)
+         "* TODO %?\n SCHEDULED: %t\n%U\n" :clock-in nil :clock-resume t)
+        ))
+#+end_src
+
+** Org bullet
+
+#+begin_src emacs-lisp
+  (use-package org-bullets
+    :ensure t)
+
+  (add-hook 'org-mode-hook (lambda () (org-bullets-mode 1)))
+#+end_src
+
+** Org roam
+
+#+begin_src emacs-lisp
+  (use-package org-roam
+    :ensure t
+    :init
+    (setq org-roam-v2-ack t)
+    :custom
+    (org-roam-directory "~/org-roam-notes")
+    (org-roam-completion-everywhere t)
+    (org-roam-capture-templates
+     '(("d" "default" plain
+        "%?"
+        :if-new (file+head "%<%Y%m%d%H%M%S>-${slug}.org" "#+title: ${title}\n#+date: %U\n")
+        :unnarrowed t)))
+    (org-roam-dailies-capture-templates
+     '(("d" "default" entry "* %<%I:%M %p>: %?"
+        :if-new (file+head "%<%Y-%m-%d>.org" "#+title: %<%Y-%m-%d>\n"))))
+    :bind (:map org-mode-map
+                ("C-M-i" . completion-at-point)
+                :map org-roam-dailies-map
+                ("Y" . org-roam-dailies-capture-yesterday)
+                ("T" . org-roam-dailies-capture-tomorrow))
+    :config
+    (require 'org-roam-dailies) ;; Ensure the keymap is available
+    (setq org-roam-node-display-template #("${title:*} ${tags:40}" 11 21
+                                           (face org-tag)))
+    (org-roam-db-autosync-mode)
+    (leader-keys
+      "n"   '(:ignore t              :wk "Roam")
+      "n l" '(org-roam-buffer-toggle :wk "Buffer toggle")
+      "n f" '(org-roam-node-find     :wk "Find")
+      "n i" '(org-roam-node-insert   :wk "Insert")
+      "n t" '(org-roam-tag-add       :wk "Add tag")
+      "n T" '(org-roam-tag-remove    :wk "Remove tag")
+      "n d" '(org-roam-dailies-map   :wk "Dailies")))
+#+end_src
+
+* Org agenda (using org-roam)
+
+** Helper functions
+
+This setup primarily follows the setup from d12frosted's [[https://d12frosted.io/posts/2020-06-23-task-management-with-roam-vol1.html][blog]].
+
+*** Vulpea
+
+Vulpea is a package written by d12frosted with additional functions for org and org-roam. See also [[https://github.com/d12frosted/vulpea][here]].
+
+#+begin_src emacs-lisp
+(use-package vulpea
+  :ensure t)
+#+end_src
+
+*** s.el
+
+s.el is an emacs string manipulation package.
+
+#+begin_src emacs-lisp
+(use-package s
+  :ensure t)
+#+end_src
+
+*** Dynamic org-agenda
+
+- Update nodes with "project" tag if it has a TODO item.
+- Set agenda files to nodes which have a "project" tag.
+
+#+begin_src emacs-lisp
+(defun vulpea-project-p ()
+  "Return non-nil if current buffer has any todo entry.
+
+TODO entries marked as done are ignored, meaning the this
+function returns nil if current buffer contains only completed
+tasks."
+  (seq-find                                 ; (3)
+   (lambda (type)
+     (eq type 'todo))
+   (org-element-map                         ; (2)
+       (org-element-parse-buffer 'headline) ; (1)
+       'headline
+     (lambda (h)
+       (org-element-property :todo-type h)))))
+
+(defun vulpea-project-update-tag ()
+  "Update PROJECT tag in the current buffer."
+  (when (and (not (active-minibuffer-window))
+             (vulpea-buffer-p))
+    (save-excursion
+      (goto-char (point-min))
+      (let* ((tags (vulpea-buffer-tags-get))
+             (original-tags tags))
+        (if (vulpea-project-p)
+            (setq tags (cons "project" tags))
+          (setq tags (remove "project" tags)))
+
+        ;; cleanup duplicates
+        (setq tags (seq-uniq tags))
+
+        ;; update tags if changed
+        (when (or (seq-difference tags original-tags)
+                  (seq-difference original-tags tags))
+          (apply #'vulpea-buffer-tags-set tags))))))
+
+(defun vulpea-buffer-p ()
+  "Return non-nil if the currently visited buffer is a note."
+  (and buffer-file-name
+       (string-prefix-p
+        (expand-file-name (file-name-as-directory org-roam-directory))
+        (file-name-directory buffer-file-name))))
+
+(defun vulpea-project-files ()
+  "Return a list of note files containing 'project' tag." ;
+  (seq-uniq
+   (seq-map
+    #'car
+    (org-roam-db-query
+     [:select [nodes:file]
+              :from tags
+              :left-join nodes
+              :on (= tags:node-id nodes:id)
+              :where (like tag (quote "%\"project\"%"))]))))
+
+(defun vulpea-agenda-files-update (&rest _)
+  "Update the value of `org-agenda-files'."
+  (setq org-agenda-files (vulpea-project-files)))
+
+(add-hook 'find-file-hook #'vulpea-project-update-tag)
+(add-hook 'before-save-hook #'vulpea-project-update-tag)
+
+(advice-add 'org-agenda :before #'vulpea-agenda-files-update)
+#+end_src
+
+** Org agenda settings
+
+*** Fix title org-roam file in todo list
+
+#+begin_src emacs-lisp
+(setq org-agenda-prefix-format
+      '((agenda . " %i %(vulpea-agenda-category 12)%?-12t% s")
+        (todo . " %i %(vulpea-agenda-category 12) ")
+        (tags . " %i %(vulpea-agenda-category 12) ")
+        (search . " %i %(vulpea-agenda-category 12) ")))
+
+(defun vulpea-agenda-category (&optional len)
+  "Get category of item at point for agenda.
+
+Category is defined by one of the following items:
+
+- CATEGORY property
+- TITLE keyword
+- TITLE property
+- filename without directory and extension
+
+When LEN is a number, resulting string is padded right with
+spaces and then truncated with ... on the right if result is
+longer than LEN.
+
+Usage example:
+
+  (setq org-agenda-prefix-format
+        '((agenda . \" %(vulpea-agenda-category) %?-12t %12s\")))
+
+Refer to `org-agenda-prefix-format' for more information."
+  (let* ((file-name (when buffer-file-name
+                      (file-name-sans-extension
+                       (file-name-nondirectory buffer-file-name))))
+         (title (vulpea-buffer-prop-get "title"))
+         (category (org-get-category))
+         (result
+          (or (if (and
+                   title
+                   (string-equal category file-name))
+                  title
+                category)
+              "")))
+    (if (numberp len)
+        (s-truncate len (s-pad-right len " " result))
+      result)))
+#+end_src
+
+*** org-super-agenda
+
+Use org-super-agenda to group TODOs in agenda view.
+
+#+begin_src emacs-lisp
+
+(use-package org-super-agenda
+  :ensure t
+  :config
+  (add-hook 'org-agenda-mode-hook 'org-super-agenda-mode)
+  (setq org-super-agenda-header-map (make-sparse-keymap)))
+
+#+end_src
+
+*** TODOs, tags etc.
+
+Set todo keywords, tags etc.
+
+#+begin_src emacs-lisp
+
+(setq org-todo-keywords
+      '((sequence "TODO(t)" "NEXT(n)" "|" "DONE(d)")
+        (sequence "WAITING(w@/!)" "HOLD(h@/!)" "|" "CANCELLED(c)")))
+
+(setq org-log-done 'time
+      org-log-into-drawer t
+      org-log-state-notes-insert-after-drawers nil)
+
+(setq org-tag-alist (quote (("@reading" . ?r)
+                            ("@programming" . ?p)
+                            ("@office" . ?o)
+                            ("@home" . ?h)
+                            ("@school" . ?s)
+                            (:newline)
+                            ("WAITING" . ?w)
+                            ("HOLD" . ?H)
+                            ("CANCELLED" . ?c))))
+
+(setq org-fast-tag-selection-single-key nil)
+#+end_src
+
+*** Archiving
+
+Function to archive all done task in current org agenda/file.
+
+#+begin_src emacs-lisp
+(defun duy/org-archive-done-tasks-agenda ()
+  (interactive)
+  (org-map-entries
+   (lambda ()
+     (org-archive-subtree)
+     (setq org-map-continue-from (org-element-property :begin (org-element-at-point))))
+   "/DONE" 'agenda))
+
+(defun duy/org-archive-done-tasks-file ()
+  (interactive)
+  (org-map-entries
+   (lambda ()
+     (org-archive-subtree)
+     (setq org-map-continue-from (org-element-property :begin (org-element-at-point))))
+   "/DONE" 'file))
+#+end_src
+
+** org-agenda layout
+
+Function to automatically group TODOs by title.
+#+begin_src emacs-lisp
+
+(org-super-agenda--def-auto-group title "title of org file"
+  :key-form (org-super-agenda--when-with-marker-buffer (org-super-agenda--get-marker item)
+              (org-roam-db--file-title))
+  :header-form key)
+
+#+end_src
+
+Layout of agenda.
+
+#+begin_src emacs-lisp
+(setq duy/agenda-group-main
+      '(
+	(:discard (:scheduled today))
+	(:discard (:scheduled past))
+	(:name "Next"
+	       :todo "NEXT")
+	(:name "Focus"
+	       :tag "focus")
+	(:name "Scheduled"
+	       :scheduled future)
+	(:name "Waiting"
+	       :todo "WAITING")
+	(:discard (:anything t))
+	))
+
+(setq duy/agenda-group-today
+      '(
+	(:name "Today"
+	       :time-grid t
+	       :date today
+	       :scheduled today)
+	(:name "Upcoming deadlines"
+               :deadline future)
+	))
+
+(setq duy/agenda-group-backlog
+      '(
+	(:discard (:tag "refile"))
+	(:auto-title t) ;; defined with org-super-agenda--def-auto-group
+	))
+
+(setq duy/agenda-group-backlog-unscheduled
+      '(
+	(:discard (:tag "refile"))
+	(:discard (:scheduled t))
+	(:discard (:deadline today))
+	(:auto-title t) ;; defined with org-super-agenda--def-auto-group
+	))
+
+(setq duy/agenda-group-inbox
+      '(
+	(:name ""
+	       :tag "refile")
+	(:discard (:anything t))
+	))
+
+(setq org-agenda-custom-commands
+      `((" " "Agenda"
+	 ((agenda "" ((org-agenda-span 'day)
+		      (org-super-agenda-groups duy/agenda-group-today)))
+	  (todo "" ((org-agenda-overriding-header "Tasks")
+		    (org-super-agenda-groups duy/agenda-group-main)))
+	  (todo "" ((org-agenda-overriding-header "Inbox")
+		    (org-super-agenda-groups duy/agenda-group-inbox)))
+	  (todo "TODO" ((org-agenda-overriding-header "Backlog")
+			(org-super-agenda-groups duy/agenda-group-backlog-unscheduled)))
+	  ))
+	("b" "Backlog"
+	 ((todo "TODO" ((org-agenda-overriding-header "Backlog")
+			(org-super-agenda-groups duy/agenda-group-backlog))))
+	 )))
+#+end_src
+
+** Inbox management
+
+*** Function to process inbox item
+
+#+begin_src emacs-lisp
+(defun duy/org-agenda-process-inbox-item ()
+  "Process a single item in the org-agenda."
+  (interactive)
+  (org-with-wide-buffer
+   (org-agenda-set-tags)
+   ;; (org-agenda-priority)
+   (org-agenda-refile nil nil t)))
+#+end_src
+
+*** Functions to process inbox
+
+#+begin_src emacs-lisp
+(defun duy/bulk-process-entries ()
+  (if (not (null org-agenda-bulk-marked-entries))
+      (let ((entries (reverse org-agenda-bulk-marked-entries))
+            (processed 0)
+            (skipped 0))
+        (dolist (e entries)
+          (let ((pos (text-property-any (point-min) (point-max) 'org-hd-marker e)))
+            (if (not pos)
+                (progn (message "Skipping removed entry at %s" e)
+                       (cl-incf skipped))
+              (goto-char pos)
+              (let (org-loop-over-headlines-in-active-region) (funcall 'duy/org-agenda-process-inbox-item))
+              ;; `post-command-hook' is not run yet.  We make sure any
+              ;; pending log note is processed.
+              (when (or (memq 'org-add-log-note (default-value 'post-command-hook))
+                        (memq 'org-add-log-note post-command-hook))
+                (org-add-log-note))
+              (cl-incf processed))))
+        (org-agenda-redo)
+        (unless org-agenda-persistent-marks (org-agenda-bulk-unmark-all))
+        (message "Acted on %d entries%s%s"
+                 processed
+                 (if (= skipped 0)
+                     ""
+                   (format ", skipped %d (disappeared before their turn)"
+                           skipped))
+                 (if (not org-agenda-persistent-marks) "" " (kept marked)")))))
+
+(defun duy/org-process-inbox ()
+  "Called in org-agenda-mode, processes all inbox items."
+  (interactive)
+  (org-agenda-bulk-mark-regexp "refile:")
+  (duy/bulk-process-entries))
+#+end_src
+
+*** Org refile settings
+
+Refile targets are set to all files in the org-roam-notes folder.
+
+#+begin_src emacs-lisp
+(setq myroamfiles (directory-files org-roam-directory t "org$"))
+
+;; -------- refile settings -----
+(setq org-refile-targets '((org-agenda-files :maxlevel . 5) (myroamfiles :maxlevel . 5)))
+(setq org-refile-use-outline-path 'file)  ;; 'file or nil
+(setq org-outline-path-complete-in-steps nil)
+(setq org-refile-allow-creating-parent-nodes 'confirm)
+#+end_src
+
+#+begin_src emacs-lisp
+(defun vulpea-roam-files-update (&rest _)
+  "Update the value of `myroamfiles'."
+  (setq myroamfiles (directory-files org-roam-directory t "org$")))
+
+(advice-add 'org-agenda :before #'vulpea-roam-files-update)
+#+end_src
+
+Some ideas for the future:
+
+- Project nodes have "project" tags, which are added by myself.
+- Nodes have "task" tags based on existence of TODO items.
+- Org agenda items are nodes with a "task" tag.
+- Refile targets are nodes with a "project" or "task" tag.
+
+* Web browsing
+
+Open URLs in qutebrowser:
+
+#+begin_src emacs-lisp
+  (setq browse-url-browser-function 'browse-url-generic
+        browse-url-generic-program "qutebrowser")
+#+end_src
+
+Keybindings for web-browsing:
+
+#+begin_src emacs-lisp
+  (leader-keys
+    "u" '(browse-url :wk "Browse URL"))
+#+end_src
+
+* Pandoc
+* Programming
+
+** LSP
+** Debugging
+** Python
+

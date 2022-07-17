@@ -1559,13 +1559,13 @@ Rebind movement in org calendar:
   )
 
 (use-package lsp-ui
+  :ensure t
   :hook (lsp-mode . lsp-ui-mode)
   :after lsp-mode
   :custom
   (lsp-ui-doc-show-with-cursor nil)
   :config
-  (setq lsp-ui-doc-position 'bottom)
-  )
+  (setq lsp-ui-doc-position 'bottom))
 
 (use-package lsp-treemacs
   :ensure t
@@ -1603,6 +1603,7 @@ The following lines are required to tune and improve LSP performance (see also [
 #+begin_src emacs-lisp
 
 (use-package dap-mode
+  :ensure t
   :after lsp-mode
   :commands dap-debug
   :hook ((python-mode . dap-ui-mode)

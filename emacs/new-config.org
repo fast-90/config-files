@@ -1,4 +1,5 @@
 * Package management
+
 ** Set package archives
 
 Add MELPA/ELPA/Non-GNU/ELPA-dev to package archives.
@@ -722,10 +723,10 @@ Settings for daemon mode:
     (require 'org-habit)
     (require 'org-tempo)
     (leader-keys
-      "o"   '(:ignore t :which-key "Org")
-      "a"   '(org-agenda :which-key "Agenda")
-      "c"   '(org-capture :which-key "Capture")
-      "C"   '(org-capture :which-key "Capture"))
+      "o"   '(:ignore t   :wk "Org")
+      "a"   '(org-agenda  :wk "Agenda")
+      "c"   '(org-capture :wk "Capture")
+      "C"   '(org-capture :wk "Capture"))
     (local-leader-keys
       "o" '(org-open-at-point :wk "Open link")))
 #+end_src

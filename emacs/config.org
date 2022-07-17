@@ -596,31 +596,31 @@ Keybindings for buffer management.
 (winner-mode 1)
 (leader-keys
   ;; Window splits
-  "w"     '(:ignore t :which-key "Window")
-  "w c"   '(evil-window-delete :which-key "Close window")
-  "w n"   '(evil-window-new :which-key "New window")
-  "w s"   '(evil-window-split :which-key "Horizontal split window")
-  "w v"   '(evil-window-vsplit :which-key "Vertical split window")
-  "w C"   '(delete-other-windows :which-key "Close other windows")
-  "w r"   '(hydra-window-resize/body :which-key "Resize window")
-  ;; Window motions
-  "w h"   '(evil-window-left :which-key "Window left")
-  "w j"   '(evil-window-down :which-key "Window down")
-  "w k"   '(evil-window-up :which-key "Window up")
-  "w l"   '(evil-window-right :which-key "Window right")
-  "w w"   '(evil-window-next :which-key "Goto next window")
-  ;; winner mode
-  "w <left>"  '(winner-undo :which-key "Winner undo")
-  "w <right>" '(winner-redo :which-key "Winner redo")
-  ;; Window numbers
-  "1" '(winum-select-window-1 :which-key "Select window 1")
-  "2" '(winum-select-window-2 :which-key "Select window 2")
-  "3" '(winum-select-window-3 :which-key t)
-  "4" '(winum-select-window-4 :which-key t)
-  "5" '(winum-select-window-5 :which-key t)
-  "6" '(winum-select-window-6 :which-key t)
-  "7" '(winum-select-window-7 :which-key t)
-  "8" '(winum-select-window-8 :which-key t))
+ "w"     '(:ignore t :which-key "Window")
+ "w c"   '(evil-window-delete :which-key "Close window")
+ "w n"   '(evil-window-new :which-key "New window")
+ "w s"   '(evil-window-split :which-key "Horizontal split window")
+ "w v"   '(evil-window-vsplit :which-key "Vertical split window")
+ "w C"   '(delete-other-windows :which-key "Close other windows")
+ "w r"   '(hydra-window-resize/body :which-key "Resize window")
+ ;; Window motions
+ "w h"   '(evil-window-left :which-key "Window left")
+ "w j"   '(evil-window-down :which-key "Window down")
+ "w k"   '(evil-window-up :which-key "Window up")
+ "w l"   '(evil-window-right :which-key "Window right")
+ "w w"   '(evil-window-next :which-key "Goto next window")
+ ;; winner mode
+ "w <left>"  '(winner-undo :which-key "Winner undo")
+ "w <right>" '(winner-redo :which-key "Winner redo")
+ ;; Window numbers
+ "1" '(winum-select-window-1 :which-key "Select window 1")
+ "2" '(winum-select-window-2 :which-key "Select window 2")
+ "3" '(winum-select-window-3 :which-key t)
+ "4" '(winum-select-window-4 :which-key t)
+ "5" '(winum-select-window-5 :which-key t)
+ "6" '(winum-select-window-6 :which-key t)
+ "7" '(winum-select-window-7 :which-key t)
+ "8" '(winum-select-window-8 :which-key t))
 #+end_src
 *** Git
 #+begin_src emacs-lisp

@@ -470,7 +470,7 @@ Evil collection is a collection of Evil bindings for the parts of Emacs that Evi
   :ensure t
   :after evil
   :config
-  (setq evil-collection-mode-list '(vterm dashboard dired ibuffer magit pdf doc-view company)) ; Modes to activate Evil keybindings for
+  (setq evil-collection-mode-list '(vterm dashboard dired ibuffer magit pdf doc-view company eww)) ; Modes to activate Evil keybindings for
   (evil-collection-init))
 #+end_src
 

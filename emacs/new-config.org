@@ -790,6 +790,7 @@ Settings for daemon mode:
       "c"   '(org-capture :wk "Capture")
       "C"   '(org-capture :wk "Capture"))
     (local-leader-keys
+      :keymaps 'org-mode-map
       "o" '(org-open-at-point :wk "Open link")))
 #+end_src
 
@@ -1237,6 +1238,15 @@ Some ideas for the future:
 * Writing
 
 ** Thesaurus
+
+#+begin_src emacs-lisp
+  (use-package powerthesaurus
+    :ensure t
+    :config
+    (local-leader-keys
+      :keymaps 'org-mode-map
+      "d" '(powerthesaurus-lookup-dwim :wk "Powerthesaurus")))
+#+end_src
 
 ** Olivetti
 

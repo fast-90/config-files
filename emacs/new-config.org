@@ -290,7 +290,7 @@ function (similar to Spacemacs/Doom/VSpaceCode).
       "h" 'dired-single-up-directory
       "l" 'dired-single-buffer)
     (leader-keys
-      "d" '(dired :wk "dired")
+      "d"   '(dired      :wk "dired")
       "j d" '(dired-jump :wk "dired-jump")))
 
   (use-package dired-single
@@ -728,7 +728,7 @@ Settings for daemon mode:
     (org-babel-load-languages            ; Languages allowed to run in Org Src blocks
      '((emacs-lisp . t)
        (python . t)
-       (jupyter .t)))
+       (jupyter . t)))
     (org-confirm-babel-evaluate nil)     ; Do not ask for confirmation when evaluating src blocks
     (org-catch-invisible-edits 'show)    ; When making invisible edits, show the location of the edit
     (org-ellipsis " ▼ ")
@@ -1287,7 +1287,6 @@ Keybindings for web-browsing:
   (org-babel-default-header-args:jupyter-python '((:async . "yes")
                                                   (:session . "py")
                                                   (:kernel . "python3"))))
-
 #+end_src
 
 See also [[https://orgmode.org/manual/Using-Header-Arguments.html][here]] for more info on how to use ~header-args~ properties in org files.

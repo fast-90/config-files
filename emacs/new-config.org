@@ -414,7 +414,7 @@ The used fonts have different names on different computers:
             duy/variable-font "IBM Plex Sans")
     (if (string= system-name "NL5CG1462QH6")
         (setq duy/default-font "FiraMono Nerd Font Mono"
-              duy/variable-font "IBM Plex Sans")
+              duy/variable-font "FiraMono Nerd Font Mono")
       (setq duy/default-font nil
             duy/variable-font nil)))
 #+end_src
@@ -712,7 +712,7 @@ Settings for daemon mode:
                                     ("el" . "src emacs-lisp")
                                     ("d" . "definition")
                                     ("t" . "theorem")))
-    ;; :custom-face
+    :custom-face
     ;; (variable-pitch ((t (:family "IBM Plex Sans"))))
     (org-document-title ((t (:weight bold :height 1.5))))
     (org-done ((t (:strike-through t :weight bold))))
@@ -724,11 +724,11 @@ Settings for daemon mode:
     (org-block ((nil (:foreground nil :inherit 'fixed-pitch))))
     (org-table ((nil (:inherit 'fixed-pitch))))
     (org-formula ((nil (:inherit 'fixed-pitch))))
-    (org-code ((nil (:inherit '(shadow fixed-pitch)))))
-    (org-indent ((nil (:inherit '(org-hide fixed-pitch)))))
-    (org-verbatim ((nil (:inherit '(shadow fixed-pitch)))))
-    (org-special-keyword ((nil (:inherit '(font-lock-comment-face fixed-pitch)))))
-    (org-meta-line ((nil (:inherit '(font-lock-comment-face fixed-pitch)))))
+    (org-code ((nil (:inherit (shadow fixed-pitch)))))
+    (org-indent ((nil (:inherit (org-hide fixed-pitch)))))
+    (org-verbatim ((nil (:inherit (shadow fixed-pitch)))))
+    (org-special-keyword ((nil (:inherit (font-lock-comment-face fixed-pitch)))))
+    (org-meta-line ((nil (:inherit (font-lock-comment-face fixed-pitch)))))
     (org-checkbox ((nil (:inherit 'fixed-pitch))))
     (org-block-begin-line ((nil (:inherit 'fixed-pitch))))
     :init
@@ -1195,7 +1195,7 @@ Some ideas for the future:
 
 * Writing
 
-** Powerthesaurus
+** Thesaurus
 
 * Web browsing
 

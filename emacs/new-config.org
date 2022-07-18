@@ -282,7 +282,7 @@ function (similar to Spacemacs/Doom/VSpaceCode).
     ;; :hook (dired-mode . dired-hide-dotfiles-mode)
     :init
     ;; Hooks
-    (add-hook 'dired-mode-hook #'dired-hode-dotfiles-mode)
+    (add-hook 'dired-mode-hook #'dired-hide-dotfiles-mode)
     (evil-collection-define-key 'normal 'dired-mode-map
       "H" 'dired-hide-dotfiles-mode))
 #+end_src
@@ -371,7 +371,7 @@ Package to easily navigate cursor within buffers. Using this over evil-easymotio
   :init
   (setq doom-themes-enable-bold t
 	doom-themes-enable-italic t)
-  (load-theme 'doom-one t))  ;; Ones I liked and used: doom-one, doom-dark+, doom-solarized-light
+  (load-theme 'doom-palenight t))  ;; Ones I liked and used: doom-one, doom-dark+, doom-solarized-light
 #+end_src
 
 ** Doom modeline

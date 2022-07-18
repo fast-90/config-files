@@ -271,15 +271,18 @@ function (similar to Spacemacs/Doom/VSpaceCode).
   (use-package all-the-icons-dired
     :ensure t
     :after dired
-    :hook (dired-mode . all-the-icons-dired-mode)
+    ;; :hook (dired-mode . all-the-icons-dired-mode)
     :init
-    )
+    ;; Hooks
+    (add-hook 'dired-mode-hook #'all-the-icons-dired-mode))
 
   (use-package dired-hide-dotfiles
     :ensure t
     :after dired
-    :hook (dired-mode . dired-hide-dotfiles-mode)
+    ;; :hook (dired-mode . dired-hide-dotfiles-mode)
     :init
+    ;; Hooks
+    (add-hook 'dired-mode-hook #'dired-hode-dotfiles-mode)
     (evil-collection-define-key 'normal 'dired-mode-map
       "H" 'dired-hide-dotfiles-mode))
 #+end_src

@@ -698,7 +698,6 @@ Settings for daemon mode:
     (org-hide-leading-stars nil)
     (org-hide-emphasis-markers t)        ; Hide markers around emphasised word (e.g. *bold*, /italic/ etc.)
     (org-adapt-indentation t)
-    (org-agenda-tags-column "auto")      ; tags right-aligned in org agenda
     (org-structure-template-alist '(("a" . "export ascii")
                                     ("c" . "center")
                                     ("C" . "comment")
@@ -1024,7 +1023,7 @@ Function to archive all done task in current org agenda/file.
    "/DONE" 'file))
 #+end_src
 
-** org-agenda layout
+*** Group TODOs by title
 
 Function to automatically group TODOs by title.
 #+begin_src emacs-lisp
@@ -1036,7 +1035,7 @@ Function to automatically group TODOs by title.
 
 #+end_src
 
-Layout of agenda.
+*** Layout of agenda
 
 #+begin_src emacs-lisp
 (setq duy/agenda-group-main
@@ -1102,8 +1101,19 @@ Layout of agenda.
 	 )))
 #+end_src
 
-** Inbox management
+*** org-agenda tags alignment
 
+#+begin_src emacs-lisp
+  (defun duy/realign-agenda-tags ()
+    "Put the agenda tags at the right border of the agenda window."
+    (setq org-agenda-tags-column (- 5 (window-width)))
+    (org-agenda-align-tags))
+
+  (add-hook 'org-agenda-finalize-hook 'duy/realign-agenda-tags)
+#+end_src
+
+** Inbox management
+ 
 *** Function to process inbox item
 
 #+begin_src emacs-lisp

@@ -1238,6 +1238,19 @@ Some ideas for the future:
 
 ** Thesaurus
 
+** Olivetti
+
+#+begin_src emacs-lisp
+  (use-package olivetti
+    :ensure t
+    :defer t
+    :diminish
+    :custom
+    (olivetti-body-width 0.67)
+    (olivetti-minimum-body-width 80)
+    (olivetti-recall-visual-line-mode-entry-state t))
+#+end_src
+
 * Web browsing
 
 Open URLs in qutebrowser:

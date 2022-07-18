@@ -414,7 +414,7 @@ The used fonts have different names on different computers:
             duy/variable-font "IBM Plex Sans")
     (if (string= system-name "NL5CG1462QH6")
         (setq duy/default-font "FiraMono Nerd Font Mono"
-              duy/variable-font "FiraMono Nerd Font Mono")
+              duy/variable-font "IBM Plex Sans")
       (setq duy/default-font nil
             duy/variable-font nil)))
 #+end_src
@@ -1192,6 +1192,10 @@ Some ideas for the future:
 - Nodes have "task" tags based on existence of TODO items.
 - Org agenda items are nodes with a "task" tag.
 - Refile targets are nodes with a "project" or "task" tag.
+
+* Writing
+
+** Powerthesaurus
 
 * Web browsing
 

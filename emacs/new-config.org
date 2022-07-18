@@ -120,6 +120,35 @@ Set cmd as meta-key (to align with Windows/Linux location), and set option as su
         mac-option-modifier 'super))
 #+end_src
 
+** Windows/WSL specific settings
+
+*** Browse URL with Microsoft Edge
+
+#+begin_src emacs-lisp
+(when (and (eq system-type 'gnu/linux)
+           (string-match "WSL" operating-system-release))
+  
+  (defun browse-url-edge (url &optional _new-window)
+    "Browse url with Microsoft Edge."
+    (interactive (browse-url-interactive-arg "URL: "))
+    (setq url (browse-url-encode-url url))
+    (shell-command
+     (concat "msedge " url))))
+#+end_src
+
+*** Open file with native Windows app
+
+#+begin_src emacs-lisp
+(when (and (eq system-type 'gnu/linux)
+           (string-match "WSL" operating-system-release))
+  
+(defun duy/open-file-with-wsl (file &optional _new-window)
+  "Open file with native Windows app."
+  (interactive "FFile path: ")
+  (shell-command
+   (concat "wslview '" file "'"))))
+#+end_src
+
 * Evil keybindings (general)
 
 ** Evil
@@ -618,8 +647,8 @@ Settings for daemon mode:
   (("C-;" . embark-act)          ;; pick some comfortable binding
    ("C-:" . embark-dwim)         ;; good alternative: M-.
    ("C-h B" . embark-bindings)))
-   ;; :map minibuffer-local-map
-   ;; (("C-." . embark-act)))) ;; alternative for `describe-bindings'
+;; :map minibuffer-local-map
+;; (("C-." . embark-act)))) ;; alternative for `describe-bindings'
 
 (use-package embark-consult
   :ensure t
@@ -629,6 +658,18 @@ Settings for daemon mode:
   ;; auto-updating embark collect buffer
   :hook
   (embark-collect-mode . consult-preview-at-point-mode))
+#+end_src
+
+*** WSL/Windows specific Embark actions
+
+#+begin_src emacs-lisp
+(when (and (eq system-type 'gnu/linux)
+           (string-match "WSL" operating-system-release))
+(bind-keys
+   :map embark-url-map
+   ("e" . browse-url-edge)
+   :map embark-file-map
+   ("<C-return>" . duy/open-file-with-wsl)))
 #+end_src
 
 ** Treemacs

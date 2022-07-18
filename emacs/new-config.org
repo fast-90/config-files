@@ -633,7 +633,9 @@ Settings for daemon mode:
 #+begin_src emacs-lisp
 (use-package consult
   :ensure t
-  :bind (("C-s" . consult-line)))
+  :bind (("C-s" . consult-line)
+         :map minibuffer-local-map
+         ("C-r" . consult-history)))
 #+end_src
 
 ** Embark

@@ -625,8 +625,7 @@ Settings for daemon mode:
   (company-idle-delay 0.2)
   ;; No company-mode in shell & eshell
   (company-global-modes '(not eshell-mode shell-mode))
-  :hook ((text-mode-hook . company-mode)
-         (prog-mode-hook . company-mode)))
+  :hook ((prog-mode-hook . company-mode)))
 #+end_src
 
 ** Consult

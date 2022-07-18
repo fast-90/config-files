@@ -696,6 +696,7 @@ Settings for daemon mode:
     (org-edit-src-content-indentation 2) ; Identation within the src blocks
     (org-startup-indented t)             ; Org headings are indented, as is the text within the headings
     (org-hide-leading-stars nil)
+    (org-src-preserve-indentation t)
     (org-hide-emphasis-markers t)        ; Hide markers around emphasised word (e.g. *bold*, /italic/ etc.)
     (org-adapt-indentation t)
     (org-structure-template-alist '(("a" . "export ascii")

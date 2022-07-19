@@ -1289,9 +1289,71 @@ Keybindings for web-browsing:
 * Pandoc
 * Programming
 
-** LSP
 ** Debugging
 ** Python
+
+#+begin_src emacs-lisp
+(use-package python
+  :ensure t
+  :custom
+  (python-indent-guess-indent-offset-verbose nil))
+#+end_src
+
+*** Poetry
+
+I use poetry to manage my python environments.
+
+Alternatives include [[https://github.com/jorgenschaefer/pyvenv][pyvenv.el]], [[https://github.com/pythonic-emacs/pyenv-mode][pyenv-mode.el]], [[https://github.com/necaris/conda.el][conda.el]] and [[https://github.com/pythonic-emacs/anaconda-mode][anaconda-mode.el]]. pyenv-mode can be used in conjunction with projectile, see also [[https://www.reddit.com/r/emacs/comments/tenq8z/help_using_lspmodeeglot_for_python_and_virtualenvs/][here]].
+
+#+begin_src emacs-lisp
+(use-package poetry
+  :ensure t
+  :defer t
+  :config
+  ;; Checks for the correct virtualenv. Better strategy IMO because the default
+  ;; one is quite slow.
+  (setq poetry-tracking-strategy 'switch-buffer)
+  :init
+  (add-hook 'python-mode-hook #'poetry-tracking-mode))
+#+end_src
+
+*** Blacken
+
+#+begin_src emacs-lisp
+(use-package blacken
+  :ensure t
+  :defer t
+  :custom
+  (blacken-allow-py36 t)
+  (blacken-skip-string-normalization t)
+  :hook (python-mode-hook . blacken-mode))
+#+end_src
+
+*** Numpydoc
+
+#+begin_src emacs-lisp
+(use-package numpydoc
+  :ensure t
+  :defer t
+  :custom
+  (numpydoc-insert-examples-block nil)
+  (numpydoc-template-long nil)
+  :config
+  (local-leader-keys
+    :keymaps 'python-mode-map
+    "n" '(numpydoc-generate :wk "Generate docstring")))
+#+end_src
+
+** LSP
+
+#+begin_src emacs-lisp
+(use-package eglot
+  :ensure t
+  :defer t
+  :init
+  (add-hook 'python-mode-hook 'eglot-ensure))
+#+end_src
+
 ** Jupyter
 
 #+begin_src emacs-lisp

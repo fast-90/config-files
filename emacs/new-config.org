@@ -1309,4 +1309,10 @@ Keybindings for web-browsing:
 #+end_src
 
 See also [[https://orgmode.org/manual/Using-Header-Arguments.html][here]] for more info on how to use ~header-args~ properties in org files.
+* PDF
+
+#+begin_src emacs-lisp
+(use-package pdf-tools
+  :ensure t)
+#+end_src
 

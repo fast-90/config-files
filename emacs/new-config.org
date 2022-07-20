@@ -557,6 +557,19 @@ Settings for daemon mode:
   (vertico-mode))
 #+end_src
 
+*** Vertico-directory
+
+#+begin_src emacs-lisp
+(use-package vertico-directory
+  :after vertico
+  :ensure nil
+  ;; More convenient directory navigation commands
+  :bind (:map vertico-map
+              ("RET" . vertico-directory-enter)
+              ("DEL" . vertico-directory-delete-char)
+              ("C-<backspace>" . vertico-directory-delete-word)))
+#+end_src
+
 ** Orderless
 
 #+begin_src emacs-lisp

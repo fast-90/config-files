@@ -183,7 +183,7 @@ Evil collection is a collection of Evil bindings for the parts of Emacs that Evi
   :ensure t
   :after evil
   :config
-  (setq evil-collection-mode-list '(vterm dashboard dired ibuffer magit pdf doc-view company)) ; Modes to activate Evil keybindings for
+  (setq evil-collection-mode-list '(flymake xref vterm dashboard dired ibuffer magit pdf doc-view company)) ; Modes to activate Evil keybindings for
   (evil-collection-init))
 #+end_src
 
@@ -1371,7 +1371,19 @@ Note: ~poetry-tracking-strategy 'switch-buffer~ makes poetry check venv even whe
   :ensure t
   :defer t
   :init
-  (add-hook 'python-mode-hook 'eglot-ensure))
+  (add-hook 'python-mode-hook 'eglot-ensure)
+  (define-key evil-normal-state-map (kbd "M-.") nil)
+  (define-key evil-normal-state-map (kbd "C->") 'evil-repeat-pop-next)
+  :config
+  (leader-keys
+    "l"     '(nil                              :wk "Lsp")
+    "l e"   '(nil                              :wk "Errors")
+    "l e n" '(flymake-goto-next-error          :wk "Next error")
+    "l e p" '(flymake-goto-prev-error          :wk "Previous error")
+    "l e d" '(flymake-show-buffer-diagnostics  :wk "Buffer diagnostics")
+    "l e D" '(flymake-show-project-diagnostics :wk "Project diagnostics")
+    "l d"   '(xref-find-definitions            :wk "Find definition")
+    "l r"   '(xref-find-references             :wk "Find references")))
 #+end_src
 
 ** Jupyter

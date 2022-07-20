@@ -92,7 +92,9 @@ Add MELPA/ELPA/Non-GNU/ELPA-dev to package archives.
 
 #+begin_src emacs-lisp
   (use-package eldoc
-    :delight eldoc-mode)
+    :delight eldoc-mode
+    :custom
+    (eldoc-echo-area-use-multiline-p nil))
 
   (use-package autorevert
     :defer 2

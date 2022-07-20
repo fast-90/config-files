@@ -176,6 +176,7 @@ The Evil package(s) enable Vim-like keybindings.
   (setq evil-vsplit-window-right t)
   (setq evil-split-window-below t)
   (setq evil-want-C-i-jump nil)
+  (setq evil-disable-insert-state-bindings t)
   :config
   (evil-mode)
   (evil-set-undo-system 'undo-tree)
@@ -659,10 +660,14 @@ Alternative to company.
 #+begin_src emacs-lisp
 (use-package corfu
   :ensure t
-  :bind (:map corfu-map
-	      ("C-j" . corfu-next)
-	      ("C-k" . corfu-previous)
-	      ("TAB" . corfu-insert))
+  :bind (("C-," . dabbrev-expand)
+         ("C-<" . dabbrev-completion)
+         :map corfu-map
+         ("C-j" . corfu-next)
+         ("C-k" . corfu-previous)
+         ("TAB" . corfu-insert)
+         :map org-mode-map
+         ("C-," . nil))
   :custom
   (corfu-cycle t)
   (corfu-auto t)

@@ -1327,10 +1327,13 @@ Alternatives include [[https://github.com/jorgenschaefer/pyvenv][pyvenv.el]], [[
   :config
   ;; Checks for the correct virtualenv. Better strategy IMO because the default
   ;; one is quite slow.
-  (setq poetry-tracking-strategy 'switch-buffer)
+  ;; (setq poetry-tracking-strategy 'switch-buffer)
+  (setq poetry-tracking-strategy 'post-command)
   :init
   (add-hook 'python-mode-hook #'poetry-tracking-mode))
 #+end_src
+
+Note: ~poetry-tracking-strategy 'switch-buffer~ makes poetry check venv even when previewing buffers, so changed it back to the default setting now.
 
 *** Blacken
 

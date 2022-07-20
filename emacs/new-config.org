@@ -1302,9 +1302,11 @@ Keybindings for web-browsing:
 #+end_src
 
 * Pandoc
+
 * Programming
 
 ** Debugging
+
 ** Python
 
 #+begin_src emacs-lisp
@@ -1378,8 +1380,8 @@ Note: ~poetry-tracking-strategy 'switch-buffer~ makes poetry check venv even whe
 (use-package jupyter
   :ensure t
   :bind (:map jupyter-repl-mode-map 
-              ("C-k" . 'jupyter-repl-history-previous)
-              ("C-j" . 'jupyter-repl-history-next))
+              ("C-j" . 'jupyter-repl-forward-cell)
+              ("C-k" . 'jupyter-repl-backward-cell))
   :init
   (org-babel-jupyter-override-src-block "python")
   :custom
@@ -1389,6 +1391,7 @@ Note: ~poetry-tracking-strategy 'switch-buffer~ makes poetry check venv even whe
 #+end_src
 
 See also [[https://orgmode.org/manual/Using-Header-Arguments.html][here]] for more info on how to use ~header-args~ properties in org files.
+
 * PDF
 
 #+begin_src emacs-lisp

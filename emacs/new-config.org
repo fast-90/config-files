@@ -176,7 +176,7 @@ The Evil package(s) enable Vim-like keybindings.
   (setq evil-vsplit-window-right t)
   (setq evil-split-window-below t)
   (setq evil-want-C-i-jump nil)
-  (setq evil-disable-insert-state-bindings t)
+  (setq evil-disable-insert-state-bindings t)  ; don't use any of these: https://github.com/noctuid/evil-guide#switching-between-evil-and-emacs
   :config
   (evil-mode)
   (evil-set-undo-system 'undo-tree)
@@ -673,6 +673,18 @@ Alternative to company.
   (corfu-auto t)
   :init
   (global-corfu-mode))
+#+end_src
+
+Enabling icons in Corfu:
+
+#+begin_src emacs-lisp
+(use-package kind-icon
+  :ensure t
+  :after corfu
+  :custom
+  (kind-icon-default-face 'corfu-default) ; to compute blended backgrounds correctly
+  :config
+  (add-to-list 'corfu-margin-formatters #'kind-icon-margin-formatter))
 #+end_src
 
 ** Consult

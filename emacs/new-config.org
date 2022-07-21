@@ -122,12 +122,25 @@ Add MELPA/ELPA/Non-GNU/ELPA-dev to package archives.
   ([remap describe-key] . helpful-key))
 #+end_src
 
+** OS specific settings
+
+*** Define booleans for OS
+
+#+begin_src emacs-lisp
+(setq duy/is-macos
+      (string= system-type "darwin"))
+
+(setq duy/is-wsl
+      (and (eq system-type 'gnu/linux)
+           (string-match "WSL" operating-system-release)))
+#+end_src
+
 ** MacOS specific settings
 
 Set cmd as meta-key (to align with Windows/Linux location), and set option as super-key.
 
 #+begin_src emacs-lisp
-(when (string= system-type "darwin")
+(when duy/is-macos
   (setq mac-command-modifier 'meta
         mac-option-modifier 'super))
 #+end_src
@@ -137,9 +150,7 @@ Set cmd as meta-key (to align with Windows/Linux location), and set option as su
 *** Browse URL with Microsoft Edge
 
 #+begin_src emacs-lisp
-(when (and (eq system-type 'gnu/linux)
-           (string-match "WSL" operating-system-release))
-  
+(when duy/is-wsl  
   (defun browse-url-edge (url &optional _new-window)
     "Browse url with Microsoft Edge."
     (interactive (browse-url-interactive-arg "URL: "))
@@ -151,12 +162,10 @@ Set cmd as meta-key (to align with Windows/Linux location), and set option as su
 *** Open file with native Windows app
 
 #+begin_src emacs-lisp
-(when (and (eq system-type 'gnu/linux)
-           (string-match "WSL" operating-system-release))
-  
+(when duy/is-wsl  
 (defun duy/open-file-with-wsl (file &optional _new-window)
   "Open file with native Windows app."
-  (interactive "FFile path: ")
+  (interactive "fOpen with Windows app: ")
   (shell-command
    (concat "wslview '" file "'"))))
 #+end_src
@@ -164,6 +173,8 @@ Set cmd as meta-key (to align with Windows/Linux location), and set option as su
 *** Prevent Windows intercepting certain hotkeys
 
 See: https://emacs.stackexchange.com/questions/71706/blocked-keys-how-can-i-get-emacs-to-see-all-keystrokes
+
+Note: after a restart of my WSL computer, =C-M-/= seems to work again. 
 
 * Evil keybindings (general)
 

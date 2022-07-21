@@ -71,6 +71,7 @@ Add MELPA/ELPA/Non-GNU/ELPA-dev to package archives.
 (setq-default fill-column 79)		        ; Set fill column to 80 rather than 70, in all cases.
 (pixel-scroll-precision-mode 1)	        ; Precision scrolling
 (setq ring-bell-function 'ignore)		; Disable bell sound
+(setq-default indent-tabs-mode nil)		; Disable bell sound
 
 (setq backup-directory-alist `(("." . "~/.saves")))
 #+end_src
@@ -786,6 +787,7 @@ Enabling icons in Corfu:
   (popper-mode +1)
   (popper-echo-mode +1))
 #+end_src
+
 * Spell / syntax checking
 * Version control
 

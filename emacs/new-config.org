@@ -772,7 +772,8 @@ Enabling icons in Corfu:
   :ensure t
   :bind (("C-`"   . popper-toggle-latest)
          ("M-`"   . popper-cycle)
-         ("C-M-`" . popper-toggle-type))
+         ("C-M-`" . popper-toggle-type)
+         ("M-'"   . popper-kill-latest-popup))
   :init
   (setq popper-reference-buffers
         '("\\*Messages\\*"

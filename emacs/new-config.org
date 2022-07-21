@@ -161,6 +161,10 @@ Set cmd as meta-key (to align with Windows/Linux location), and set option as su
    (concat "wslview '" file "'"))))
 #+end_src
 
+*** Prevent Windows intercepting certain hotkeys
+
+See: https://emacs.stackexchange.com/questions/71706/blocked-keys-how-can-i-get-emacs-to-see-all-keystrokes
+
 * Evil keybindings (general)
 
 ** Evil

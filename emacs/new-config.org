@@ -630,6 +630,8 @@ Settings for daemon mode:
   :ensure t
   :defer 4
   :diminish which-key-mode
+  :custom
+  (which-key-compute-remaps t)
   :config
   (which-key-mode 1))
 #+end_src
@@ -806,6 +808,7 @@ Enabling icons in Corfu:
   :defer t
   :config
   (leader-keys
+    ;; Use evil-next/prev-flyspell-error to navigate
     "s" '(nil :wk "Spell check")
     "s r" '(flyspell-region :wk "Flyspell region")
     "s b" '(flyspell-buffer :wk "Flyspell buffer")

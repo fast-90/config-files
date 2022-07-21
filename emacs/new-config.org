@@ -959,6 +959,17 @@ Enabling icons in Corfu:
   (add-hook 'org-mode-hook (lambda () (org-bullets-mode 1)))
 #+end_src
 
+** Org appear
+
+Org-appear shows the emphasis markers when your cursor is on the text, even if ~org-hide-emphasis-markers~ is set.
+
+#+begin_src emacs-lisp
+(use-package org-appear
+  :ensure t
+  :init
+  (add-hook 'org-mode-hook 'org-appear-mode))
+#+end_src
+
 ** Org roam
 
 #+begin_src emacs-lisp

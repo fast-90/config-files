@@ -795,10 +795,23 @@ Enabling icons in Corfu:
 * Spell / syntax checking
 
 #+begin_src emacs-lisp
+(defun duy/flyspell-delete-all-overlays ()
+  "Delete all flyspell checks in buffer."
+  (interactive)
+  (flyspell-delete-all-overlays))
+#+end_src
+
+#+begin_src emacs-lisp
 (use-package flyspell-correct
   :ensure t
   :after flyspell embark
-  :bind ([remap ispell-word] . flyspell-correct-wrapper))
+  :bind ([remap ispell-word] . flyspell-correct-wrapper)
+  :config
+  (leader-keys
+    "s" '(nil :wk "Spell check")
+    "s r" '(flyspell-region :wk "Flyspell region")
+    "s b" '(flyspell-buffer :wk "Flyspell buffer")
+    "s B" '(duy/flyspell-delete-all-overlays :wk "Delete spell check buffer")))
 #+end_src
 
 * Version control

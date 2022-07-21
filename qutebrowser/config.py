@@ -189,6 +189,7 @@ c.bindings.commands["insert"] = {
 
 c.bindings.commands["normal"] = {
     "<Meta-x>": "set-cmd-text :",
+    "<Ctrl+s>": "set-cmd-text --space :search",
 }
 
 config.bind("xb", "config-cycle statusbar.show never always")

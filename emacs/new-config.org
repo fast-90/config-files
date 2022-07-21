@@ -218,7 +218,9 @@ Evil nerd commenter for line comment.
 #+begin_src emacs-lisp
 (use-package evil-nerd-commenter
   :ensure t
-  :bind ("M-/" . evilnc-comment-or-uncomment-lines))
+  :bind (("C-'" . evilnc-comment-or-uncomment-lines)
+  :map org-mode-map)
+  ("C-'" . nil))
 #+end_src
 
 
@@ -665,9 +667,7 @@ Alternative to company.
 #+begin_src emacs-lisp
 (use-package corfu
   :ensure t
-  :bind (("C-," . dabbrev-expand)
-         ("C-<" . dabbrev-completion)
-         :map corfu-map
+  :bind (:map corfu-map
          ("C-j" . corfu-next)
          ("C-k" . corfu-previous)
          ("TAB" . corfu-insert)

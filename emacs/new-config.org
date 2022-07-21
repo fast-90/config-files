@@ -793,6 +793,14 @@ Enabling icons in Corfu:
 #+end_src
 
 * Spell / syntax checking
+
+#+begin_src emacs-lisp
+(use-package flyspell-correct
+  :ensure t
+  :after flyspell embark
+  :bind ([remap ispell-word] . flyspell-correct-wrapper))
+#+end_src
+
 * Version control
 
 #+begin_src emacs-lisp
@@ -828,7 +836,7 @@ Enabling icons in Corfu:
     (org-catch-invisible-edits 'show)    ; When making invisible edits, show the location of the edit
     (org-ellipsis " ▼ ")
     (org-src-fontify-natively t)         ; Fontify code in src blocks
-    (org-edit-src-content-indentation 2) ; Identation within the src blocks
+    (org-edit-src-content-indentation 2) ; Indentation within the src blocks
     (org-startup-indented t)             ; Org headings are indented, as is the text within the headings
     (org-hide-leading-stars nil)
     (org-src-preserve-indentation t)

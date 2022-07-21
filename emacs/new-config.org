@@ -1442,7 +1442,7 @@ Keybindings for web-browsing:
 
 *** Poetry
 
-I use poetry to manage my python environments.
+Using poetry to manage python environments for coding projects. This is important for ~eglot~ to use the correct environment for linting.
 
 Alternatives include [[https://github.com/jorgenschaefer/pyvenv][pyvenv.el]], [[https://github.com/pythonic-emacs/pyenv-mode][pyenv-mode.el]], [[https://github.com/necaris/conda.el][conda.el]] and [[https://github.com/pythonic-emacs/anaconda-mode][anaconda-mode.el]]. pyenv-mode can be used in conjunction with projectile, see also [[https://www.reddit.com/r/emacs/comments/tenq8z/help_using_lspmodeeglot_for_python_and_virtualenvs/][here]].
 
@@ -1486,6 +1486,15 @@ Note: ~poetry-tracking-strategy 'switch-buffer~ makes poetry check venv even whe
   (local-leader-keys
     :keymaps 'python-mode-map
     "n" '(numpydoc-generate :wk "Generate docstring")))
+#+end_src
+
+*** Pyenv-mode
+
+~pyenv-mode~ is used to (de)activate pyenv environments via ~pyenv-mode-set~ and ~pyenv-mode-unset~. This allows us to start a REPL or Jupyter (org) notebook in the correct environment.
+
+#+begin_src emacs-lisp
+(use-package pyenv-mode
+  :ensure t)
 #+end_src
 
 ** LSP

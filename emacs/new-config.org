@@ -684,6 +684,7 @@ Alternative to company.
          ("C-j" . corfu-next)
          ("C-k" . corfu-previous)
          ("TAB" . corfu-insert)
+         ("RET" . nil)
          :map org-mode-map
          ("C-," . nil))
   :custom

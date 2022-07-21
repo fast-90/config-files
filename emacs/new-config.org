@@ -802,16 +802,21 @@ Enabling icons in Corfu:
 #+end_src
 
 #+begin_src emacs-lisp
-(use-package flyspell-correct
-  :ensure t
-  :after flyspell embark
-  :bind ([remap ispell-word] . flyspell-correct-wrapper)
+(use-package flyspell
+  :defer t
   :config
   (leader-keys
     "s" '(nil :wk "Spell check")
     "s r" '(flyspell-region :wk "Flyspell region")
     "s b" '(flyspell-buffer :wk "Flyspell buffer")
     "s B" '(duy/flyspell-delete-all-overlays :wk "Delete spell check buffer")))
+#+end_src
+
+#+begin_src emacs-lisp
+(use-package flyspell-correct
+  :ensure t
+  :after flyspell
+  :bind ([remap ispell-word] . flyspell-correct-wrapper))
 #+end_src
 
 * Version control
@@ -831,10 +836,11 @@ Enabling icons in Corfu:
 ** Basic setup
 
 #+begin_src emacs-lisp
-    (defun duy/org-mode-setup ()
-      (variable-pitch-mode 1)
-      (visual-line-mode 1)
-      (display-line-numbers-mode 0))
+(defun duy/org-mode-setup ()
+  (variable-pitch-mode 1)
+  (visual-line-mode 1)
+  (display-line-numbers-mode 0)
+  (setq flyspell-generic-check-word-predicate 'org-mode-flyspell-verify))  ;; Don't spell check src blocks
 #+end_src
 
 #+begin_src emacs-lisp

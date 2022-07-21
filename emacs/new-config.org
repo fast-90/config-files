@@ -1537,6 +1537,14 @@ Note: ~poetry-tracking-strategy 'switch-buffer~ makes poetry check venv even whe
 
 See also [[https://orgmode.org/manual/Using-Header-Arguments.html][here]] for more info on how to use ~header-args~ properties in org files.
 
+** AutoHotKey
+
+#+begin_src emacs-lisp
+(when duy/is-wsl
+  (use-package ahk-mode
+    :ensure t))
+#+end_src
+
 * PDF
 
 #+begin_src emacs-lisp

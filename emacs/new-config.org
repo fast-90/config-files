@@ -855,7 +855,8 @@ Enabling icons in Corfu:
   (variable-pitch-mode 1)
   (visual-line-mode 1)
   (display-line-numbers-mode 0)
-  (setq flyspell-generic-check-word-predicate 'org-mode-flyspell-verify))  ;; Don't spell check src blocks
+  (setq flyspell-generic-check-word-predicate 'org-mode-flyspell-verify)  ;; Don't spell check src blocks
+  (setq-local corfu-auto nil))  ;; Don't auto complete in org-buffers (to avoid org-roam link inserts)
 #+end_src
 
 #+begin_src emacs-lisp

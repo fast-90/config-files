@@ -242,7 +242,7 @@ Evil-org adds evil bindings to org-agenda.
 (use-package evil-org
   :ensure t
   :after org
-  :hook (org-mode-hook . evil-org-mode)
+  :hook (org-mode . (lambda () evil-org-mode))
   :config
   (require 'evil-org-agenda)
   (evil-org-agenda-set-keys))
@@ -849,6 +849,7 @@ Enabling icons in Corfu:
 (defun duy/org-mode-setup ()
   (variable-pitch-mode 1)
   (visual-line-mode 1)
+  (evil-org-mode 1)
   (display-line-numbers-mode 0)
   (setq flyspell-generic-check-word-predicate 'org-mode-flyspell-verify)  ;; Don't spell check src blocks
   (setq-local corfu-auto nil))  ;; Don't auto complete in org-buffers (to avoid org-roam link inserts)
@@ -1378,6 +1379,65 @@ Some ideas for the future:
 - Nodes have "task" tags based on existence of TODO items.
 - Org agenda items are nodes with a "task" tag.
 - Refile targets are nodes with a "project" or "task" tag.
+  
+** Archiving
+
+Function to archive all done task in current org agenda/file.
+
+#+begin_src emacs-lisp
+(defun duy/org-archive-done-tasks-agenda ()
+  (interactive)
+  (org-map-entries
+   (lambda ()
+     (org-archive-subtree)
+     (setq org-map-continue-from (org-element-property :begin (org-element-at-point))))
+   "/DONE" 'agenda))
+
+(defun duy/org-archive-done-tasks-file ()
+  (interactive)
+  (org-map-entries
+   (lambda ()
+     (org-archive-subtree)
+     (setq org-map-continue-from (org-element-property :begin (org-element-at-point))))
+   "/DONE" 'file))
+#+end_src
+
+** Update org-agenda keybindings
+
+*** General agenda bindings
+
+#+begin_src emacs-lisp
+(general-define-key
+ :states '(normal motion override)
+ :keymaps '(org-agenda-mode-map)
+ "r"   '(:ignore t                         :wk "Refile")
+ "r r" '(duy/org-agenda-process-inbox-item :wk "Refile item")
+ "r i" '(duy/org-process-inbox             :wk "Process inbox")
+ "d a" '(duy/org-archive-done-tasks-agenda :wk "Archive all done tasks"))
+#+end_src
+
+*** org-calendar bindings
+
+#+begin_src emacs-lisp
+
+(defmacro my-org-in-calendar (command)
+  (let ((name (intern (format "my-org-in-calendar-%s" command))))
+    `(progn
+       (defun ,name ()
+         (interactive)
+         (org-eval-in-calendar '(call-interactively #',command)))
+       #',name)))
+
+(general-def org-read-date-minibuffer-local-map
+  "h" (my-org-in-calendar calendar-backward-day)
+  "l" (my-org-in-calendar calendar-forward-day)
+  "k" (my-org-in-calendar calendar-backward-week)
+  "j" (my-org-in-calendar calendar-forward-week)
+  "C-h" (my-org-in-calendar calendar-backward-month)
+  "C-l" (my-org-in-calendar calendar-forward-month)
+  "C-k" (my-org-in-calendar calendar-backward-year)
+  "C-j" (my-org-in-calendar calendar-forward-year))
+#+end_src
 
 * Writing
 

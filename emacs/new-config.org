@@ -242,7 +242,7 @@ Evil-org adds evil bindings to org-agenda.
 (use-package evil-org
   :ensure t
   :after org
-  :hook (org-mode . (lambda () evil-org-mode))
+  :hook (org-mode-hook . evil-org-mode)
   :config
   (require 'evil-org-agenda)
   (evil-org-agenda-set-keys))
@@ -330,18 +330,13 @@ function (similar to Spacemacs/Doom/VSpaceCode).
   (use-package all-the-icons-dired
     :ensure t
     :after dired
-    ;; :hook (dired-mode . all-the-icons-dired-mode)
-    :init
-    ;; Hooks
-    (add-hook 'dired-mode-hook #'all-the-icons-dired-mode))
+    :hook (dired-mode-hook . all-the-icons-dired-mode))
 
   (use-package dired-hide-dotfiles
     :ensure t
     :after dired
-    ;; :hook (dired-mode . dired-hide-dotfiles-mode)
+    :hook (dired-mode-hook . dired-hide-dotfiles-mode)
     :init
-    ;; Hooks
-    (add-hook 'dired-mode-hook #'dired-hide-dotfiles-mode)
     (evil-collection-define-key 'normal 'dired-mode-map
       "H" 'dired-hide-dotfiles-mode))
 #+end_src
@@ -913,11 +908,12 @@ Enabling icons in Corfu:
     :init
     (with-eval-after-load 'flycheck
       (flycheck-add-mode 'proselint 'org-mode))
-    (add-hook 'org-mode-hook #'duy/org-mode-setup)
-                                          ; Change bullets to actual bullets
+    ; Change bullets to actual bullets
     (font-lock-add-keywords 'org-mode
                             '(("^ *\\([-]\\) "
                                (0 (prog1 () (compose-region (match-beginning 1) (match-end 1) "•"))))))
+    :hook
+    (org-mode-hook . duy/org-mode-setup)
     :config
     (advice-add 'org-refile :after (lambda (&rest _) (org-save-all-org-buffers)))
     (require 'org-habit)
@@ -967,8 +963,7 @@ Org-appear shows the emphasis markers when your cursor is on the text, even if ~
 #+begin_src emacs-lisp
 (use-package org-appear
   :ensure t
-  :init
-  (add-hook 'org-mode-hook 'org-appear-mode))
+  :hook (org-mode-hook . org-appear-mode))
 #+end_src
 
 ** Org roam
@@ -1456,8 +1451,7 @@ Alternatives include [[https://github.com/jorgenschaefer/pyvenv][pyvenv.el]], [[
   ;; one is quite slow.
   ;; (setq poetry-tracking-strategy 'switch-buffer)
   (setq poetry-tracking-strategy 'post-command)
-  :init
-  (add-hook 'python-mode-hook #'poetry-tracking-mode))
+  :hook (python-mode-hook . poetry-tracking-mode))
 #+end_src
 
 Note: ~poetry-tracking-strategy 'switch-buffer~ makes poetry check venv even when previewing buffers, so changed it back to the default setting now.
@@ -1504,8 +1498,8 @@ Note: ~poetry-tracking-strategy 'switch-buffer~ makes poetry check venv even whe
 (use-package eglot
   :ensure t
   :defer t
+  :hook (python-mode-hook . eglot-ensure)
   :init
-  (add-hook 'python-mode-hook 'eglot-ensure)
   (define-key evil-normal-state-map (kbd "M-.") nil)
   (define-key evil-normal-state-map (kbd "C->") 'evil-repeat-pop-next)
   :config

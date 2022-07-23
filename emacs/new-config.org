@@ -406,12 +406,12 @@ Package to easily navigate cursor within buffers. Using this over evil-easymotio
       :after consult
       :config
       (leader-keys
-        "j"	'(:ignore t           :wk "Jump to")
-        "j f"	'(avy-goto-char       :wk "Find char")
-        "j s"	'(avy-goto-char-2     :wk "Find char 2")
-        "j c"	'(avy-goto-char-timer :wk "Find char timer")
-        "j j"	'(avy-goto-char-timer :wk "Find char timer")
-        "j l"	'(avy-goto-line       :wk "Jump to line")
+        "j"   '(:ignore t           :wk "Jump to")
+        "j f" '(avy-goto-char       :wk "Find char")
+        "j s" '(avy-goto-char-2     :wk "Find char 2")
+        "j c" '(avy-goto-char-timer :wk "Find char timer")
+        "j j" '(avy-goto-char-timer :wk "Find char timer")
+        "j l" '(avy-goto-line       :wk "Jump to line")
         "j h" '(consult-outline     :wk "Jump to heading")))
 #+end_src
 
@@ -816,9 +816,9 @@ Enabling icons in Corfu:
   :config
   (leader-keys
     ;; Use evil-next/prev-flyspell-error to navigate
-    "s" '(nil :wk "Spell check")
-    "s r" '(flyspell-region :wk "Flyspell region")
-    "s b" '(flyspell-buffer :wk "Flyspell buffer")
+    "s"   '(nil                              :wk "Spell check")
+    "s r" '(flyspell-region                  :wk "Flyspell region")
+    "s b" '(flyspell-buffer                  :wk "Flyspell buffer")
     "s B" '(duy/flyspell-delete-all-overlays :wk "Delete spell check buffer")))
 #+end_src
 

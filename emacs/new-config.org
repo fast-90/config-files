@@ -523,11 +523,17 @@ Settings for daemon mode:
       (add-hook mode 'set-no-process-query-on-exit)))
 #+end_src
 
+I also enabled directory tracking and named vterm buffer, see also here how to setup: https://github.com/akermu/emacs-libvterm
+
 ** vterm-toggle
 
 #+begin_src emacs-lisp
 (use-package vterm-toggle
   :ensure t
+  :custom
+  (vterm-buffer-name-string "vterm: %s")
+  (vterm-toggle-project-root t)
+  (vterm-toggle-scope 'project)
   :config
   (setq vterm-toggle-fullscreen-p nil)
   (add-to-list 'display-buffer-alist
@@ -544,10 +550,12 @@ Settings for daemon mode:
                  (reusable-frames . visible)
                  (window-height . 0.3)))
   (leader-keys
-    "'" '(vterm-toggle :wk "vterm")
-    )
-  )
+    "'" '(vterm-toggle :wk "vterm"))
+  (bind-keys  ; For some reason :bind interferes with the SPC ' binding here
+   :map vterm-mode-map
+   ("C-<return>" . vterm-toggle-insert-cd)))
 #+end_src
+
 ** exec-path-from-shell
 
 #+begin_src emacs-lisp

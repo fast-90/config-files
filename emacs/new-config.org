@@ -176,6 +176,15 @@ See: https://emacs.stackexchange.com/questions/71706/blocked-keys-how-can-i-get-
 
 Note: after a restart of my WSL computer, =C-M-/= seems to work again. 
 
+** Maximise window on startup
+
+Don't maximise window on WSL (it doesn't work well as the X server does not recognize correct size of monitor).
+
+#+begin_src emacs-lisp
+(unless duy/is-wsl
+        (add-to-list 'default-frame-alist '(fullscreen . maximized)))
+#+end_src
+
 * Evil keybindings (general)
 
 ** Evil

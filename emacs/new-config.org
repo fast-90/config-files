@@ -1683,9 +1683,10 @@ See also [[https://orgmode.org/manual/Using-Header-Arguments.html][here]] for mo
 #+begin_src emacs-lisp
 (use-package pdf-tools
   :ensure t
-  :defer t
   :hook
-  (pdf-view-mode-hook . evil-collection-pdf-setup))
+  (pdf-view-mode-hook . evil-collection-pdf-setup)
+  :config
+  (pdf-tools-install))
 
 ;; pdf-view-restore remembers last position in pdf before closing
 (use-package pdf-view-restore

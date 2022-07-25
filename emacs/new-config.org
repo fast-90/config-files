@@ -317,7 +317,7 @@ function (similar to Spacemacs/Doom/VSpaceCode).
             insert-directory-program "/usr/local/bin/gls"))
     :config
     (evil-collection-define-key 'normal 'dired-mode-map
-      "h" 'dired-single-up-directory
+      "h" '(lambda () (interactive) (dired-single-buffer ".."))  ;; dired-single-up-directory still creates a new buffer for w/e reason
       "l" 'dired-single-buffer)
     (leader-keys
       "d"   '(dired      :wk "dired")

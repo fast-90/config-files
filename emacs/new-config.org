@@ -1604,6 +1604,22 @@ Note: ~poetry-tracking-strategy 'switch-buffer~ makes poetry check venv even whe
   :ensure t)
 #+end_src
 
+*** conda
+
+Although I prefer to use poetry/pyenv to manage my Python coding projects and environments, on most of my computers I also have conda installed. There are a few use cases where this makes sense:
+
+- Other people I work with use conda only and not poetry.
+- I'm trying to clone a repository which uses conda to manage dependencies.
+- I need to install a non-python package via conda.
+
+Furthermore, poetry is actually set up in a way to be able to use with conda as an environment manager (see [[https://github.com/python-poetry/poetry/blob/master/src/poetry/utils/env.py#L675][here]]). See also more info on this [[https://stackoverflow.com/questions/70851048/does-it-make-sense-to-use-conda-poetry][StackOverflow post]].
+
+#+begin_src emacs-lisp
+(use-package conda
+  :ensure t
+  :defer t)
+#+end_src
+
 ** LSP
 
 #+begin_src emacs-lisp

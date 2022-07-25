@@ -770,18 +770,6 @@ Enabling icons in Corfu:
 ;;    ("<C-return>" . duy/open-file-with-wsl)))
 #+end_src
 
-** Treemacs
-
-#+begin_src emacs-lisp
-(use-package treemacs
-  :ensure t
-  :defer t
-  :custom
-  (treemacs-no-png-images t)
-  (treemacs-width 24)
-  :bind ("C-c t" . treemacs))
-#+end_src
-
 * Windows and movement
 
 ** ace-window
@@ -1684,9 +1672,8 @@ See also [[https://orgmode.org/manual/Using-Header-Arguments.html][here]] for mo
 (use-package pdf-tools
   :ensure t
   :hook
-  (pdf-view-mode-hook . evil-collection-pdf-setup)
-  :config
-  (pdf-tools-install))
+  (pdf-view-mode-hook . evil-collection-pdf-setup))
+  (pdf-tools-install)
 
 ;; pdf-view-restore remembers last position in pdf before closing
 (use-package pdf-view-restore

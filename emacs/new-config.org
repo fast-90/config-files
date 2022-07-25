@@ -1677,5 +1677,14 @@ See also [[https://orgmode.org/manual/Using-Header-Arguments.html][here]] for mo
   :defer t
   :hook
   (pdf-view-mode-hook . evil-collection-pdf-setup))
+
+;; pdf-view-restore remembers last position in pdf before closing
+(use-package pdf-view-restore
+  :ensure t
+  :after pdf-tools
+  :hook
+  (pdf-view-mode-hook . pdf-view-restore-mode)
+  :custom
+  (pdf-view-restore-file-name (expand-file-name ".pdf-view-restore" user-emacs-directory))) 
 #+end_src
 

@@ -1673,6 +1673,9 @@ See also [[https://orgmode.org/manual/Using-Header-Arguments.html][here]] for mo
 
 #+begin_src emacs-lisp
 (use-package pdf-tools
-  :ensure t)
+  :ensure t
+  :defer t
+  :hook
+  (pdf-view-mode-hook . evil-collection-pdf-setup))
 #+end_src
 

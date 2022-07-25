@@ -1,451 +1,196 @@
-* General UI settings 
-
-** Do not show startup screen
-
-#+begin_src emacs-lisp
-
-(setq inhibit-startup-message t)
-
-#+end_src
-
-** Launch emacs in maximum window
-
-Put the following in ~/.emacs.d/init.el:
-
-#+begin_src emacs-lisp
-(add-hook 'window-setup-hook 'toggle-frame-maximized t)
-#+end_src
-
-** Disable tool bar, menu bar and scroll bar
-
-#+begin_src emacs-lisp
-
-(tool-bar-mode -1)
-(menu-bar-mode -1)
-(scroll-bar-mode -1)
-(tooltip-mode -1)
-(set-fringe-mode 10)
-
-#+end_src
-
-** Line number configuration
-
-#+begin_src emacs-lisp
-
-;; Highlight current line
-(global-hl-line-mode t)
-;; Enable line numbers
-(global-display-line-numbers-mode t)
-;; Set relative line numbers
-(setq display-line-numbers-type 'relative)
-
-#+end_src
-
-** Disable bell sound
-
-#+begin_src emacs-lisp
-
-(setq ring-bell-function 'ignore)
-
-#+end_src
-(setq command-line-default-directory "~/")
-#+end_src
-** Set default fill-column
-#+begin_src emacs-lisp
-(setq-default fill-column 79)
-#+end_src
-** Set back up folders for emacs files (files with ~)
-#+begin_src emacs-lisp
-(setq backup-directory-alist `(("." . "~/.saves")))
-#+end_src
-** Silence compiler warnings for emacs native-comp
-#+begin_src emacs-lisp
-(setq native-comp-async-report-warnings-errors nil)
-#+end_src
 * Package management
 
-** Add MELPA to package archives
+** Set package archives
+
+Add MELPA/ELPA/Non-GNU/ELPA-dev to package archives.
 
 #+begin_src emacs-lisp
+  (require 'package)
 
-(require 'package)
-(setq package-archives
-      '(("melpa" . "https://melpa.org/packages/")
-        ("gnu" . "https://elpa.gnu.org/packages/")
-	("nongnu" . "https://elpa.nongnu.org/nongnu/")
-        ;; ("org" . "http://orgmode.org/elpa/")
-	))
-(package-initialize)
+  (setq package-archives
+        '(("melpa" . "https://melpa.org/packages/")
+          ("elpa" . "https://elpa.gnu.org/packages/")
+          ("nongnu" . "https://elpa.nongnu.org/nongnu/")
+          ("elpa-devel" . "https://elpa.gnu.org/devel/")))
 
+  ;; Initialize the packages, avoiding a re-initialization.
+
+  (unless (bound-and-true-p package--initialized)
+    (package-initialize))
 #+end_src
 
-** Install use-package for easy package installation
+** Setup use-package
 
 #+begin_src emacs-lisp
+;; Make sure `use-package' is available.
 
-(when (not (package-installed-p 'use-package))
+(unless (package-installed-p 'use-package)
   (package-refresh-contents)
   (package-install 'use-package))
 
-#+end_src
+;; Configure `use-package' prior to loading it.
 
-** Use Delight to hide modes from modeline bar
+(eval-and-compile
+  (setq use-package-always-ensure nil)
+  (setq use-package-always-defer nil)
+  (setq use-package-always-demand nil)
+  (setq use-package-expand-minimally nil)
+  (setq use-package-enable-imenu-support t)
+  (setq use-package-compute-statistics nil)
+  ;; The following is VERY IMPORTANT.  Write hooks using their real name
+  ;; instead of a shorter version: after-init ==> `after-init-hook'.
+  ;;
+  ;; This is to empower help commands with their contextual awareness,
+  ;; such as `describe-symbol'.
+  (setq use-package-hook-name-suffix nil))
+
+(eval-when-compile
+  (require 'use-package))
+
+(use-package diminish :ensure t :after use-package) ;; if you use :diminish
+(use-package bind-key :ensure t :after use-package) ;; if you use any :bind variant
+(use-package delight :ensure t :after use-package)  ;; Use delighting for modes
+#+end_src
+* Default settings 
 
 #+begin_src emacs-lisp
+(setq-default cursor-type 'bar)               ; Line-style cursor similar to other text editors
+(setq inhibit-startup-screen t)               ; Disable startup screen
+(setq initial-scratch-message "")	        ; Make *scratch* buffer blank
+(setq-default frame-title-format '("%b"))     ; Make window title the buffer name
+(setq confirm-kill-processes nil)		; Stop confirming the killing of processes
+(setq use-short-answers t)                    ; y-or-n-p makes answering questions faster
+(show-paren-mode t)                           ; Visually indicates pair of matching parentheses
+(delete-selection-mode t)                     ; Start writing straight after deletion
+(put 'narrow-to-region 'disabled nil)	        ; Allows narrowing bound to C-x n n (region) and C-x n w (widen)
+(setq read-process-output-max (* 1024 1024))  ; Increase the amount of data which Emacs reads from the process
+(global-hl-line-mode 1)			; Highlight the current line to make it more visible
+(global-display-line-numbers-mode t)          ; Enable line numbers
+(setq display-line-numbers-type 'relative)    ; Set relative line numbers
+(setq create-lockfiles nil)                   ; lock files kill `npm start'
+(setq-default fill-column 79)		        ; Set fill column to 80 rather than 70, in all cases.
+(pixel-scroll-precision-mode 1)	        ; Precision scrolling
+(setq ring-bell-function 'ignore)		; Disable bell sound
+(setq-default indent-tabs-mode nil)		; Disable bell sound
 
-(use-package delight
-  :ensure t)
-
+(setq backup-directory-alist `(("." . "~/.saves")))
 #+end_src
 
-* Themes
-
-** General theme
-
+** Garbage collection
 
 #+begin_src emacs-lisp
-
-(use-package doom-themes
+(use-package gcmh
   :ensure t
-  :init
-  (setq doom-themes-enable-bold t
-	doom-themes-enable-italic t)
-  (load-theme 'doom-one t))  ;; Ones I liked and used: doom-one, doom-dark+
-
-#+end_src
-** Doom modeline 
-This package depends on all-the-icons package. When installing Doom
-modeline for the first time, please run 'all-the-icons-install-fonts'
-via M-x first.
-#+begin_src emacs-lisp
-
-(use-package doom-modeline
-  :ensure t
-  :init (doom-modeline-mode 1))
-
-#+end_src
-
-Ensure icons are used in Daemon mode:
-
-#+begin_src emacs-lisp
-
-(add-hook 'server-after-make-frame-hook
- (lambda ()
-     (setq doom-modeline-icon (display-graphic-p))))
-
-#+end_src
-* Emacs UI and menu enhancements
-** Which key
-Which key adds a guiding menu for keybindings
-#+begin_src emacs-lisp
-(use-package which-key
-  :ensure t
-  :delight
-  :init
-  (setq which-key-idle-delay 0.5)
-  :config (which-key-mode))
-#+end_src
-** Ivy, Counsel and Swiper
-Ivy is a customisable completion mechanism. Counsel contains a collection of
-Ivy-enhanced versions of command Emacs commands (e.g. M-x). Swiper as an
-Ivy-enhanced version of Isearch.
-#+begin_src emacs-lisp
-(use-package ivy
-  :ensure t
-  :delight
-  :bind (("C-s" . swiper)
-         :map ivy-minibuffer-map
-         ("C-l" . ivy-alt-done)
-         ("C-j" . ivy-next-line)
-         ("C-k" . ivy-previous-line)
-         :map ivy-switch-buffer-map
-         ("C-k" . ivy-previous-line)
-         ("C-l" . ivy-done)
-         ("C-d" . ivy-switch-buffer-kill)
-         :map ivy-reverse-i-search-map
-         ("C-k" . ivy-previous-line)
-         ("C-d" . ivy-reverse-i-search-kill))
-  :config
-  (ivy-mode 1))
-
-(use-package counsel
-  :ensure t
-  :after ivy
-  :config (counsel-mode 1))
-
-(use-package swiper
-  :ensure t
-  :after ivy)
-
-(use-package ivy-xref
-  :ensure t
-  :init
-  ;; xref initialization is different in Emacs 27 - there are two different
-  ;; variables which can be set rather than just one
-  (when (>= emacs-major-version 27)
-    (setq xref-show-definitions-function #'ivy-xref-show-defs))
-  ;; Necessary in Emacs <27. In Emacs 27 it will affect all xref-based
-  ;; commands other than xref-find-definitions (e.g. project-find-regexp)
-  ;; as well
-  (setq xref-show-xrefs-function #'ivy-xref-show-xrefs))
-
-;; Ivy rich to add description to M-x and other menus
-(use-package ivy-rich
-  :ensure t
-  :delight
-  :after ivy
+  :diminish gcmh-mode
   :custom
-  (ivy-virtual-abbreviate 'full
-			  ivy-rich-switch-buffer-align-virtual-buffer t
-			  ivy-rich-path-style 'abbrev)
-  :config
-  (ivy-set-display-transformer 'ivy-switch-buffer
-                               'ivy-rich-switch-buffer-transformer))
-(ivy-rich-mode 1)
-(setq ivy-initial-inputs-alist nil) ; Remove the ^ in ivy buffers
-					; Smex to allow M-x remember our history
-(use-package smex :ensure t)
-(smex-initialize)
+  (gcmh-mode 1)
+  (gcmh-idle-delay 5)
+  (gcmh-high-cons-threshold (* 16 1024 1024))
+  (gc-cons-percentage 0.1))
 #+end_src
 
-** Helpful
-
-Helpful package for more helpful descriptions of functions, commands and
-variables.
-
-#+begin_src emacs-lisp
-(use-package helpful
-  :ensure t
-  :commands (helpful-callable helpful-variable helpful-command helpful-key)
-  :custom
-  (counsel-describe-function-function #'helpful-callable)
-  (counsel-describe-variable-function #'helpful-variable)
-  :bind
-  ([remap describe-function] . counsel-describe-function)
-  ([remap describe-command] . helpful-command)
-  ([remap describe-variable] . counsel-describe-variable)
-  ([remap describe-key] . helpful-key))
-#+end_src
-
-* Hydra
-#+begin_src emacs-lisp
-(use-package hydra
-  :ensure t)
-#+end_src
-* Project management
-
-** Magit
-
-#+begin_src emacs-lisp
-(use-package magit
-  :ensure t
-  :bind ("C-x g" . magit-status))
-#+end_src
-
-** Smerge
-
-To resolve merge conflicts.
-
-#+begin_src emacs-lisp
-  (defhydra activate-smerge-mode ()
-    "Smerge mode"
-    ("j" smerge-next "next")
-    ("k" smerge-prev "prev")
-    ("u" smerge-keep-upper "keep upper")
-    ("l" smerge-keep-lower "keep lower")
-    ("c" smerge-keep-current "keep current")
-    ("h" smerge-refine "highlight")
-    ("d" smerge-kill-current "delete current")
-    ("a" smerge-keep-all "keep all")
-    ("b" smerge-keep-base "keep base")
-    ("q" nil "quit"))
-#+end_src
-
-** Projectile
-
-#+begin_src emacs-lisp
-(use-package projectile
-  :ensure t
-  :delight projectile-mode
-  :config (projectile-mode)
-  :custom ((projectile-completion-system 'ivy))
-  :bind-keymap
-  ("C-c p" . projectile-command-map)
-  :init
-  ;; NOTE: Set this to the folder where you keep your Git repos!
-  (when (file-directory-p "~/PythonProjects")
-    (setq projectile-project-search-path '("~/PythonProjects")))
-  (setq projectile-switch-project-action #'projectile-dired))
-
-(use-package counsel-projectile
-  :ensure t
-  :after projectile)
-
-(use-package projectile
-  :ensure t
-  :delight projectile-mode
-  :hook
-  (after-init . projectile-mode)
-  :bind-keymap
-  ("C-c p" . projectile-command-map)
-  :init
-  ;; NOTE: Set this to the folder where you keep your Git repos!
-  (when (file-directory-p "~/PythonProjects")
-    (setq projectile-project-search-path '("~/PythonProjects")))
-  (setq projectile-switch-project-action #'projectile-dired)
-  :custom
-  (projectile-completion-system 'ivy)
-  (projectile-dynamic-mode-line nil)
-  (projectile-enable-caching t)
-  (projectile-indexing-method 'hybrid)
-  (projectile-track-known-projects-automatically nil))
-
-(use-package counsel-projectile
-  :config (counsel-projectile-mode))
-#+end_src
-
-** prescient
-
-#+begin_src emacs-lisp
-(use-package ivy-prescient
-  :ensure t
-  :after counsel
-  :init
-  (ivy-prescient-mode)
-  (prescient-persist-mode)
-  )
-(use-package prescient
-  :ensure t
-  :delight
-  :config
-  )
-#+end_src
-
-** Treemacs
-
-#+begin_src emacs-lisp
-(use-package treemacs
-  :ensure t)
-#+end_src
-
-* Other useful packages
-** Command log mode to show keypress and command
-Related commands start with "clm" in the M-x menu
-#+begin_src emacs-lisp
-(use-package command-log-mode
-  :ensure t)
-#+end_src
-** Yasnippet
-
-#+begin_src emacs-lisp
-(use-package yasnippet-snippets
-  :ensure t)
-
-(use-package yasnippet
-  :ensure t
-  :delight yas-minor-mode
-  :config
-    (yas-reload-all)
-)
-#+end_src
-
-** Eldoc
+** Useful packages
 
 #+begin_src emacs-lisp
 (use-package eldoc
-  :ensure t
   :delight eldoc-mode
-  )
-#+end_src
+  :custom
+  (eldoc-echo-area-use-multiline-p nil))
 
-** Dashboard
+(use-package autorevert
+  :defer 2
+  :delight auto-revert-mode)
 
-#+begin_src emacs-lisp
-(use-package dashboard
+(use-package recentf
+  :defer 2
+  :init
+  (recentf-mode 1))
+
+(use-package undo-tree
   :ensure t
-  :config
-  (dashboard-setup-startup-hook)
-  (setq initial-buffer-choice (lambda () (get-buffer "*dashboard*"))))
-#+end_src
+  :init
+  (setq undo-tree-auto-save-history nil)
+  (global-undo-tree-mode))
 
-* Window management
-** Winum
-#+begin_src emacs-lisp
-(use-package winum
+(use-package helpful
   :ensure t
-  :config (progn
-	    (setq winum-scope 'frame-local
-		  winum-reverse-frame-list nil
-		  winum-auto-setup-setup-mode-line nil
-		  winum-ignored-buffers '(" *which-key*"))
-	    (winum-mode)))
-#+end_src
-** Function to interactivel resize window
-#+begin_src emacs-lisp
-(defhydra hydra-window-resize ()
-  "Resize window"
-  ("h" shrink-window-horizontally "shrink horizontally")
-  ("l" enlarge-window-horizontally "enlarge horizontally")
-  ("j" shrink-window "shrink vertically")
-  ("k" enlarge-window "enlarge vertically")
-  ("b" balance-windows "reset sizes")
-  ("q" nil "quit"))
+  :commands (helpful-callable helpful-variable helpful-command helpful-key)
+  :bind
+  ([remap describe-function] . helpful-function)
+  ([remap describe-command] . helpful-command)
+  ([remap describe-variable] . helpful-variable)
+  ([remap describe-key] . helpful-key))
 #+end_src
 
-* File management
+** OS specific settings
 
-** Dired
+*** Define booleans for OS
 
 #+begin_src emacs-lisp
+(setq duy/is-macos
+      (string= system-type "darwin"))
 
-(use-package dired
-  :after evil evil-collection
-  ;; :commands (dired dired-jump)
-  ;; :bind (("C-x C-j" . dired-jump))
-  :custom ((dired-listing-switches "-agho --group-directories-first"))
-  :config
-  (evil-collection-define-key 'normal 'dired-mode-map
-    "h" 'dired-single-up-directory
-    "l" 'dired-single-buffer))
-
-(use-package dired-single
-  :ensure t)
-
-(use-package all-the-icons-dired
-  :ensure t
-  :hook (dired-mode . all-the-icons-dired-mode))
-
-(use-package dired-hide-dotfiles
-  :ensure t
-  :hook (dired-mode . dired-hide-dotfiles-mode)
-  :config
-  (evil-collection-define-key 'normal 'dired-mode-map
-    "H" 'dired-hide-dotfiles-mode))
-
+(setq duy/is-wsl
+      (and (eq system-type 'gnu/linux)
+           (string-match "WSL" operating-system-release)))
 #+end_src
 
-*** Mac specific settings
+** MacOS specific settings
 
-OS X's ls function does not support the --group-directories-first switch. In order to enable this, install GNU core utils:
-
-#+begin_src shell
-
-brew install coreutils
-
-#+end_src
-
-Then the emacs-lisp code below ensures that dired uses the gls (GNU ls) command:
+Set cmd as meta-key (to align with Windows/Linux location), and set option as super-key.
 
 #+begin_src emacs-lisp
-
-(when (string= system-type "darwin")
-  (setq dired-use-ls-dired t
-        insert-directory-program "/usr/local/bin/gls"))
-
+(when duy/is-macos
+  (setq mac-command-modifier 'meta
+        mac-option-modifier 'super))
 #+end_src
-* Keybindings
-** Evil mode
-The Evil package(s) enable Vim-like keybindings
+
+** Windows/WSL specific settings
+
+*** Browse URL with Microsoft Edge
+
+#+begin_src emacs-lisp
+(when duy/is-wsl  
+  (defun browse-url-edge (url &optional _new-window)
+    "Browse url with Microsoft Edge."
+    (interactive (browse-url-interactive-arg "URL: "))
+    (setq url (browse-url-encode-url url))
+    (shell-command
+     (concat "msedge " url))))
+#+end_src
+
+*** Open file with native Windows app
+
+#+begin_src emacs-lisp
+(when duy/is-wsl  
+(defun duy/open-file-with-wsl (file &optional _new-window)
+  "Open file with native Windows app."
+  (interactive "fOpen with Windows app: ")
+  (shell-command
+   (concat "wslview '" file "'"))))
+#+end_src
+
+*** Prevent Windows intercepting certain hotkeys
+
+See: https://emacs.stackexchange.com/questions/71706/blocked-keys-how-can-i-get-emacs-to-see-all-keystrokes
+
+Note: after a restart of my WSL computer, =C-M-/= seems to work again. 
+
+** Maximise window on startup
+
+Don't maximise window on WSL (it doesn't work well as the X server does not recognize correct size of monitor).
+
+#+begin_src emacs-lisp
+(unless duy/is-wsl
+        (add-to-list 'default-frame-alist '(fullscreen . maximized)))
+#+end_src
+
+* Evil keybindings (general)
+
+** Evil
+
+The Evil package(s) enable Vim-like keybindings.
+
 #+begin_src emacs-lisp
 (use-package evil
   :ensure t
@@ -456,11 +201,14 @@ The Evil package(s) enable Vim-like keybindings
   (setq evil-vsplit-window-right t)
   (setq evil-split-window-below t)
   (setq evil-want-C-i-jump nil)
+  (setq evil-disable-insert-state-bindings t)  ; don't use any of these: https://github.com/noctuid/evil-guide#switching-between-evil-and-emacs
   :config
   (evil-mode)
+  (evil-set-undo-system 'undo-tree)
   ;; Use visual line motions (e.g. for when a long line is wrapped)
   (evil-global-set-key 'motion "j" 'evil-next-visual-line)
-  (evil-global-set-key 'motion "k" 'evil-previous-visual-line))
+  (evil-global-set-key 'motion "k" 'evil-previous-visual-line)
+  (global-set-key (kbd "C-M-u") 'universal-argument))
 #+end_src
 
 Evil collection is a collection of Evil bindings for the parts of Emacs that Evil does not cover properly by default.
@@ -470,19 +218,19 @@ Evil collection is a collection of Evil bindings for the parts of Emacs that Evi
   :ensure t
   :after evil
   :config
-  (setq evil-collection-mode-list '(vterm dashboard dired ibuffer magit pdf doc-view company eww)) ; Modes to activate Evil keybindings for
+  (setq evil-collection-mode-list '(flymake xref vterm dashboard dired ibuffer magit pdf doc-view company embark)) ; Modes to activate Evil keybindings for
   (evil-collection-init))
 #+end_src
 
-Bind jk in insert mode to ESC.
+Bind kj in insert mode to ESC.
 
 #+begin_src emacs-lisp
-(use-package key-chord
+(use-package evil-escape
   :ensure t
   :init
-  (setq key-chord-two-keys-delay 0.2)
-  (key-chord-define evil-insert-state-map "jk" 'evil-normal-state)
-  (key-chord-mode 1))
+  (evil-escape-mode 1)
+  (setq evil-escape-key-sequence "kj")
+  (setq evil-escape-delay 0.2))
 #+end_src
 
 Evil nerd commenter for line comment.
@@ -490,8 +238,11 @@ Evil nerd commenter for line comment.
 #+begin_src emacs-lisp
 (use-package evil-nerd-commenter
   :ensure t
-  :bind ("M-/" . evilnc-comment-or-uncomment-lines))
+  :bind (("C-'" . evilnc-comment-or-uncomment-lines)
+  :map org-mode-map)
+  ("C-'" . nil))
 #+end_src
+
 
 Evil-org adds evil bindings to org-agenda.
 
@@ -506,21 +257,21 @@ Evil-org adds evil bindings to org-agenda.
   (evil-org-agenda-set-keys))
 
 #+end_src
-** Undo tree
-Enable Vim-like undo/redo
-#+begin_src emacs-lisp
-(use-package undo-tree
-  :ensure t
-  :init
-  (global-undo-tree-mode)
-  (evil-set-undo-system 'undo-tree))
-#+end_src
 
-** Bindings with SPC prefix
+evil-surround enables surrounding of (Vim) text objects (e.g. brackets or quotes)
+
+#+begin_src emacs-lisp
+(use-package evil-surround
+  :ensure t
+  :config
+  (global-evil-surround-mode 1))
+#+end_src
+** General
+
+
 The config in this section enable SPC as a prefix to a useful and commonly used
 function (similar to Spacemacs/Doom/VSpaceCode).
 
-*** General package 
 #+begin_src emacs-lisp
 (use-package general
   :ensure t
@@ -547,8 +298,72 @@ function (similar to Spacemacs/Doom/VSpaceCode).
   )
 #+end_src
 
-*** Buffer management
+*** Eval keybindings
+
+#+begin_src emacs-lisp
+(leader-keys
+  "e"     '(:ignore t       :wk "Eval")
+  "e b"   '(eval-buffer     :wk "Eval elisp in buffer")
+  "e d"   '(eval-defun      :wk "Eval defun")
+  "e e"   '(eval-expression :wk "Eval elisp expression")
+  "e l"   '(eval-last-sexp  :wk "Eval last sexression")
+  "e r"   '(eval-region     :wk "Eval region"))
+#+end_src
+
+* Navigation
+
+** Dired
+
+#+begin_src emacs-lisp
+  (use-package dired
+    :after evil evil-collection general
+    ;; :commands (dired dired-jump)
+    ;; :bind (("C-x C-j" . dired-jump))
+    :custom ((dired-listing-switches "-agho --group-directories-first"))
+    :init
+    (when (string= system-type "darwin")
+      (setq dired-use-ls-dired t
+            insert-directory-program "/usr/local/bin/gls"))
+    :config
+    (evil-collection-define-key 'normal 'dired-mode-map
+      "h" '(lambda () (interactive) (dired-single-buffer ".."))  ;; dired-single-up-directory still creates a new buffer for w/e reason
+      "l" 'dired-single-buffer)
+    (leader-keys
+      "d"   '(dired      :wk "dired")
+      "j d" '(dired-jump :wk "dired-jump")))
+
+  (use-package dired-single
+    :ensure t
+    :after dired)
+
+  (use-package all-the-icons-dired
+    :ensure t
+    :after dired
+    :hook (dired-mode-hook . all-the-icons-dired-mode))
+
+  (use-package dired-hide-dotfiles
+    :ensure t
+    :after dired
+    :hook (dired-mode-hook . dired-hide-dotfiles-mode)
+    :init
+    (evil-collection-define-key 'normal 'dired-mode-map
+      "H" 'dired-hide-dotfiles-mode))
+#+end_src
+
+*** MacOS specific setting for Dired
+
+OS X's ls function does not support the --group-directories-first switch. In order to enable this, install GNU core utils:
+
+#+begin_src shell
+
+brew install coreutils
+
+#+end_src
+
+** Buffer management
+
 Add function to kill all buffers except current one.
+
 #+begin_src emacs-lisp
 (defun kill-other-buffers ()
   "Kill all other buffers."
@@ -559,516 +374,664 @@ Add function to kill all buffers except current one.
 Keybindings for buffer management.
 #+begin_src emacs-lisp
 (leader-keys
-  "TAB"   '(counsel-switch-buffer :which-key "Switch buffer")
-  "b"     '(:ignore t :which-key "Buffer")
-  "b b"   '(ibuffer :which-key "Ibuffer")
-  "b c"   '(clone-indirect-buffer-other-window :which-key "Clone indirect buffer other window")
-  "b k"   '(kill-current-buffer :which-key "Kill current buffer")
-  "b n"   '(next-buffer :which-key "Next buffer")
-  "b p"   '(previous-buffer :which-key "Previous buffer")
-  "b B"   '(ibuffer-list-buffers :which-key "Ibuffer list buffers")
-  "b K"   '(kill-buffer :which-key "Kill buffer")
-  "b 1"   '(kill-other-buffers :which-key "Kill other buffers"))
+  "TAB" '(consult-buffer                     :wk "Switch buffer")
+  "b"   '(:ignore t                          :wk "Buffer")
+  "b b" '(ibuffer                            :wk "Ibuffer")
+  "b c" '(clone-indirect-buffer-other-window :wk "Clone indirect buffer other window")
+  "b k" '(kill-current-buffer                :wk "Kill current buffer")
+  "b n" '(next-buffer                        :wk "Next buffer")
+  "b p" '(previous-buffer                    :wk "Previous buffer")
+  "b B" '(ibuffer-list-buffers               :wk "Ibuffer list buffers")
+  "b K" '(kill-buffer                        :wk "Kill buffer")
+  "b 1" '(kill-other-buffers                 :wk "Kill other buffers"))
 #+end_src
-*** File management
+
+** File management
+
 #+begin_src emacs-lisp
 (leader-keys
-  "f"     '(:ignore t :which-key "File")
-  "."     '(find-file :which-key "Find file")
-  "f f"   '(find-file :which-key "Find file")
-  "f r"   '(counsel-recentf :which-key "Recent files")
-  "f s"   '(save-buffer :which-key "Save file")
-  "f u"   '(sudo-edit-find-file :which-key "Sudo find file")
-  "f y"   '(dt/show-and-copy-buffer-path :which-key "Yank file path")
-  "f C"   '(copy-file :which-key "Copy file")
-  "f D"   '(delete-file :which-key "Delete file")
-  "f R"   '(rename-file :which-key "Rename file")
-  "f S"   '(write-file :which-key "Save file as...")
-  ;; "f d"   '(:ignore t :which-key "Dired")
-  "d"     '(dired :which-key "Dired")
-  ;; "f d d" '(dired :which-key "Dired")
-  "f j"   '(dired-jump :which-key "Dired jump")
-  ;; "f d j" '(dired-jump :which-key "Dired jump")
-  "f U"   '(sudo-edit :which-key "Sudo edit file"))
-#+end_src
-*** Window management
-#+begin_src emacs-lisp
-(winner-mode 1)
-(leader-keys
-  ;; Window splits
- "w"     '(:ignore t :which-key "Window")
- "w c"   '(evil-window-delete :which-key "Close window")
- "w n"   '(evil-window-new :which-key "New window")
- "w s"   '(evil-window-split :which-key "Horizontal split window")
- "w v"   '(evil-window-vsplit :which-key "Vertical split window")
- "w C"   '(delete-other-windows :which-key "Close other windows")
- "w r"   '(hydra-window-resize/body :which-key "Resize window")
- ;; Window motions
- "w h"   '(evil-window-left :which-key "Window left")
- "w j"   '(evil-window-down :which-key "Window down")
- "w k"   '(evil-window-up :which-key "Window up")
- "w l"   '(evil-window-right :which-key "Window right")
- "w w"   '(evil-window-next :which-key "Goto next window")
- ;; winner mode
- "w <left>"  '(winner-undo :which-key "Winner undo")
- "w <right>" '(winner-redo :which-key "Winner redo")
- ;; Window numbers
- "1" '(winum-select-window-1 :which-key "Select window 1")
- "2" '(winum-select-window-2 :which-key "Select window 2")
- "3" '(winum-select-window-3 :which-key t)
- "4" '(winum-select-window-4 :which-key t)
- "5" '(winum-select-window-5 :which-key t)
- "6" '(winum-select-window-6 :which-key t)
- "7" '(winum-select-window-7 :which-key t)
- "8" '(winum-select-window-8 :which-key t))
-#+end_src
-*** Git
-#+begin_src emacs-lisp
-(leader-keys
-  "g"   '(:ignore t :which-key "Git")
-  "g s" '(magit :which-key "Magit status")
-  "g m"   '(activate-smerge-mode/body :which-key "Smerge"))
-#+end_src
-*** General text bindings
-#+begin_src emacs-lisp
-(leader-keys
-  "x"   '(:ignore t :which-key "Text")
-  "x i" '(indent-region :which-key "Indent region")
-  "x s" '(flyspell-correct-wrapper :which-key "Flyspell correct")
-  ";"   '(evilnc-comment-or-uncomment-lines :which-key "Toggle line comment"))
-#+end_src
-*** Easymotion
+ "f"   '(:ignore t           :wk "File")
+ "."   '(find-file           :wk "Find file")
+ "f f" '(find-file           :wk "Find file")
+ "f F" '(consult-find        :wk "Consult find")
+ "f g" '(consult-ripgrep     :wk "Consult ripgrep")
+ "f r" '(consult-recent-file :wk "Recent files")
+ "f s" '(save-buffer         :wk "Save file")
+ "f u" '(sudo-edit-find-file :wk "Sudo find file")
+ "f C" '(copy-file           :wk "Copy file")
+ "f D" '(delete-file         :wk "Delete file")
+ "f R" '(rename-file         :wk "Rename file")
+ "f S" '(write-file          :wk "Save file as...")
+ "f U" '(sudo-edit           :wk "Sudo edit file"))
+#+End_src
+
+** Avy
+
+Package to easily navigate cursor within buffers. Using this over evil-easymotion because Avy does not distinguish between forward and backward and allows jumping across visible buffers.
 
 #+begin_src emacs-lisp
-
-(use-package evil-easymotion
-  :ensure t
-  :after (general evil)
-  :general
-  (leader-keys
-    "j"   '(:ignore t :which-key "Jump to")
-    "j f" '(evilem-motion-find-char :which-key "Find char")
-    "j F" '(evilem-motion-find-char-backward :which-key "Find char backward")
-    "j j" '(evilem-motion-find-char :which-key "Find char")
-    "j J" '(evilem-motion-find-char-backward :which-key "Find char backward")
-    "j t" '(evilem-motion-find-char-to :which-key "To char")
-    "j T" '(evilem-motion-find-char-to-backward :which-key "To char backward")
-    "j l" '(evilem-motion-next-line :which-key "Jump to line forward")
-    "j L" '(evilem-motion-previous-line :which-key "Jump to line backward")
-    "j e" '(evilem-motion-forward-word-end :which-key "Forward word end")
-    "j E" '(evilem-motion-forward-WORD-end :which-key "Forward WORD end")
-    "j g e" '(evilem-motion-backward-word-end :which-key "Backward word end")
-    "j g E" '(evilem-motion-backward-WORD-end :which-key "Backward WORD end")
-    "j w" '(evilem-motion-forward-word-begin :which-key "Forward word")
-    "j W" '(evilem-motion-forward-WORD-begin :which-key "Forward WORD")
-    "j b" '(evilem-motion-backward-word-begin :which-key "Backward word")
-    "j B" '(evilem-motion-backward-WORD-begin :which-key "Backward WORD")
-    "j n" '(evilem-motion-search-next :which-key "Search next")
-    "j N" '(evilem-motion-search-previous :which-key "Search previous")
-    "j g" '(:ignore t :which-key "Backward word end")))
-
+    (use-package avy
+      :ensure t
+      :after consult
+      :config
+      (leader-keys
+        "j"   '(:ignore t           :wk "Jump to")
+        "j f" '(avy-goto-char       :wk "Find char")
+        "j s" '(avy-goto-char-2     :wk "Find char 2")
+        "j c" '(avy-goto-char-timer :wk "Find char timer")
+        "j j" '(avy-goto-char-timer :wk "Find char timer")
+        "j l" '(avy-goto-line       :wk "Jump to line")
+        "j h" '(consult-outline     :wk "Jump to heading")))
 #+end_src
 
-*** evil-snipe
+* Themes and fonts
 
-evil-snipe is simulates Vim sneak.
+** Theme
 
 #+begin_src emacs-lisp
-
-(use-package evil-snipe
+(use-package doom-themes
   :ensure t
   :init
-  (evil-normalize-keymaps)
-  :after evil
-  ;; :general
-  ;; (general-vmap evil-snipe-local-mode-map "z" 'evil-snipe-s)
-  ;; (general-vmap 'visual evil-snipe-local-mode-map "Z" 'evil-snipe-S)
-  :hook (magit-mode . turn-off-evil-snipe-override-mode)
-  :custom
-  (evil-snipe-scope 'visible)
-  (evil-snipe-repeat-scope 'whole-visible)
-  (evil-snipe-spillover-scope 'whole-buffer))
-
-(evil-snipe-mode +1)
-(evil-snipe-override-mode +1)
-
+  (setq doom-themes-enable-bold t
+	doom-themes-enable-italic t)
+  (load-theme 'doom-snazzy t))  ;; Ones I liked and used: doom-one, doom-dark+, doom-solarized-light, doom-snazzy, doom-palenight
 #+end_src
 
-*** evil-surround
+** Doom modeline
+
+This package depends on all-the-icons package. When installing Doom modeline for the first time, please run 'all-the-icons-install-fonts' via M-x first.
 
 #+begin_src emacs-lisp
-(use-package evil-surround
+(use-package doom-modeline
   :ensure t
-  :config
-  (global-evil-surround-mode 1))
+  :init
+  (doom-modeline-mode 1))
 #+end_src
 
-*** Eval
-#+begin_src emacs-lisp
-(leader-keys
-  "e"     '(:ignore t :which-key "Eval")
-  "e b"   '(eval-buffer :which-key "Eval elisp in buffer")
-  "e d"   '(eval-defun :which-key "Eval defun")
-  "e e"   '(eval-expression :which-key "Eval elisp expression")
-  "e l"   '(eval-last-sexp :which-key "Eval last sexression")
-  "e r"   '(eval-region :which-key "Eval region"))
-#+end_src
-*** Org mode
-#+begin_src emacs-lisp
-
-(leader-keys
-  "o"   '(:ignore t :which-key "Org")
-  "a"   '(org-agenda :which-key "Agenda")
-  "c"   '(org-capture :which-key "Capture")
-  "o a" '(org-agenda :which-key "Agenda")
-  "o c" '(org-capture :which-key "Capture")
-  "o t" '(org-todo :which-key "Todo"))
-#+end_src
-* Shells and terminals
-
-** exec-path-from-shell
-
-Ensures $PATH environment variable in emacs is the same as main shell (zshrc for my macbook).
+Ensure icons are used in Daemon mode:
 
 #+begin_src emacs-lisp
-(use-package exec-path-from-shell
-  :ensure t)
-
-(exec-path-from-shell-initialize)
-
+(add-hook 'server-after-make-frame-hook
+ (lambda ()
+     (setq doom-modeline-icon (display-graphic-p))))
 #+end_src
 
-** Eshell
+NOTE: ~(doom-modeline-mode)~ results in ~(error "bar is not a defined segment")~ in emacs@29. See also: https://githubhot.com/repo/seagle0128/doom-modeline/issues/505
+
+To fix, run this code *once*:
 
 #+begin_src emacs-lisp
-
-(defun configure-eshell ()
-  ;; Save command history when commands are entered
-  (add-hook 'eshell-pre-command-hook 'eshell-save-some-history)
-
-  ;; Truncate buffer for performance
-  (add-to-list 'eshell-output-filter-functions 'eshell-truncate-buffer)
-
-  ;; Bind some useful keys for evil-mode
-  (evil-define-key '(normal insert visual) eshell-mode-map (kbd "C-r") 'counsel-esh-history)
-  (evil-define-key '(normal insert visual) eshell-mode-map (kbd "C-a") 'eshell-bol)
-  (evil-define-key '(normal insert visual) eshell-mode-map (kbd "C-e") 'eshell-show-maximum-output)
-  (evil-define-key '(normal insert visual) eshell-mode-map (kbd "C-u") 'eshell-kill-input)
-  (evil-normalize-keymaps)
-
-  (setq eshell-history-size         10000
-        eshell-buffer-maximum-lines 10000
-        eshell-hist-ignoredups t
-        eshell-scroll-to-bottom-on-input t))
-
-(use-package eshell-git-prompt
-  :ensure t
-  :after eshell)
-
-(use-package eshell
-  :hook (eshell-first-time-mode . configure-eshell)
-  :config
-
-  (with-eval-after-load 'esh-opt
-    (setq eshell-destroy-buffer-when-process-dies t)
-    (setq eshell-visual-commands '("htop" "zsh" "vim")))
-
-  (eshell-git-prompt-use-theme 'powerline))
-
+;; (setq doom-modeline-fn-alist
+;;       (--map
+;;        (cons (remove-pos-from-symbol (car it)) (cdr it))
+;;        doom-modeline-fn-alist))
 #+end_src
-*** Custom prompt
 
-See also [[http://www.modernemacs.com/post/custom-eshell/][here]].
+** Fonts
 
-An alternative can be found [[https://marcohassan.github.io/bits-of-experience/pages/emacs/][here]]. I used this at NatWest (WSL emacs setup) as the icons did not show up correctly.
-
-**** Macros and functions
-
-Define a macro esh-section taking a name, an icon, a form or variable to be
-evaluated, and optionally face properties. They create anonymous functions
-which will be evaluated and concatenated at prompt-time.
+The used fonts have different names on different computers:
 
 #+begin_src emacs-lisp
-
-(require 'dash)
-(require 's)
-;; (require 'cl)
-
-;; (use-package dash
-;;   :ensure t)
-
-;; (use-package s
-;;   :ensure t)
-
-(defmacro with-face (STR &rest PROPS)
-  "Return STR propertized with PROPS."
-  `(propertize ,STR 'face (list ,@PROPS)))
-
-(defmacro esh-section (NAME ICON FORM &rest PROPS)
-  "Build eshell section NAME with ICON prepended to evaled FORM with PROPS."
-  `(setq ,NAME
-         (lambda () (when ,FORM
-                      (-> ,ICON
-                          (concat esh-section-delim ,FORM)
-                          (with-face ,@PROPS))))))
-
-(defun esh-acc (acc x)
-  "Accumulator for evaluating and concatenating esh-sections."
-  (--if-let (funcall x)
-      (if (s-blank? acc)
-          it
-        (concat acc esh-sep it))
-    acc))
-
-(defun esh-prompt-func ()
-  "Build `eshell-prompt-function'"
-  (concat esh-header
-          (-reduce-from 'esh-acc "" eshell-funcs)
-          "\n"
-          eshell-prompt-string))
-
+  (if (string= system-name "Duys-MBP.home")
+      (setq duy/default-font "Fira Mono"
+            duy/variable-font "IBM Plex Sans")
+    (if (string= system-name "NL5CG1462QH6")
+        (setq duy/default-font "FiraMono Nerd Font Mono"
+              duy/variable-font "IBM Plex Sans")
+      (setq duy/default-font nil
+            duy/variable-font nil)))
 #+end_src
 
-**** Configuration
+Set fonts:
 
 #+begin_src emacs-lisp
-
-;; Separator between esh-sections
-(setq esh-sep " | ")  ; or " | "
-
-;; Separator between an esh-section icon and form
-(setq esh-section-delim " ")
-
-;; Eshell prompt header
-(setq esh-header "\n┌─")  ; or "\n┌─"
-
-;; Eshell prompt regexp and string. Unless you are varying the prompt by eg.
-;; your login, these can be the same.
-(setq eshell-prompt-regexp "└─> ")   ; or "└─> "
-(setq eshell-prompt-string "└─> ")   ; or "└─> "
-
+  (set-face-attribute 'default nil :font (font-spec :family duy/default-font))
+  (set-face-attribute 'fixed-pitch nil :font (font-spec :family duy/default-font))
+  (set-face-attribute 'variable-pitch nil :font (font-spec :family duy/variable-font))
 #+end_src
 
-**** Sections
+Settings for daemon mode:
 
 #+begin_src emacs-lisp
+  (defun duy/setup-font-faces-daemon()
+    (when (display-graphic-p)
+      (set-face-attribute 'default nil :font (font-spec :family duy/default-font :height 100))
+      (set-face-attribute 'fixed-pitch nil :font (font-spec :family duy/default-font :height 100))
+      (set-face-attribute 'variable-pitch nil :font (font-spec :family duy/variable-font :height 110))))
 
-(esh-section esh-dir
-             "\xf07b" ;; "\xf07c"  ;  (faicon folder)
-             (abbreviate-file-name (eshell/pwd))
-             '(:foreground "gold"))
-
-(esh-section esh-git
-             "\xe907"  ;  (git icon)
-             (magit-get-current-branch)
-             '(:foreground "orange"))
-
-(esh-section esh-python
-             "\xe928"  ;  (python icon)
-             conda-env-current-name)
-
-(esh-section esh-clock
-             "\xf017"  ;  (clock icon)
-             (format-time-string "%H:%M" (current-time))
-             '(:foreground "forest green"))
-
-;; Below I implement a "prompt number" section
-;; (setq esh-prompt-num 0)
-;; (add-hook 'eshell-exit-hook (lambda () (setq esh-prompt-num 0)))
-;; (advice-add 'eshell-send-input :before
-;;             (lambda (&rest args) (setq esh-prompt-num (cl-incf esh-prompt-num))))
-
-;; (esh-section esh-num
-;;              "\xf0c9"  ;  (list icon)
-;;              (number-to-string esh-prompt-num)
-;;              '(:foreground "brown"))
-
-;; Choose which eshell-funcs to enable
-(setq eshell-funcs (list esh-dir esh-git esh-python)) ; esh-clock esh-num))
-
-;; Enable the new eshell prompt
-(setq eshell-prompt-function 'esh-prompt-func)
-
+  (add-hook 'after-init-hook 'duy/setup-font-faces-daemon)
+  (add-hook 'server-after-make-frame-hook 'duy/setup-font-faces-daemon)
 #+end_src
+
+* Terminals
 
 ** Function to disable exit confirmation query for shells and terminals
+
 #+begin_src emacs-lisp
 (defun set-no-process-query-on-exit ()
   (let ((proc (get-buffer-process (current-buffer))))
     (when (processp proc)
       (set-process-query-on-exit-flag proc nil))))
 #+end_src
-** Settings for shell-mode-hook and term-mode-hook
-Disable line numbers, line highlight and exit confirmation
+
+
+** vterm
+
 #+begin_src emacs-lisp
-(dolist (mode '(term-mode-hook
-		shell-mode-hook
-		vterm-mode-hook
-		eshell-mode-hook))
-  (add-hook mode (lambda () (display-line-numbers-mode 0)))
-  (add-hook mode (lambda () (setq-local global-hl-line-mode nil)))
-  (add-hook mode 'set-no-process-query-on-exit))
+  (use-package vterm
+    :ensure t
+    :bind (:map vterm-mode-map
+                ("C-b" . vterm-send-C-b))
+    :config
+    (dolist (mode '(term-mode-hook
+                    shell-mode-hook
+                    vterm-mode-hook
+                    eshell-mode-hook))
+      (add-hook mode (lambda () (display-line-numbers-mode 0)))
+      (add-hook mode (lambda () (setq-local global-hl-line-mode nil)))
+      (add-hook mode 'set-no-process-query-on-exit)))
 #+end_src
+
+I also enabled directory tracking and named vterm buffer, see also here how to setup: https://github.com/akermu/emacs-libvterm
+
+** vterm-toggle
+
+#+begin_src emacs-lisp
+(use-package vterm-toggle
+  :ensure t
+  :custom
+  (vterm-buffer-name-string "vterm: %s")
+  (vterm-toggle-project-root t)
+  (vterm-toggle-scope 'project)
+  :config
+  (setq vterm-toggle-fullscreen-p nil)
+  (add-to-list 'display-buffer-alist
+               '((lambda (buffer-or-name _)
+                   (let ((buffer (get-buffer buffer-or-name)))
+                     (with-current-buffer buffer
+                       (or (equal major-mode 'vterm-mode)
+                           (string-prefix-p vterm-buffer-name (buffer-name buffer))))))
+                 (display-buffer-reuse-window display-buffer-at-bottom)
+                 (display-buffer-reuse-window display-buffer-in-direction)
+                 ;;display-buffer-in-direction/direction/dedicated is added in emacs27
+                 ;;(direction . bottom)
+                 (dedicated . t) ;dedicated is supported in emacs27
+                 (reusable-frames . visible)
+                 (window-height . 0.3)))
+  (leader-keys
+    "'" '(vterm-toggle :wk "vterm"))
+  (bind-keys  ; For some reason :bind interferes with the SPC ' binding here
+   :map vterm-mode-map
+   ("C-<return>" . vterm-toggle-insert-cd)))
+#+end_src
+
+** exec-path-from-shell
+
+#+begin_src emacs-lisp
+(use-package exec-path-from-shell
+  :ensure t
+  :defer nil
+  :config
+  (exec-path-from-shell-copy-env "PATH")
+  (when (memq window-system '(mac ns x))
+    (exec-path-from-shell-initialize))
+  (when (daemonp)
+    (exec-path-from-shell-initialize)))
+#+end_src
+
+* Completion and navigation
+** Vertico
+
+#+begin_src emacs-lisp
+(use-package vertico
+  :ensure t
+  :bind (:map vertico-map
+              ("C-j" . vertico-next)
+              ("C-k" . vertico-previous)
+              ("C-f" . vertico-exit)
+              :map minibuffer-local-map
+              ("M-h" . backward-kill-word))
+  :custom
+  (vertico-cycle t)
+  :init
+  (vertico-mode))
+#+end_src
+
+*** Vertico-directory
+
+#+begin_src emacs-lisp
+(use-package vertico-directory
+  :after vertico
+  :ensure nil
+  ;; More convenient directory navigation commands
+  :bind (:map vertico-map
+              ("RET" . vertico-directory-enter)
+              ("DEL" . vertico-directory-delete-char)
+              ("C-<backspace>" . vertico-directory-delete-word)))
+#+end_src
+
+** Orderless
+
+#+begin_src emacs-lisp
+(use-package orderless
+  :ensure t
+  :custom
+  (completion-styles '(partial-completion orderless flex))
+  (completion-category-defaults nil)
+  (read-file-name-completion-ignore-case t)
+  (completion-category-overrides '((file (styles partial-completion))
+                                   (minibuffer (initials orderless)))))
+#+end_src
+
+** Savehist
+
+#+begin_src emacs-lisp
+;; Persist history over Emacs restarts. Vertico sorts by history position.
+(use-package savehist
+  :ensure t
+  :defer 2
+  :config
+  (savehist-mode))
+#+end_src
+
+** Marginalia
+
+#+begin_src emacs-lisp
+(use-package marginalia
+  :pin melpa
+  :ensure t
+  :defer 3
+  :custom (marginalia-annotators '(marginalia-annotators-light))
+  :config
+  (marginalia-mode))
+#+end_src
+
+** Which-key
+
+#+begin_src emacs-lisp
+(use-package which-key
+  :ensure t
+  :defer 4
+  :diminish which-key-mode
+  :custom
+  (which-key-compute-remaps t)
+  :config
+  (which-key-mode 1))
+#+end_src
+
+** Company
+
+#+begin_src emacs-lisp
+;; (use-package company
+;;   :ensure t
+;;   :defer t
+;;   :diminish ""
+;;   :custom
+;;   (company-dabbrev-other-buffers t)
+;;   (company-dabbrev-code-other-buffers t)
+;;   ;; M-<num> to select an option according to its number.
+;;   (company-show-numbers t)
+;;   ;; Only 2 letters required for completion to activate.
+;;   (company-minimum-prefix-length 3)
+;;   ;; Do not downcase completions by default.
+;;   (company-dabbrev-downcase nil)
+;;   ;; Even if I write something with the wrong case,
+;;   ;; provide the correct casing.
+;;   (company-dabbrev-ignore-case t)
+;;   ;; company completion wait
+;;   (company-idle-delay 0.2)
+;;   ;; No company-mode in shell & eshell
+;;   (company-global-modes '(not eshell-mode shell-mode))
+;;   :hook ((prog-mode-hook . company-mode)))
+#+end_src
+
+** Corfu
+
+Alternative to company.
+
+#+begin_src emacs-lisp
+(use-package corfu
+  :ensure t
+  :bind (:map corfu-map
+         ("C-j" . corfu-next)
+         ("C-k" . corfu-previous)
+         ("TAB" . corfu-insert)
+         ("RET" . nil)
+         :map org-mode-map
+         ("C-," . nil))
+  :custom
+  (corfu-cycle t)
+  (corfu-auto t)
+  :init
+  (global-corfu-mode))
+#+end_src
+
+Enabling icons in Corfu:
+
+#+begin_src emacs-lisp
+(use-package kind-icon
+  :ensure t
+  :after corfu
+  :custom
+  (kind-icon-default-face 'corfu-default) ; to compute blended backgrounds correctly
+  :config
+  (add-to-list 'corfu-margin-formatters #'kind-icon-margin-formatter))
+#+end_src
+
+** Consult
+
+#+begin_src emacs-lisp
+(use-package consult
+  :ensure t
+  :bind (("C-s" . consult-line)
+         :map minibuffer-local-map
+         ("C-r" . consult-history)))
+#+end_src
+
+** Embark
+
+#+begin_src emacs-lisp
+  (use-package embark
+    :ensure t
+    :bind
+    (("C-;" . embark-act)          ;; pick some comfortable binding
+     ("C-:" . embark-dwim)         ;; good alternative: M-.
+     ("C-h B" . embark-bindings))
+    :config
+    (when (and (eq system-type 'gnu/linux)
+	       (string-match "WSL" operating-system-release))
+      (bind-keys
+       :map embark-url-map
+       ("e" . browse-url-edge)
+       :map embark-file-map
+       ("<C-return>" . duy/open-file-with-wsl))))
+  ;; :map minibuffer-local-map
+  ;; (("C-." . embark-act)))) ;; alternative for `describe-bindings'
+
+  (use-package embark-consult
+    :ensure t
+    :after (embark consult)
+    :demand t ; only necessary if you have the hook below
+    ;; if you want to have consult previews as you move around an
+    ;; auto-updating embark collect buffer
+    :hook
+    (embark-collect-mode . consult-preview-at-point-mode))
+#+end_src
+
+*** WSL/Windows specific Embark actions
+
+#+begin_src emacs-lisp
+;; (when (and (eq system-type 'gnu/linux)
+;;            (string-match "WSL" operating-system-release))
+;; (bind-keys
+;;    :map embark-url-map
+;;    ("e" . browse-url-edge)
+;;    :map embark-file-map
+;;    ("<C-return>" . duy/open-file-with-wsl)))
+#+end_src
+
+** Treemacs
+
+#+begin_src emacs-lisp
+(use-package treemacs
+  :ensure t
+  :defer t
+  :custom
+  (treemacs-no-png-images t)
+  (treemacs-width 24)
+  :bind ("C-c t" . treemacs))
+#+end_src
+
+* Windows and movement
+
+** ace-window
+
+#+begin_src emacs-lisp
+(use-package ace-window
+  :ensure t
+  :config
+    (setq aw-keys '(?a ?s ?d ?f ?g ?h ?j ?k ?l)
+          aw-dispatch-always t)
+    (leader-keys
+      "w" '(ace-window :wk "ace-window")))
+#+end_src
+  
+* Popper
+
+#+begin_src emacs-lisp
+(use-package popper
+  :ensure t
+  :bind (("C-`"   . popper-toggle-latest)
+         ("M-`"   . popper-cycle)
+         ("C-M-`" . popper-toggle-type)
+         ("M-'"   . popper-kill-latest-popup))
+  :init
+  (setq popper-reference-buffers
+        '("\\*Messages\\*"
+	    "\\*Warnings\\*"
+          "Output\\*$"
+          "\\*Async Shell Command\\*"
+          help-mode
+          helpful-mode
+	    "\\*eldoc\\*"
+          compilation-mode))
+  (popper-mode +1)
+  (popper-echo-mode +1))
+#+end_src
+
+* Spell / syntax checking
+
+#+begin_src emacs-lisp
+(defun duy/flyspell-delete-all-overlays ()
+  "Delete all flyspell checks in buffer."
+  (interactive)
+  (flyspell-delete-all-overlays))
+#+end_src
+
+#+begin_src emacs-lisp
+(use-package flyspell
+  :defer t
+  :config
+  (leader-keys
+    ;; Use evil-next/prev-flyspell-error to navigate
+    "s"   '(nil                              :wk "Spell check")
+    "s r" '(flyspell-region                  :wk "Flyspell region")
+    "s b" '(flyspell-buffer                  :wk "Flyspell buffer")
+    "s B" '(duy/flyspell-delete-all-overlays :wk "Delete spell check buffer")))
+#+end_src
+
+#+begin_src emacs-lisp
+(use-package flyspell-correct
+  :ensure t
+  :after flyspell
+  :bind ([remap ispell-word] . flyspell-correct-wrapper))
+#+end_src
+
+* Version control
+
+#+begin_src emacs-lisp
+(use-package magit
+  :ensure t
+  :config
+  (leader-keys
+    "g"   '(:ignore t                 :wk "Git")
+    "g s" '(magit                     :wk "Magit status")
+    "g m" '(activate-smerge-mode/body :wk "Smerge")))
+#+end_src
+
 * Org mode
 
-** Org made basic setup
+** Basic setup
 
 #+begin_src emacs-lisp
-
-(use-package org
-  :ensure org-contrib
-  :mode ("\\.org\\'" . org-mode)
-  :bind
-  (("C-c l" . org-store-link)
-   ("C-c a" . org-agenda)
-   ("C-c b" . org-iswitchb)
-   ("C-c c" . org-capture))
-  :bind
-  (:map org-mode-map
-        ("M-n" . outline-next-visible-heading)
-        ("M-p" . outline-previous-visible-heading))
-  :custom
-  (org-src-window-setup 'current-window)
-  (org-return-follows-link t)
-  (org-agenda-diary-file "~/org/diary.org")
-  (org-babel-load-languages
-   '((emacs-lisp . t)
-     (python . t)
-     (dot . t)
-     (jupyter .t)
-     (R . t)))
-  (org-confirm-babel-evaluate nil)
-  (org-use-speed-commands t)
-  (org-catch-invisible-edits 'show)
-  (org-ellipsis " ▼ ")
-  (org-src-fontify-natively t)
-  (org-edit-src-content-indentation 0)
-  ;; (org-preview-latex-image-directory "/tmp/ltximg/")
-  :custom-face
-  (variable-pitch ((t (:family "Libre Baskerville"))))
-  (org-document-title ((t (:weight bold :height 1.5))))
-  (org-done ((t (:strike-through t :weight bold))))
-  (org-headline-done ((t (:strike-through t))))
-  (org-level-1 ((t (:height 1.3 :weight bold))))
-  (org-level-2 ((t (:height 1.2 :weight bold))))
-  (org-level-3 ((t (:height 1.1 :weight bold))))
-  (org-image-actual-width (/ (display-pixel-width) 2))
-  :custom
-  (org-structure-template-alist '(("a" . "export ascii")
-                                  ("c" . "center")
-                                  ("C" . "comment")
-                                  ("e" . "example")
-                                  ("E" . "export")
-                                  ("l" . "export latex")
-                                  ("py" . "src python")
-                                  ("ju" . "src jupyter-python")
-                                  ("q" . "quote")
-                                  ("s" . "src")
-                                  ("v" . "verse")
-                                  ("el" . "src emacs-lisp")
-                                  ("d" . "definition")
-                                  ("t" . "theorem")))
-  (org-startup-indented t)
-  (org-hide-leading-stars nil)
-  (org-hide-emphasis-markers nil)
-  (org-pretty-entities nil)
-  (org-adapt-indentation t)
-  (org-agenda-tags-column 0)
-  :init
-  (with-eval-after-load 'flycheck
-    (flycheck-add-mode 'proselint 'org-mode))
-  :config
-  (advice-add 'org-refile :after (lambda (&rest _) (org-save-all-org-buffers)))
-  (require 'org-habit)
-  (require 'org-tempo)
-  )
-
-(require 'org)
-
+(defun duy/org-mode-setup ()
+  (variable-pitch-mode 1)
+  (visual-line-mode 1)
+  (evil-org-mode 1)
+  (display-line-numbers-mode 0)
+  (setq flyspell-generic-check-word-predicate 'org-mode-flyspell-verify)  ;; Don't spell check src blocks
+  (setq-local corfu-auto nil))  ;; Don't auto complete in org-buffers (to avoid org-roam link inserts)
 #+end_src
 
-** Style and formatting
+#+begin_src emacs-lisp
+  (use-package org
+    :ensure t
+    :custom
+    (org-babel-load-languages            ; Languages allowed to run in Org Src blocks
+     '((emacs-lisp . t)
+       (python . t)
+       (jupyter . t)))
+    (org-confirm-babel-evaluate nil)     ; Do not ask for confirmation when evaluating src blocks
+    (org-catch-invisible-edits 'show)    ; When making invisible edits, show the location of the edit
+    (org-ellipsis " ▼ ")
+    (org-src-fontify-natively t)         ; Fontify code in src blocks
+    (org-edit-src-content-indentation 2) ; Indentation within the src blocks
+    (org-startup-indented t)             ; Org headings are indented, as is the text within the headings
+    (org-hide-leading-stars nil)
+    (org-src-preserve-indentation t)
+    (org-hide-emphasis-markers t)        ; Hide markers around emphasised word (e.g. *bold*, /italic/ etc.)
+    (org-adapt-indentation t)
+    (org-structure-template-alist '(("a" . "export ascii")
+                                    ("c" . "center")
+                                    ("C" . "comment")
+                                    ("e" . "example")
+                                    ("E" . "export")
+                                    ("l" . "export latex")
+                                    ("py" . "src python")
+                                    ("ju" . "src jupyter-python")
+                                    ("q" . "quote")
+                                    ("s" . "src")
+                                    ("v" . "verse")
+                                    ("el" . "src emacs-lisp")
+                                    ("d" . "definition")
+                                    ("t" . "theorem")))
+    :custom-face
+    ;; (variable-pitch ((t (:family "IBM Plex Sans"))))
+    (org-document-title ((t (:weight bold :height 1.5))))
+    (org-done ((t (:strike-through t :weight bold))))
+    (org-headline-done ((t (:strike-through t))))
+    (org-level-1 ((t (:height 1.3 :weight bold))))
+    (org-level-2 ((t (:height 1.2 :weight bold))))
+    (org-level-3 ((t (:height 1.1 :weight bold))))
+    (org-image-actual-width (/ (display-pixel-width) 2))
+    (org-block ((nil (:foreground nil :inherit 'fixed-pitch))))
+    (org-table ((nil (:inherit 'fixed-pitch))))
+    (org-formula ((nil (:inherit 'fixed-pitch))))
+    (org-code ((nil (:inherit (shadow fixed-pitch)))))
+    (org-indent ((nil (:inherit (org-hide fixed-pitch)))))
+    (org-verbatim ((nil (:inherit (shadow fixed-pitch)))))
+    (org-special-keyword ((nil (:inherit (font-lock-comment-face fixed-pitch)))))
+    (org-meta-line ((nil (:inherit (font-lock-comment-face fixed-pitch)))))
+    (org-checkbox ((nil (:inherit 'fixed-pitch))))
+    (org-block-begin-line ((nil (:inherit 'fixed-pitch))))
+    :init
+    (with-eval-after-load 'flycheck
+      (flycheck-add-mode 'proselint 'org-mode))
+    ; Change bullets to actual bullets
+    (font-lock-add-keywords 'org-mode
+                            '(("^ *\\([-]\\) "
+                               (0 (prog1 () (compose-region (match-beginning 1) (match-end 1) "•"))))))
+    :hook
+    (org-mode-hook . duy/org-mode-setup)
+    :config
+    (advice-add 'org-refile :after (lambda (&rest _) (org-save-all-org-buffers)))
+    (require 'org-habit)
+    (require 'org-tempo)
+    (leader-keys
+      "o"   '(:ignore t   :wk "Org")
+      "a"   '(org-agenda  :wk "Agenda")
+      "c"   '(org-capture :wk "Capture")
+      "C"   '(org-capture :wk "Capture"))
+    (local-leader-keys
+      :keymaps 'org-mode-map
+      "o" '(org-open-at-point :wk "Open link")))
+#+end_src
+
+** Capture templates
 
 #+begin_src emacs-lisp
+(if (string= system-name "Duys-MBP.home")
+    (setq inbox-file "~/org-roam-notes/20220101143145-inbox.org"
+          general-task-file "~/org-roam-notes/20220101143545-tasks.org")
+  (if (string= system-name "NL5CG1462QH6")
+      (setq inbox-file "~/org-roam-notes/20220522180401-inbox.org"
+            general-task-file "~/org-roam-notes/20220522181915-general_tasks.org")
+    (setq inbox-file nil)))
 
-(use-package org-bullets
-  :ensure t)
+(setq org-capture-templates
+      '(("i" "Inbox" plain (file inbox-file)
+         "* TODO %?\n%U\n" :clock-in nil :clock-resume t)
+        ("t" "Today" plain (file general-task-file)
+         "* TODO %?\n SCHEDULED: %t\n%U\n" :clock-in nil :clock-resume t)
+        ))
+#+end_src
 
-(add-hook 'org-mode-hook (lambda () (org-bullets-mode 1)))
+** Org bullet
 
-(defun duy/style-org ()
-  (setq line-spacing 0.2)
-  (variable-pitch-mode +1)
-  (mapc
-   (lambda (face) ;; Other fonts with fixed-pitch.
-     (set-face-attribute face nil :inherit 'fixed-pitch))
-   (list 'org-block
-         'org-table
-         'org-verbatim
-         'org-block-begin-line
-         'org-block-end-line
-         'org-meta-line
-         'org-document-info-keyword
-         'line-number
-         'line-number-current-line))
-  (mapc
-   (lambda (face) ;; Other fonts with fixed-pitch.
-     (set-face-attribute face nil :inherit '(shadow fixed-pitch)))
-   (list 'org-code
-         'org-table
-         'org-verbatim)))
+#+begin_src emacs-lisp
+  (use-package org-bullets
+    :ensure t)
 
-;; (add-hook 'org-mode-hook #'duy/style-org)
+  (add-hook 'org-mode-hook (lambda () (org-bullets-mode 1)))
+#+end_src
 
+** Org appear
+
+Org-appear shows the emphasis markers when your cursor is on the text, even if ~org-hide-emphasis-markers~ is set.
+
+#+begin_src emacs-lisp
+(use-package org-appear
+  :ensure t
+  :hook (org-mode-hook . org-appear-mode))
 #+end_src
 
 ** Org roam
 
 #+begin_src emacs-lisp
-(use-package org-roam
-  :ensure t
-  :init
-  (setq org-roam-v2-ack t)
-  :custom
-  (org-roam-directory "~/org-roam-notes")
-  (org-roam-completion-everywhere t)
-  (org-roam-capture-templates
-   '(("d" "default" plain
-      "%?"
-      :if-new (file+head "%<%Y%m%d%H%M%S>-${slug}.org" "#+title: ${title}\n#+date: %U\n")
-      :unnarrowed t)))
-  (org-roam-dailies-capture-templates
-   '(("d" "default" entry "* %<%I:%M %p>: %?"
-      :if-new (file+head "%<%Y-%m-%d>.org" "#+title: %<%Y-%m-%d>\n"))))
-  :bind (:map org-mode-map
-              ("C-M-i" . completion-at-point)
-	      :map org-roam-dailies-map
-              ("Y" . org-roam-dailies-capture-yesterday)
-              ("T" . org-roam-dailies-capture-tomorrow))
-  :config
-  (require 'org-roam-dailies) ;; Ensure the keymap is available
-  (setq org-roam-node-display-template #("${title:*} ${tags:40}" 11 21
-					 (face org-tag)))
-  (org-roam-db-autosync-mode))
-
-(leader-keys
-  "n"   '(:ignore t :which-key "Roam")
-  "n l" '(org-roam-buffer-toggle :which-key "Buffer toggle")
-  "n f" '(org-roam-node-find :which-key "Find")
-  "n i" '(org-roam-node-insert :which-key "Insert")
-  "n t" '(org-roam-tag-add :which-key "Add tag")
-  "n T" '(org-roam-tag-remove :which-key "Remove tag")
-  "n d" '(org-roam-dailies-map :which-key "Dailies"))
+  (use-package org-roam
+    :ensure t
+    :init
+    (setq org-roam-v2-ack t)
+    :custom
+    (org-roam-directory "~/org-roam-notes")
+    (org-roam-completion-everywhere t)
+    (org-roam-capture-templates
+     '(("d" "default" plain
+        "%?"
+        :if-new (file+head "%<%Y%m%d%H%M%S>-${slug}.org" "#+title: ${title}\n#+date: %U\n")
+        :unnarrowed t)))
+    (org-roam-dailies-capture-templates
+     '(("d" "default" entry "* %<%I:%M %p>: %?"
+        :if-new (file+head "%<%Y-%m-%d>.org" "#+title: %<%Y-%m-%d>\n"))))
+    :bind (:map org-mode-map
+                ("C-M-i" . completion-at-point)
+                :map org-roam-dailies-map
+                ("Y" . org-roam-dailies-capture-yesterday)
+                ("T" . org-roam-dailies-capture-tomorrow))
+    :config
+    (require 'org-roam-dailies) ;; Ensure the keymap is available
+    (setq org-roam-node-display-template #("${title:*} ${tags:40}" 11 21
+                                           (face org-tag)))
+    (org-roam-db-autosync-mode)
+    (leader-keys
+      "n"   '(:ignore t              :wk "Roam")
+      "n l" '(org-roam-buffer-toggle :wk "Buffer toggle")
+      "n f" '(org-roam-node-find     :wk "Find")
+      "n i" '(org-roam-node-insert   :wk "Insert")
+      "n t" '(org-roam-tag-add       :wk "Add tag")
+      "n T" '(org-roam-tag-remove    :wk "Remove tag")
+      "n d" '(org-roam-dailies-map   :wk "Dailies")))
 #+end_src
 
-** Org roam agenda setup
+* Org agenda (using org-roam)
+
+** Helper functions
 
 This setup primarily follows the setup from d12frosted's [[https://d12frosted.io/posts/2020-06-23-task-management-with-roam-vol1.html][blog]].
 
 *** Vulpea
 
-Vulpea is a package written by d12frosted with additional functions for org and
-org-roam. See also [[https://github.com/d12frosted/vulpea][here]].
+Vulpea is a package written by d12frosted with additional functions for org and org-roam. See also [[https://github.com/d12frosted/vulpea][here]].
 
 #+begin_src emacs-lisp
 (use-package vulpea
@@ -1154,6 +1117,8 @@ tasks."
 (advice-add 'org-agenda :before #'vulpea-agenda-files-update)
 #+end_src
 
+** Org agenda settings
+
 *** Fix title org-roam file in todo list
 
 #+begin_src emacs-lisp
@@ -1228,7 +1193,8 @@ Set todo keywords, tags etc.
       org-log-into-drawer t
       org-log-state-notes-insert-after-drawers nil)
 
-(setq org-tag-alist (quote (("@errand" . ?e)
+(setq org-tag-alist (quote (("@reading" . ?r)
+                            ("@programming" . ?p)
                             ("@office" . ?o)
                             ("@home" . ?h)
                             ("@school" . ?s)
@@ -1262,7 +1228,7 @@ Function to archive all done task in current org agenda/file.
    "/DONE" 'file))
 #+end_src
 
-*** org-agenda layout
+*** Group TODOs by title
 
 Function to automatically group TODOs by title.
 #+begin_src emacs-lisp
@@ -1274,7 +1240,7 @@ Function to automatically group TODOs by title.
 
 #+end_src
 
-Layout of agenda.
+*** Layout of agenda
 
 #+begin_src emacs-lisp
 (setq duy/agenda-group-main
@@ -1340,26 +1306,20 @@ Layout of agenda.
 	 )))
 #+end_src
 
-*** Inbox capture settings and templates
+*** org-agenda tags alignment
 
 #+begin_src emacs-lisp
-(if (string= system-name "Duys-MBP.home")
-    (setq inbox-file "~/org-roam-notes/20220101143145-inbox.org"
-          general-task-file "~/org-roam-notes/20220101143545-tasks.org")
-  (if (string= system-name "NL5CG1462QH6")
-      (setq inbox-file "~/org-roam-notes/20220522180401-inbox.org"
-            general-task-file "~/org-roam-notes/20220522181915-general_tasks.org")
-    (setq inbox-file nil)))
+  (defun duy/realign-agenda-tags ()
+    "Put the agenda tags at the right border of the agenda window."
+    (setq org-agenda-tags-column (- 5 (window-width)))
+    (org-agenda-align-tags))
 
-(setq org-capture-templates
-      '(("i" "Inbox" plain (file inbox-file)
-         "* TODO %?\n%U\n" :clock-in nil :clock-resume t)
-        ("t" "Today" plain (file general-task-file)
-         "* TODO %?\n SCHEDULED: %t\n%U\n" :clock-in nil :clock-resume t)
-        ))
+  (add-hook 'org-agenda-finalize-hook 'duy/realign-agenda-tags)
 #+end_src
 
-Function to process inbox item.
+** Inbox management
+ 
+*** Function to process inbox item
 
 #+begin_src emacs-lisp
 (defun duy/org-agenda-process-inbox-item ()
@@ -1371,7 +1331,7 @@ Function to process inbox item.
    (org-agenda-refile nil nil t)))
 #+end_src
 
-Function to process inbox.
+*** Functions to process inbox
 
 #+begin_src emacs-lisp
 (defun duy/bulk-process-entries ()
@@ -1437,48 +1397,47 @@ Some ideas for the future:
 - Nodes have "task" tags based on existence of TODO items.
 - Org agenda items are nodes with a "task" tag.
 - Refile targets are nodes with a "project" or "task" tag.
+  
+** Archiving
 
-*** Launch org-agenda on startup
-
-#+begin_src emacs-lisp
-;; (add-hook 'after-init-hook '(lambda () (org-agenda nil " ") (delete-other-windows)))
-#+end_src
-
-** Keybindings
+Function to archive all done task in current org agenda/file.
 
 #+begin_src emacs-lisp
-(defun duy/org-agenda-remove-schedule ()
+(defun duy/org-archive-done-tasks-agenda ()
   (interactive)
-  (let ((current-prefix-arg '(4)))
-    (call-interactively #'org-agenda-schedule)))
+  (org-map-entries
+   (lambda ()
+     (org-archive-subtree)
+     (setq org-map-continue-from (org-element-property :begin (org-element-at-point))))
+   "/DONE" 'agenda))
 
-(defun duy/org-agenda-remove-deadline ()
+(defun duy/org-archive-done-tasks-file ()
   (interactive)
-  (let ((current-prefix-arg '(4)))
-    (call-interactively #'org-agenda-deadline)))
+  (org-map-entries
+   (lambda ()
+     (org-archive-subtree)
+     (setq org-map-continue-from (org-element-property :begin (org-element-at-point))))
+   "/DONE" 'file))
 #+end_src
+
+** Update org-agenda keybindings
+
+*** General agenda bindings
 
 #+begin_src emacs-lisp
 (general-define-key
  :states '(normal motion override)
  :keymaps '(org-agenda-mode-map)
- "c"   '(:ignore t :which-key "Prefix")
- "c s" '(org-agenda-schedule :which-key "Schedule")
- "c d" '(org-agenda-deadline :which-key "Deadline")
- "c r" '(hidden-command :which-key t)
- "c S" '(duy/org-agenda-remove-schedule :which-key "Remove schedule")
- "c D" '(duy/org-agenda-remove-deadline :which-key "Remove deadline")
- "c t" '(org-agenda-set-tags :which-key "Tags")
- "r"   '(:ignore t :which-key "Refile")
- "r r" '(duy/org-agenda-process-inbox-item :which-key "Refile item")
- "r i" '(duy/org-process-inbox :which-key "Process inbox")
- "c a" '(duy/org-archive-done-tasks-agenda :which-key "Archive all done tasks")
- )
+ "r"   '(:ignore t                         :wk "Refile")
+ "r r" '(duy/org-agenda-process-inbox-item :wk "Refile item")
+ "r i" '(duy/org-process-inbox             :wk "Process inbox")
+ "d a" '(duy/org-archive-done-tasks-agenda :wk "Archive all done tasks"))
 #+end_src
 
-Rebind movement in org calendar:
+*** org-calendar bindings
 
 #+begin_src emacs-lisp
+
 (defmacro my-org-in-calendar (command)
   (let ((name (intern (format "my-org-in-calendar-%s" command))))
     `(progn
@@ -1498,489 +1457,244 @@ Rebind movement in org calendar:
   "C-j" (my-org-in-calendar calendar-forward-year))
 #+end_src
 
-* Htmlize
+* Writing
+
+** Thesaurus
 
 #+begin_src emacs-lisp
-(use-package htmlize
-  :ensure t)
+  (use-package powerthesaurus
+    :ensure t
+    :config
+    (local-leader-keys
+      :keymaps 'org-mode-map
+      "d" '(powerthesaurus-lookup-dwim :wk "Powerthesaurus")))
 #+end_src
 
-* Markdown
+** Olivetti
 
 #+begin_src emacs-lisp
+  (use-package olivetti
+    :ensure t
+    :defer t
+    :diminish
+    :custom
+    (olivetti-body-width 0.67)
+    (olivetti-minimum-body-width 80)
+    (olivetti-recall-visual-line-mode-entry-state t))
+#+end_src
 
-(use-package markdown-mode
+* Web browsing
+
+Open URLs in qutebrowser:
+
+#+begin_src emacs-lisp
+  (setq browse-url-browser-function 'browse-url-generic
+        browse-url-generic-program "qutebrowser")
+#+end_src
+
+Keybindings for web-browsing:
+
+#+begin_src emacs-lisp
+  (leader-keys
+    "u" '(browse-url :wk "Browse URL"))
+#+end_src
+
+* Pandoc
+
+* Programming
+
+** Project management
+
+#+begin_src emacs-lisp
+(use-package project
   :ensure t
-  :commands (markdown-mode gfm-mode)
-  :mode (("README\\.md\\'" . gfm-mode)
-         ("\\.md\\'" . markdown-mode)
-         ("\\.markdown\\'" . markdown-mode))
-  :custom
-  (markdown-command "multimarkdown")
-  (markdown-indent-on-enter 'indent-and-new-item))
-
-#+end_src
-
-* reStructuredText
-
-#+begin_src emacs-lisp
-(defun duy/rst-nl-indent ()
-  (interactive)
-  (newline)
-  (indent-relative-first-indent-point))
-
-(evil-define-key '(normal insert visual) rst-mode-map (kbd "C-j") 'duy/rst-nl-indent)
-
-(defun duy/rst-mode-hook ()
-  (electric-indent-local-mode -1))
-(add-hook 'rst-mode-hook #'duy/rst-mode-hook)
-
-#+end_src
-
-* Development
-
-** Language Server Protocol (lsp-mode)
-
-#+begin_src emacs-lisp
-;; (defun lsp-mode-setup ()
-;;   (setq lsp-headerline-breadcrumb-segments '(path-up-to-project file symbols))
-;;   (lsp-headerline-breadcrumb-mode))
-
-(use-package lsp-mode
-  :ensure t
-  :commands (lsp lsp-deferred)
-  :hook 
-  (lsp-mode . lsp-enable-which-key-integration)
-  :custom
-  (lsp-diagnostics-provider :capf)
-  (lsp-headerline-breadcrumb-enable t)
-  (lsp-headerline-breadcrumb-segments '(path-up-to-project file symbols))
-  (lsp-lens-enable nil)
-  (lsp-disabled-clients '((python-mode . pyls)))
   :init
-  (setq lsp-keymap-prefix "C-c l") ;; Or 'C-l', 's-l'
+  (setq project-switch-commands '((project-find-file "Find file" "f")
+                                  (project-find-dir "Find dir" "d")
+                                  (project-dired "Dired" "D")
+                                  (consult-ripgrep "ripgrep" "g")
+                                  (magit-status "Magit" "m")))
   :config
-  )
-
-(use-package lsp-ui
-  :ensure t
-  :hook (lsp-mode . lsp-ui-mode)
-  :after lsp-mode
-  :custom
-  (lsp-ui-doc-show-with-cursor nil)
-  :config
-  (setq lsp-ui-doc-position 'bottom))
-
-(use-package lsp-treemacs
-  :ensure t
-  :after (lsp-mode treemacs))
-
-(use-package lsp-ivy
-  :ensure t
-  :after lsp-mode)
+  (leader-keys
+    "p"   '(nil                    :wk "Project")
+    "p p" '(project-switch-project :wk "Switch project")
+    "p f" '(project-find-file      :wk "Find file")
+    "p d" '(project-find-dir       :wk "Find dir")
+    "p D" '(project-dired          :wk "Dired project root")
+    "p k" '(project-kill-buffers   :wk "Kill project buffers")
+    "p b" '(consult-project-buffer :wk "Switch buffer")
+    "p g" '(consult-ripgrep        :wk "Consult ripgrep")))
 #+end_src
 
-The follow lines fix the TABs (white spaces) in the lsp function descriptions
-(when running lsp-describe-thing-at-point).
+** Start vterm in project root
+
+Current the function below is unused as we are using ~vterm-toggle~ with ~vterm-toggle-project-root~ and ~vterm-toggle-scope~.
 
 #+begin_src emacs-lisp
-
-(defun render-markup-content (kind content)
-  (message kind)
-  (replace-regexp-in-string " " " " content))
-(setq lsp-render-markdown-markup-content #'render-markup-content)
-
-#+end_src
-
-The following lines are required to tune and improve LSP performance (see also [[https://emacs-lsp.github.io/lsp-mode/page/performance/][here]]):
-
-#+begin_src emacs-lisp
-
-(setq gc-cons-threshold 100000000)
-(setq read-process-output-max (* 1024 1024)) ;; 1mb
-(setq lsp-idle-delay 0.500)
-
-#+end_src
-
-** Debugging with dap
-
-#+begin_src emacs-lisp
-
-(use-package dap-mode
-  :ensure t
-  :after lsp-mode
-  :commands dap-debug
-  :hook ((python-mode . dap-ui-mode)
-	 (python-mode . dap-mode))
-  :config
-  (eval-when-compile
-    (require 'cl))
-  (require 'dap-python)
-  (require 'dap-lldb)
-  )
-
-#+end_src
-
-** Company for completion
-
-#+begin_src emacs-lisp
-(use-package company
-  :ensure t
-  :delight company-mode
-  :bind (:map company-active-map
-              ("<tab>" . nil)
-              ("TAB" . nil)
-              ("M-<tab>" . company-complete-common-or-cycle)
-              ("M-<tab>" . company-complete-selection))
-  (:map lsp-mode-map
-        ("M-<tab>" . company-indent-or-complete-common))
-  :custom
-  (company-minimum-prefix-length 2)
-  (company-idle-delay 0.01)
-  :config
-  )
-
-(use-package company-prescient
-  :ensure t
-  :after company
-  :config
-  (company-prescient-mode 1)
-  (prescient-persist-mode)
-  )
-
-;; (use-package company-box
-;;   :ensure t
-;;   :hook (company-mode . company-box-mode))
-
+;; (defun duy/project-vterm ()
+;;   "Start an inferior shell in the current project's root directory.
+;; If a buffer already exists for running a shell in the project's root,
+;; switch to it.  Otherwise, create a new shell buffer.
+;; With \\[universal-argument] prefix arg, create a new inferior shell buffer even
+;; if one already exists."
+;;   (interactive)
+;;   (require 'comint)
+;;   (let* ((default-directory (project-root (project-current t)))
+;;          (default-project-shell-name (project-prefixed-buffer-name "vterm"))
+;;          (shell-buffer (get-buffer default-project-shell-name)))
+;;     (if (and shell-buffer (not current-prefix-arg))
+;;         (if (comint-check-proc shell-buffer)
+;;             (pop-to-buffer shell-buffer (bound-and-true-p display-comint-buffer-action))
+;;           (vterm shell-buffer))
+;;       (vterm (generate-new-buffer-name default-project-shell-name)))))
 #+end_src
 
 ** Python
 
-*** Basic setup
+#+begin_src emacs-lisp
+(use-package python
+  :ensure t
+  :custom
+  (python-indent-guess-indent-offset-verbose nil))
+#+end_src
+
+*** Poetry
+
+Using poetry to manage python environments for coding projects. This is important for ~eglot~ to use the correct environment for linting.
+
+Alternatives include [[https://github.com/jorgenschaefer/pyvenv][pyvenv.el]], [[https://github.com/pythonic-emacs/pyenv-mode][pyenv-mode.el]], [[https://github.com/necaris/conda.el][conda.el]] and [[https://github.com/pythonic-emacs/anaconda-mode][anaconda-mode.el]]. pyenv-mode can be used in conjunction with projectile, see also [[https://www.reddit.com/r/emacs/comments/tenq8z/help_using_lspmodeeglot_for_python_and_virtualenvs/][here]].
 
 #+begin_src emacs-lisp
-
-(use-package python-mode
-  :hook
-  ;; (python-mode . pyvenv-mode)
-  (python-mode . flycheck-mode)
-  (python-mode . company-mode)
-  (python-mode . blacken-mode)
-  (python-mode . yas-minor-mode)
-  :custom
-  ;; NOTE: Set these if Python 3 is called "python3" on your system!
-  (python-shell-interpreter "python3")
-  :config
-  )
-
-(use-package conda
+(use-package poetry
   :ensure t
   :defer t
-  :init
-  (setq conda-anaconda-home (expand-file-name "~/miniconda3"))
-  (setq conda-env-home-directory (expand-file-name "~/miniconda3"))
   :config
-  (conda-env-initialize-interactive-shells)
-  (conda-env-initialize-eshell))
-
+  ;; Checks for the correct virtualenv. Better strategy IMO because the default
+  ;; one is quite slow.
+  ;; (setq poetry-tracking-strategy 'switch-buffer)
+  (setq poetry-tracking-strategy 'post-command)
+  :hook (python-mode-hook . poetry-tracking-mode))
 #+end_src
 
-**** Troubleshooting
+Note: ~poetry-tracking-strategy 'switch-buffer~ makes poetry check venv even when previewing buffers, so changed it back to the default setting now.
 
-The first Python buffer always starts in "Py mode" instead of "Python
-mode". All subsequent buffers are correctly opened in "Python
-mode". Different posts on the internet suggest to add the following
-lines, however this did not help for me. For completeness though,
-these are the lines:
+*** Blacken
 
 #+begin_src emacs-lisp
-
-;; (autoload 'python-mode "python-mode" "Python Mode." t)
-;; (add-to-list 'auto-mode-alist '("\\.py\\'" . python-mode))
-;; (add-to-list 'interpreter-mode-alist '("python" . python-mode))
-
-#+end_src
-
-*** Linting and formatting
-
-flake8 for linting and black(en) for formatting. Also enables auto-formatting
-on save for Python mode.
-
-#+begin_src emacs-lisp
-
-(use-package flycheck
-  :ensure t
-  :delight flycheck-mode
-  :init
-  (setq flycheck-check-syntax-automatically '(save new-line)
-        flycheck-idle-change-delay 5.0
-        flycheck-display-errors-delay 0.9
-        flycheck-highlighting-mode 'symbols
-        flycheck-indication-mode 'left-fringe
-        flycheck-standard-error-navigation t
-        flycheck-deferred-syntax-check nil)
-  )
 (use-package blacken
   :ensure t
-  :init
-  (setq-default blacken-fast-unsafe t)
-  (setq-default blacken-line-length nil)) ; setting to nil is required to use pyproject.toml settings
-
-#+end_src
-
-
-*** Pyright (Python lsp)
-
-Before using lsp-pyright, make sure sure you have installed node.js through
-your package manager (the npm command should be available in your
-terminal). Check out the nvm package for a node version manager (as pyright
-requires a specific version of node). Then, install pyright globally by running
-the following command in your terminal:
-
-#+begin_src bash
-
-npm install -g pyright
-
-sudo npm update -g pyright
-
-#+end_src
-
-#+begin_src emacs-lisp
-
-;; (defun restart-lsp-python()
-;;   "Restart LSP server in Python mode"
-;;   (when (eq major-mode 'python-mode)
-;;     (lambda()
-;;     (lsp-restart-workspace)
-;;     (lsp))))
-
-(use-package lsp-pyright
-  :ensure t
-  :hook
-  (python-mode . (lambda ()
-                   (require 'lsp-pyright)
-                   (lsp-deferred))))
-
-#+end_src
-
-*** Python MS LSP
-
-This is an alternative solution to Pyright. Currently using Pyright on work desktop as it seems to be stable and fairly quick (after tuning the options).
-
-# #+begin_src emacs-lisp
-# (use-package lsp-python-ms
-#   :ensure t
-#   :init (setq lsp-python-ms-auto-install-server t)
-#   :hook (python-mode . (lambda ()
-#                           (require 'lsp-python-ms)
-#                           (lsp-deferred)))  ; or lsp-deferred
-#   :config
-#   (add-hook 'pyvenv-post-activate-hooks (lambda () (lsp-restart-workspace)))
-#   (add-hook 'conda-postactivate-hook (lambda () (lsp-restart-workspace)))
-#   (add-hook 'conda-postdeactivate-hook (lambda () (lsp-restart-workspace)))) ; or lsp-deferred
-# #+end_src
-
-*** Pyvenv
-
-#+begin_src emacs-lisp
-;; (use-package pyvenv
-;;   :ensure t
-;;   :init
-;;   (setenv "WORKON_HOME" "~/.cache/pypoetry/virtualenvs")) ; or wherever the envs are installed
-#+end_src
-
-#+begin_src emacs-lisp
-;; (use-package pyvenv
-;;   :ensure t
-;;   :init
-;;   (setenv "WORKON_HOME" "~/.venvs/")
-;;   :config
-;;   ;; (pyvenv-mode t)
-
-;;   ;; Set correct Python interpreter
-;;   (setq pyvenv-post-activate-hooks
-;;         (list (lambda ()
-;;                 (setq python-shell-interpreter (concat pyvenv-virtual-env "bin/python")))))
-;;   (setq pyvenv-post-deactivate-hooks
-;;         (list (lambda ()
-;;                 (setq python-shell-interpreter "python3")))))
-#+end_src
-
-*** Pytest
-
-#+begin_src emacs-lisp
-(use-package python-pytest
-  :ensure t
-  :after python
+  :defer t
   :custom
-  (python-pytest-arguments
-   '("--color"
-     "--failed-first"
-     ))
+  (blacken-allow-py36 t)
+  (blacken-skip-string-normalization t)
+  :hook (python-mode-hook . blacken-mode))
+#+end_src
+
+*** Numpydoc
+
+#+begin_src emacs-lisp
+(use-package numpydoc
+  :ensure t
+  :defer t
+  :custom
+  (numpydoc-insert-examples-block nil)
+  (numpydoc-template-long nil)
+  :config
+  (local-leader-keys
+    :keymaps 'python-mode-map
+    "n" '(numpydoc-generate :wk "Generate docstring")))
+#+end_src
+
+*** Pyenv-mode
+
+~pyenv-mode~ is used to (de)activate pyenv environments via ~pyenv-mode-set~ and ~pyenv-mode-unset~. This allows us to start a REPL or Jupyter (org) notebook in the correct environment.
+
+#+begin_src emacs-lisp
+(use-package pyenv-mode
+  :ensure t)
+#+end_src
+
+*** conda
+
+Although I prefer to use poetry/pyenv to manage my Python coding projects and environments, on most of my computers I also have conda installed. There are a few use cases where this makes sense:
+
+- Other people I work with use conda only and not poetry.
+- I'm trying to clone a repository which uses conda to manage dependencies.
+- I need to install a non-python package via conda.
+
+Furthermore, poetry is actually set up in a way to be able to use with conda as an environment manager (see [[https://github.com/python-poetry/poetry/blob/master/src/poetry/utils/env.py#L675][here]]). See also more info on this [[https://stackoverflow.com/questions/70851048/does-it-make-sense-to-use-conda-poetry][StackOverflow post]].
+
+#+begin_src emacs-lisp
+(use-package conda
+  :ensure t
+  :defer t)
+#+end_src
+
+** LSP
+
+#+begin_src emacs-lisp
+(use-package eglot
+  :ensure t
+  :defer t
+  :hook (python-mode-hook . eglot-ensure)
+  :init
+  (define-key evil-normal-state-map (kbd "M-.") nil)
+  (define-key evil-normal-state-map (kbd "C->") 'evil-repeat-pop-next)
   :config
   (leader-keys
-    :keymaps '(python-mode-map)
-    "t" '(python-pytest-popup :wk "Pytest")
-    ))
+    "l"     '(nil                              :wk "Lsp")
+    "l e"   '(nil                              :wk "Errors")
+    "l e n" '(flymake-goto-next-error          :wk "Next error")
+    "l e p" '(flymake-goto-prev-error          :wk "Previous error")
+    "l e d" '(flymake-show-buffer-diagnostics  :wk "Buffer diagnostics")
+    "l e D" '(flymake-show-project-diagnostics :wk "Project diagnostics")
+    "l d"   '(xref-find-definitions            :wk "Find definition")
+    "l r"   '(xref-find-references             :wk "Find references")))
 #+end_src
 
-*** Jupyter
+** Jupyter
 
 #+begin_src emacs-lisp
 (use-package jupyter
-  :ensure t)
-
-(use-package ein
-  :ensure t)
-
-(local-leader-keys
-  :keymaps 'ein:ipynb-mode-map
-  "o" '(ein:process-find-file-callback :which-key "Open notebook")
-  )
-
-(local-leader-keys
-  :keymaps '(ein:notebook-mode-map)
-  "c" '(ein:worksheet-execute-cell-km :which-key "Run cell")
-  "r" '(ein:worksheet-execute-all-cells :which-key "Run all cells")
-  "C" '(ein:worksheet-execute-cell-and-insert-below-km :which-key "Run and insert cell")
-  "a" '(ein:worksheet-insert-cell-above-km :which-key "Insert cell above")
-  "b" '(ein:worksheet-insert-cell-below-km :which-key "Insert cell below")
-  "d" '(ein:worksheet-kill-cell-km :which-key "Delete cell")
-  "s" '(ein:notebook-save-notebook-command-km :which-key "Save notebook")
-  "t" '(ein:worksheet-toggle-cell-type :which-key "Toggle cell type")
-  "u" '(ein:worksheet-change-cell-type :which-key "Change cell type")
-  "w" '(ein:worksheet-copy-cell-km :which-key "Copy cell")
-  "y" '(ein:worksheet-yank-cell-km :which-key "Yank cell")
-  )
-
-(setq org-babel-default-header-args:jupyter-python '((:async . "yes")
-                                                     (:session . "py")
-                                                     (:kernel . "python3")))
-#+end_src
-
-** Running any shell command
-
-#+begin_src emacs-lisp
-(defun run-cmd-on-buffer-file ()
-  (interactive)
-  (message "Using cmd to do XYZ" (buffer-name))
-  (shell-command (concat "cmd " (buffer-file-name) " --arguments"))
-  (message "Command completed!"))
-#+end_src
-
-* Spell check
-
-Spell checking is done with flyspell and aspell. Aspell needs to be installed
-on OS level. Paths below need to be updated accordingly.
-
-Run M-x flyspell-buffer to do a spell check on the whole buffer. Alternatively,
-this can also be added as a hook.
-
-#+begin_src emacs-lisp
-
-(defun aspell-path ()
-  (cond ((eq system-type 'gnu/linux) "/usr/bin/aspell")
-	((eq system-type 'darwin) "/usr/local/bin/aspell")
-	(t "/usr/bin/aspell")))
-
-(use-package flyspell
-  :custom
-  (ispell-program-name "aspell")
-  ;; Default dictionary. To change do M-x ispell-change-dictionary RET.
-  (aspell-dictionary "en_GB-ise-wo_accents")
-  ;; (aspell-program-name "/usr/local/bin/aspell")
-  (aspell-program-name (aspell-path))
-  (ispell-dictionary "en_GB-ise-wo_accents")
-  ;; (ispell-program-name "/usr/local/bin/aspell")
-  (ispell-program-name (aspell-path))
-  :config
-  (add-hook 'markdown-mode-hook 'flyspell-mode))
-
-(use-package flyspell-correct
   :ensure t
-  :bind ("C-;" . flyspell-correct-wrapper))
-
-#+end_src
-
-* PDF tools
-
-Also install pdftotext in your OS (e.g. via sudo apt on Ubuntu).
-
-#+begin_src emacs-lisp
-
-(use-package pdf-tools
-  :ensure t)
-#+end_src
-
-* Atomic Chrome
-
-#+begin_src emacs-lisp
-(use-package atomic-chrome
-  ;; dependency Atomic Chrome extension (in Chrome)
-  :ensure t
+  :bind (:map jupyter-repl-mode-map 
+              ("C-j" . 'jupyter-repl-forward-cell)
+              ("C-k" . 'jupyter-repl-backward-cell))
   :init
-  (setq atomic-chrome-default-major-mode 'markdown-mode)
-  (setq atomic-chrome-extension-type-list '(ghost-text))
-  (setq atomic-chrome-buffer-open-style 'frame) 
-  (setq atomic-chrome-url-major-mode-alist
-	'(("github\\.com" . gfm-mode)
-          ("mail.google.com" . html-mode)))
-  :config
-  (atomic-chrome-start-server))
+  (org-babel-jupyter-override-src-block "python")
+  :custom
+  (org-babel-default-header-args:jupyter-python '((:async . "yes")
+                                                  (:session . "py")
+                                                  (:kernel . "python3"))))
 #+end_src
 
-* vterm
+See also [[https://orgmode.org/manual/Using-Header-Arguments.html][here]] for more info on how to use ~header-args~ properties in org files.
+
+** AutoHotKey
 
 #+begin_src emacs-lisp
-(use-package vterm
+(when duy/is-wsl
+  (use-package ahk-mode
+    :ensure t))
+#+end_src
+
+* PDF
+
+#+begin_src emacs-lisp
+(use-package pdf-tools
   :ensure t
-  :bind (:map vterm-mode-map
-	      ("C-b" . vterm-send-C-b))
+  :hook
+  (pdf-view-mode-hook . evil-collection-pdf-setup)
   :config
-  (add-hook 'vterm-mode-hook (lambda () (setq-local global-hl-line-mode nil))))
-#+end_src
+  (pdf-tools-install))
 
-#+begin_src emacs-lisp
-(use-package vterm-toggle
+;; pdf-view-restore remembers last position in pdf before closing
+(use-package pdf-view-restore
   :ensure t
-  :config
-  (setq vterm-toggle-fullscreen-p nil)
-  (add-to-list 'display-buffer-alist
-               '((lambda (buffer-or-name _)
-                   (let ((buffer (get-buffer buffer-or-name)))
-                     (with-current-buffer buffer
-                       (or (equal major-mode 'vterm-mode)
-                           (string-prefix-p vterm-buffer-name (buffer-name buffer))))))
-                 (display-buffer-reuse-window display-buffer-at-bottom)
-                 (display-buffer-reuse-window display-buffer-in-direction)
-                 ;;display-buffer-in-direction/direction/dedicated is added in emacs27
-                 ;;(direction . bottom)
-                 (dedicated . t) ;dedicated is supported in emacs27
-                 (reusable-frames . visible)
-                 (window-height . 0.3)))
-  (leader-keys
-    "'" '(vterm-toggle :wk "vterm")
-    )
-  )
-#+end_src
-
-* WSL2 specific
-
-#+begin_src emacs-lisp
-(when (and (eq system-type 'gnu/linux)
-           (string-match "WSL" operating-system-release))
-
-  ;; Set first buffer to org-agenda for usage with emacslient
-  ;; (setq initial-buffer-choice '(lambda () (get-buffer org-agenda-buffer-name)))
-
-  ;; Set custom fonts
-  (defun duy/setup-font-faces()
-    (when (display-graphic-p)
-      (set-face-attribute 'default nil :font (font-spec :family "FiraMono Nerd Font Mono"))
-      (set-face-attribute 'fixed-pitch nil :font (font-spec :family "FiraMono Nerd Font Mono"))
-  ))
-  (add-hook 'after-init-hook 'duy/setup-font-faces)
-  (add-hook 'server-after-make-frame-hook 'duy/setup-font-faces)
-  )
+  :after pdf-tools
+  :hook
+  (pdf-view-mode-hook . pdf-view-restore-mode)
+  :custom
+  (pdf-view-restore-file-name (expand-file-name ".pdf-view-restore" user-emacs-directory))) 
 #+end_src
 

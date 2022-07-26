@@ -239,6 +239,7 @@ Evil nerd commenter for line comment.
 (use-package evil-nerd-commenter
   :ensure t
   :bind (("C-'" . evilnc-comment-or-uncomment-lines)
+         ("C-," . evilnc-comment-or-uncomment-lines)
   :map org-mode-map)
   ("C-'" . nil))
 #+end_src

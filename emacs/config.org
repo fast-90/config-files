@@ -810,6 +810,7 @@ Enabling icons in Corfu:
           help-mode
           helpful-mode
 	    "\\*eldoc\\*"
+	    "\\*PDF-Occur\\*"
           compilation-mode))
   (popper-mode +1)
   (popper-echo-mode +1))
@@ -1677,13 +1678,35 @@ See also [[https://orgmode.org/manual/Using-Header-Arguments.html][here]] for mo
 * PDF
 
 #+begin_src emacs-lisp
+(defun duy/pdf-occur-view-next ()
+  "View next pdf-occur match from pdf-occur-buffer"
+  (interactive)
+  (evil-next-visual-line)
+  (pdf-occur-view-occurrence))
+
+
+(defun duy/pdf-occur-view-prev ()
+  "View previous pdf-occur match from pdf-occur-buffer"
+  (interactive)
+  (evil-previous-visual-line)
+  (pdf-occur-view-occurrence))
+#+end_src
+
+#+begin_src emacs-lisp
 (use-package pdf-tools
   :ensure t
+  :bind (:map pdf-occur-buffer-mode-map
+              ("C-<return>" . pdf-occur-view-occurrence)
+              ("C-j" . duy/pdf-occur-view-next)
+              ("C-k" . duy/pdf-occur-view-prev)
+              :map pdf-view-mode-map
+              ("C-s" . pdf-occur))
   :hook
   (pdf-view-mode-hook . evil-collection-pdf-setup))
-  (pdf-tools-install)
+(pdf-tools-install)
 
 ;; pdf-view-restore remembers last position in pdf before closing
+
 (use-package pdf-view-restore
   :ensure t
   :after pdf-tools

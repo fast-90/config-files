@@ -895,7 +895,7 @@ Enabling icons in Corfu:
                                     ("E" . "export")
                                     ("l" . "export latex")
                                     ("py" . "src python")
-                                    ("ju" . "src jupyter-python")
+                                    ("sh" . "src h")
                                     ("q" . "quote")
                                     ("s" . "src")
                                     ("v" . "verse")

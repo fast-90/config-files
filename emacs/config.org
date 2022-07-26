@@ -501,7 +501,7 @@ Settings for daemon mode:
 
 #+begin_src emacs-lisp
   (defun duy/setup-font-faces-daemon()
-    (when (display-graphic-p)
+    (when (and (display-graphic-p) duy/is-wsl)
       (set-face-attribute 'default nil :font (font-spec :family duy/default-font :height 100))
       (set-face-attribute 'fixed-pitch nil :font (font-spec :family duy/default-font :height 100))
       (set-face-attribute 'variable-pitch nil :font (font-spec :family duy/variable-font :height 110))))
@@ -1695,6 +1695,8 @@ See also [[https://orgmode.org/manual/Using-Header-Arguments.html][here]] for mo
 #+begin_src emacs-lisp
 (use-package pdf-tools
   :ensure t
+  :init
+  (pdf-tools-install)
   :bind (:map pdf-occur-buffer-mode-map
               ("C-<return>" . pdf-occur-view-occurrence)
               ("C-j" . duy/pdf-occur-view-next)
@@ -1703,7 +1705,6 @@ See also [[https://orgmode.org/manual/Using-Header-Arguments.html][here]] for mo
               ("C-s" . pdf-occur))
   :hook
   (pdf-view-mode-hook . evil-collection-pdf-setup))
-(pdf-tools-install)
 
 ;; pdf-view-restore remembers last position in pdf before closing
 

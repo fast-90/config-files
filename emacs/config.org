@@ -445,7 +445,12 @@ This package depends on all-the-icons package. When installing Doom modeline for
 (use-package doom-modeline
   :ensure t
   :init
-  (doom-modeline-mode 1))
+  (doom-modeline-mode 1)
+  (display-time)
+  (display-battery-mode)
+  :custom
+  (display-time-24hr-format t)
+  (display-time-day-and-date t))
 #+end_src
 
 Ensure icons are used in Daemon mode:

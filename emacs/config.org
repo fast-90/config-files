@@ -74,6 +74,7 @@ Add MELPA/ELPA/Non-GNU/ELPA-dev to package archives.
 (setq-default indent-tabs-mode nil)		; Disable bell sound
 
 (setq backup-directory-alist `(("." . "~/.saves")))
+(setq auto-save-file-name-transforms `((".", "~/.saves" t)))
 #+end_src
 
 ** Garbage collection
@@ -576,6 +577,7 @@ I also enabled directory tracking and named vterm buffer, see also here how to s
 #+begin_src emacs-lisp
 (use-package exec-path-from-shell
   :ensure t
+  :if duy/is-macos
   :defer nil
   :config
   (exec-path-from-shell-copy-env "PATH")

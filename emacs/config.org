@@ -1476,7 +1476,10 @@ Function to archive all done task in current org agenda/file.
     :custom
     (olivetti-body-width 0.67)
     (olivetti-minimum-body-width 80)
-    (olivetti-recall-visual-line-mode-entry-state t))
+    (olivetti-recall-visual-line-mode-entry-state t)
+    (olivetti-style "fancy")
+    :custom-face
+    (olivetti-fringe ((t (:background "#122")))))
 #+end_src
 
 * Web browsing

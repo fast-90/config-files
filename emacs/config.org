@@ -1462,9 +1462,8 @@ Function to archive all done task in current org agenda/file.
   (use-package powerthesaurus
     :ensure t
     :config
-    (local-leader-keys
-      :keymaps 'org-mode-map
-      "d" '(powerthesaurus-lookup-dwim :wk "Powerthesaurus")))
+    (leader-keys
+      "s d" '(powerthesaurus-lookup-dwim :wk "Powerthesaurus")))
 #+end_src
 
 ** Olivetti

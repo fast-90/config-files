@@ -711,7 +711,8 @@ Alternative to company.
   (corfu-cycle t)
   (corfu-auto t)
   :init
-  (global-corfu-mode))
+  (global-corfu-mode)
+  (global-set-key (kbd "M-i") #'completion-at-point))
 #+end_src
 
 Enabling icons in Corfu:

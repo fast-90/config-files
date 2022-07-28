@@ -199,6 +199,8 @@ config.bind(
     "config-cycle statusbar.show never always;; config-cycle tabs.show never always",
 )
 
+# darkmode = config.get('colors.webpage.darkmode.enabled')
+# config.bind("td", f"set colors.webpage.darkmode.enabled {not darkmode} ;; restart")
 ### Custom fonts settings ####
 
 c.fonts.default_size = "12pt"
@@ -217,7 +219,10 @@ c.completion.shrink = True
 # c.colors.webpage.preferred_color_scheme = "dark"
 
 # Force dark mode on pages (even if they don't have a dark theme, e.g. Gmail site)
-c.colors.webpage.darkmode.enabled = True
+# c.colors.webpage.darkmode.enabled = True
+# Toggle dark mode
+config.bind("td", f"config-cycle colors.webpage.darkmode.enabled true false ;; restart")
+config.load_autoconfig()  # the above changes autoconfig.yml, which needs to be loaded
 c.colors.webpage.darkmode.policy.images = "never"
 
 ### Search engines ###

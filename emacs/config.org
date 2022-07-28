@@ -1725,6 +1725,24 @@ See also [[https://orgmode.org/manual/Using-Header-Arguments.html][here]] for mo
 #+begin_src emacs-lisp
 (when (string= system-name "Duys-MBP.home")
   (use-package ledger-mode
-    :ensure t))
+    :ensure t
+    :custom
+    (ledger-reports '(("Balance (EUR)" "%(binary) -f %(ledger-file) bal --exchange EUR --price-db .pricedb")
+                      ("Balance (MV)" "%(binary) -f %(ledger-file) bal -V --price-db .pricedb")))
+    :init
+    (add-to-list 'auto-mode-alist '("\\.pricedb\\'" . ledger-mode))
+    :config
+    (local-leader-keys
+      :keymaps '(ledger-mode-map ledger-report-mode-map)
+      "r" '(ledger-report :wk "Report")
+      "a" '(ledger-add-transaction :wk "Add transaction")
+      "e" '(ledger-report-edit-report :wk "Edit report")
+      "g" '(ledger-report-goto :wk "Go to report")
+      "s" '(ledger-report-save :wk "Save report"))
+    (general-define-key
+     :states '(normal motion override)
+     :keymaps '(ledger-report-mode-map)
+     "q"  'ledger-report-quit
+     "r"  'ledger-report-redo)))
 #+end_src
 

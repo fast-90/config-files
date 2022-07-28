@@ -1192,14 +1192,13 @@ Set todo keywords, tags etc.
       org-log-state-notes-insert-after-drawers nil)
 
 (setq org-tag-alist (quote (("@reading" . ?r)
-                            ("@programming" . ?p)
+                            ("@coding" . ?c)
+                            ("@writing" . ?w)
                             ("@office" . ?o)
                             ("@home" . ?h)
-                            ("@school" . ?s)
                             (:newline)
-                            ("WAITING" . ?w)
-                            ("HOLD" . ?H)
-                            ("CANCELLED" . ?c))))
+                            ("WAITING" . ?W)
+                            ("HOLD" . ?H))))
 
 (setq org-fast-tag-selection-single-key nil)
 #+end_src
@@ -1317,7 +1316,7 @@ Align all tags at the right border of the agenda window:
   (add-hook 'org-agenda-finalize-hook 'duy/realign-agenda-tags)
 #+end_src
 
-Hide the =project= tag in org-agenda, since by definition in our show up all items will have the tag:
+Hide the =project= tag in org-agenda, since by definition in our setup all items will have the tag:
 
 #+begin_src emacs-lisp
 (setq org-agenda-hide-tags-regexp (regexp-opt '("project")))

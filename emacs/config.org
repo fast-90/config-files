@@ -1304,7 +1304,9 @@ Function to automatically group TODOs by title.
 	 )))
 #+end_src
 
-*** org-agenda tags alignment
+*** org-agenda tags display settings
+
+Align all tags at the right border of the agenda window:
 
 #+begin_src emacs-lisp
   (defun duy/realign-agenda-tags ()
@@ -1313,6 +1315,12 @@ Function to automatically group TODOs by title.
     (org-agenda-align-tags))
 
   (add-hook 'org-agenda-finalize-hook 'duy/realign-agenda-tags)
+#+end_src
+
+Hide the =project= tag in org-agenda, since by definition in our show up all items will have the tag:
+
+#+begin_src emacs-lisp
+(setq org-agenda-hide-tags-regexp (regexp-opt '("project")))
 #+end_src
 
 ** Inbox management

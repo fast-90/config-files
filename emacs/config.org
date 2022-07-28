@@ -1720,3 +1720,11 @@ See also [[https://orgmode.org/manual/Using-Header-Arguments.html][here]] for mo
   (pdf-view-restore-file-name (expand-file-name ".pdf-view-restore" user-emacs-directory))) 
 #+end_src
 
+* Ledger
+
+#+begin_src emacs-lisp
+(when (string= system-name "Duys-MBP.home")
+  (use-package ledger-mode
+    :ensure t))
+#+end_src
+

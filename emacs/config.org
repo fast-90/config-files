@@ -426,6 +426,18 @@ Package to easily navigate cursor within buffers. Using this over evil-easymotio
         "j h" '(consult-outline     :wk "Jump to heading")))
 #+end_src
 
+** Tabs
+
+#+begin_src emacs-lisp
+(use-package tab-bar
+  :ensure t
+  :custom
+  (tab-bar-show nil)
+  :config
+  (leader-keys
+    "t" '(:keymap tab-prefix-map :wk "Tabs")))
+#+end_src
+
 * Themes and fonts
 
 ** Theme

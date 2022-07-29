@@ -1727,8 +1727,10 @@ See also [[https://orgmode.org/manual/Using-Header-Arguments.html][here]] for mo
   (use-package ledger-mode
     :ensure t
     :custom
-    (ledger-reports '(("Balance (EUR)" "%(binary) -f %(ledger-file) bal --exchange EUR --price-db .pricedb")
-                      ("Balance (MV)" "%(binary) -f %(ledger-file) bal -V --price-db .pricedb")))
+    (ledger-reports '(("Balance (EUR)" "%(binary) -f %(ledger-file) bal --exchange EUR --price-db .pricedb Assets Liabilities")
+                      ("Balance (MV)" "%(binary) -f %(ledger-file) bal -V --price-db .pricedb Assets Liabilities")
+                      ("bal" "%(binary) -f %(ledger-file) bal --price-db .pricedb")
+                      ("reg" "%(binary) -f %(ledger-file) reg --price-db .pricedb")))
     :init
     (add-to-list 'auto-mode-alist '("\\.pricedb\\'" . ledger-mode))
     :config

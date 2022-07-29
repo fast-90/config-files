@@ -1538,7 +1538,7 @@ Keybindings for web-browsing:
     "p g" '(consult-ripgrep        :wk "Consult ripgrep")))
 #+end_src
 
-** Start vterm in project root
+*** Start vterm in project root
 
 Current the function below is unused as we are using ~vterm-toggle~ with ~vterm-toggle-project-root~ and ~vterm-toggle-scope~.
 
@@ -1561,6 +1561,39 @@ Current the function below is unused as we are using ~vterm-toggle~ with ~vterm-
 ;;       (vterm (generate-new-buffer-name default-project-shell-name)))))
 #+end_src
 
+** direnv and envrc for setting local virtual environment variables
+
+Ensure =direnv= is installed via your OS package manager.
+
+#+begin_src emacs-lisp
+(use-package envrc
+  :ensure t
+  :init
+  (envrc-global-mode 1))
+#+end_src
+
+** LSP
+
+#+begin_src emacs-lisp
+(use-package eglot
+  :ensure t
+  :defer t
+  :hook (python-mode-hook . eglot-ensure)
+  :init
+  (define-key evil-normal-state-map (kbd "M-.") nil)
+  (define-key evil-normal-state-map (kbd "C->") 'evil-repeat-pop-next)
+  :config
+  (leader-keys
+    "l"     '(nil                              :wk "Lsp")
+    "l e"   '(nil                              :wk "Errors")
+    "l e n" '(flymake-goto-next-error          :wk "Next error")
+    "l e p" '(flymake-goto-prev-error          :wk "Previous error")
+    "l e d" '(flymake-show-buffer-diagnostics  :wk "Buffer diagnostics")
+    "l e D" '(flymake-show-project-diagnostics :wk "Project diagnostics")
+    "l d"   '(xref-find-definitions            :wk "Find definition")
+    "l r"   '(xref-find-references             :wk "Find references")))
+#+end_src
+
 ** Python
 
 #+begin_src emacs-lisp
@@ -1579,16 +1612,18 @@ Alternatives include [[https://github.com/jorgenschaefer/pyvenv][pyvenv.el]], [[
 #+begin_src emacs-lisp
 (use-package poetry
   :ensure t
-  :defer t
-  :config
-  ;; Checks for the correct virtualenv. Better strategy IMO because the default
-  ;; one is quite slow.
-  ;; (setq poetry-tracking-strategy 'switch-buffer)
-  (setq poetry-tracking-strategy 'post-command)
-  :hook (python-mode-hook . poetry-tracking-mode))
+  :defer t)
+  ;; :config
+  ;; ;; Checks for the correct virtualenv. Better strategy IMO because the default
+  ;; ;; one is quite slow.
+  ;; ;; (setq poetry-tracking-strategy 'switch-buffer)
+  ;; (setq poetry-tracking-strategy 'post-command)
+  ;; :hook (python-mode-hook . poetry-tracking-mode))
 #+end_src
 
-Note: ~poetry-tracking-strategy 'switch-buffer~ makes poetry check venv even when previewing buffers, so changed it back to the default setting now.
+# Note: ~poetry-tracking-strategy 'switch-buffer~ makes poetry check venv even when previewing buffers, so changed it back to the default setting now.
+
+Currently using in combination with =direnv= ([[https://github.com/direnv/direnv/wiki/Python][setup instructions]]).
 
 *** Blacken
 
@@ -1622,8 +1657,8 @@ Note: ~poetry-tracking-strategy 'switch-buffer~ makes poetry check venv even whe
 ~pyenv-mode~ is used to (de)activate pyenv environments via ~pyenv-mode-set~ and ~pyenv-mode-unset~. This allows us to start a REPL or Jupyter (org) notebook in the correct environment.
 
 #+begin_src emacs-lisp
-(use-package pyenv-mode
-  :ensure t)
+;; (use-package pyenv-mode
+;;   :ensure t)
 #+end_src
 
 *** conda
@@ -1642,27 +1677,18 @@ Furthermore, poetry is actually set up in a way to be able to use with conda as 
   :defer t)
 #+end_src
 
-** LSP
+*** Python development workflow with Poetry
 
-#+begin_src emacs-lisp
-(use-package eglot
-  :ensure t
-  :defer t
-  :hook (python-mode-hook . eglot-ensure)
-  :init
-  (define-key evil-normal-state-map (kbd "M-.") nil)
-  (define-key evil-normal-state-map (kbd "C->") 'evil-repeat-pop-next)
-  :config
-  (leader-keys
-    "l"     '(nil                              :wk "Lsp")
-    "l e"   '(nil                              :wk "Errors")
-    "l e n" '(flymake-goto-next-error          :wk "Next error")
-    "l e p" '(flymake-goto-prev-error          :wk "Previous error")
-    "l e d" '(flymake-show-buffer-diagnostics  :wk "Buffer diagnostics")
-    "l e D" '(flymake-show-project-diagnostics :wk "Project diagnostics")
-    "l d"   '(xref-find-definitions            :wk "Find definition")
-    "l r"   '(xref-find-references             :wk "Find references")))
-#+end_src
+Currenly I prefer the following workflow (which seems to work... most of the time):
+
+1) Create a new poetry project via =poetry init= or =poetry new=.
+2) Create a ~.envrc~ file with =layout pyenv {version}= and =layout poetry= in it.
+3) Begin to add dependencies via =poetry add= (=-D= switch for developer dependencies).
+4) Create a =pyrightconfig.json= in the project root, and set the ~venvPath~ and ~venv~ variables accordingly.
+   
+This has the following benefits compared to other things I tried:
+- Don't need to use =poetry-tracking-mode=, which can be slow in my experience.
+- Creates replicable configs across machines.
 
 ** Jupyter
 

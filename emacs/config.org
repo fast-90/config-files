@@ -100,7 +100,9 @@ Add MELPA/ELPA/Non-GNU/ELPA-dev to package archives.
 
 (use-package autorevert
   :defer 2
-  :delight auto-revert-mode)
+  :delight auto-revert-mode
+  :custom
+  (auto-revert-use-notify nil))
 
 (use-package recentf
   :defer 2
@@ -1682,9 +1684,10 @@ Furthermore, poetry is actually set up in a way to be able to use with conda as 
 Currenly I prefer the following workflow (which seems to work... most of the time):
 
 1) Create a new poetry project via =poetry init= or =poetry new=.
-2) Create a ~.envrc~ file with =layout pyenv {version}= and =layout poetry= in it.
-3) Begin to add dependencies via =poetry add= (=-D= switch for developer dependencies).
-4) Create a =pyrightconfig.json= in the project root, and set the ~venvPath~ and ~venv~ variables accordingly.
+2) =git init= the project root folder.
+3) Create a ~.envrc~ file with =layout pyenv {version}= and =layout poetry= in it.
+4) Begin to add dependencies via =poetry add= (=-D= switch for developer dependencies).
+5) Create a =pyrightconfig.json= in the project root, and set the ~venvPath~ and ~venv~ variables accordingly.
    
 This has the following benefits compared to other things I tried:
 - Don't need to use =poetry-tracking-mode=, which can be slow in my experience.

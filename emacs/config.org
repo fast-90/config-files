@@ -463,6 +463,21 @@ Package to easily navigate cursor within buffers. Using this over evil-easymotio
 
 * Themes and fonts
 
+** all-the-icons
+
+#+begin_src emacs-lisp
+(use-package all-the-icons
+  :ensure t
+  :config
+  ;; Make sure the icon fonts are good to go
+  (set-fontset-font t 'unicode (font-spec :family "all-the-icons") nil 'prepend)
+  (set-fontset-font t 'unicode (font-spec :family "file-icons") nil 'prepend)
+  (set-fontset-font t 'unicode (font-spec :family "Material Icons") nil 'prepend)
+  (set-fontset-font t 'unicode (font-spec :family "github-octicons") nil 'prepend)
+  (set-fontset-font t 'unicode (font-spec :family "FontAwesome") nil 'prepend)
+  (set-fontset-font t 'unicode (font-spec :family "Weather Icons") nil 'prepend))
+#+end_src
+
 ** Theme
 
 #+begin_src emacs-lisp
@@ -512,11 +527,11 @@ This section contains my custom setup to format =battery-mode-line-string=, whic
 
 (defun duy/battery-icon ()
   "Set battery icon based on battery charge status and percentage"
-  (if (duy/charging) ""
-    (if (> (duy/battery-percentage) 95.0) ""
-      (if (> (duy/battery-percentage) 70.0) ""
-        (if (> (duy/battery-percentage) 40.0) ""
-          (if (> (duy/battery-percentage) battery-load-critical) "" ""))))))
+  (if (duy/charging) (all-the-icons-faicon "plug")
+    (if (> (duy/battery-percentage) 95.0) (all-the-icons-faicon "battery-full")
+      (if (> (duy/battery-percentage) 70.0) (all-the-icons-faicon "battery-three-quarters")
+        (if (> (duy/battery-percentage) 40.0) (all-the-icons-faicon "battery-half")
+          (if (> (duy/battery-percentage) battery-load-critical) (all-the-icons-faicon "battery-quarter") (all-the-icons-faicon "battery-empty")))))))
 
 (defface duy/battery-charging
   '((t :foreground "ForestGreen" :weight normal)) "")
@@ -636,22 +651,6 @@ Set fonts:
   (set-face-attribute 'default nil :font (font-spec :family duy/default-font))
   (set-face-attribute 'fixed-pitch nil :font (font-spec :family duy/default-font))
   (set-face-attribute 'variable-pitch nil :font (font-spec :family duy/variable-font))
-#+end_src
-
-
-** all-the-icons
-
-#+begin_src emacs-lisp
-(use-package all-the-icons
-  :ensure t
-  :config
-  ;; Make sure the icon fonts are good to go
-  (set-fontset-font t 'unicode (font-spec :family "all-the-icons") nil 'prepend)
-  (set-fontset-font t 'unicode (font-spec :family "file-icons") nil 'prepend)
-  (set-fontset-font t 'unicode (font-spec :family "Material Icons") nil 'prepend)
-  (set-fontset-font t 'unicode (font-spec :family "github-octicons") nil 'prepend)
-  (set-fontset-font t 'unicode (font-spec :family "FontAwesome") nil 'prepend)
-  (set-fontset-font t 'unicode (font-spec :family "Weather Icons") nil 'prepend))
 #+end_src
 
 ** Font settings for daemon mode

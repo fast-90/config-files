@@ -576,9 +576,9 @@ Settings for daemon mode:
 #+begin_src emacs-lisp
   (defun duy/setup-font-faces-daemon()
     (when (daemonp)
-      (set-face-attribute 'default nil :font (font-spec :family duy/default-font :height 100))
-      (set-face-attribute 'fixed-pitch nil :font (font-spec :family duy/default-font :height 100))
-      (set-face-attribute 'variable-pitch nil :font (font-spec :family duy/variable-font :height 110))))
+      (set-face-attribute 'default nil :font (font-spec :family duy/default-font))
+      (set-face-attribute 'fixed-pitch nil :font (font-spec :family duy/default-font))
+      (set-face-attribute 'variable-pitch nil :font (font-spec :family duy/variable-font))))
 
   (add-hook 'after-init-hook 'duy/setup-font-faces-daemon)
   (add-hook 'server-after-make-frame-hook 'duy/setup-font-faces-daemon)

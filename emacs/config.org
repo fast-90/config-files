@@ -71,10 +71,13 @@ Add MELPA/ELPA/Non-GNU/ELPA-dev to package archives.
 (setq-default fill-column 79)		        ; Set fill column to 80 rather than 70, in all cases.
 (pixel-scroll-precision-mode 1)	        ; Precision scrolling
 (setq ring-bell-function 'ignore)		; Disable bell sound
-(setq-default indent-tabs-mode nil)		; Disable bell sound
+(setq-default indent-tabs-mode nil)		; Don't use tabs for indentation
+(setq use-default-font-for-symbols nil)       ; Don't use use default fonts for symbols
 
+;; Change locations of backups, autosaves and manual customizations
 (setq backup-directory-alist `(("." . "~/.saves")))
 (setq auto-save-file-name-transforms `((".*", "~/.saves/" t)))
+(setq custom-file (expand-file-name "custom.el" user-emacs-directory))
 #+end_src
 
 ** Garbage collection
@@ -433,6 +436,7 @@ Package to easily navigate cursor within buffers. Using this over evil-easymotio
 #+begin_src emacs-lisp
 (use-package tab-bar
   :ensure t
+  :hook (server-after-make-frame-hook . (lambda () (tab-bar-rename-tab "main")))
   :init  
   (defun tab-bar-tab-name-format-comfortable (tab i)
     (propertize (concat " " (tab-bar-tab-name-format-default tab i) " ")
@@ -537,7 +541,7 @@ Currently trying =mood-line= over =doom-modeline= as the latter messes up the ba
 (use-package mood-line
   :ensure t
   :init
-  (setq battery-mode-line-format " %b%p% ")
+  (setq battery-mode-line-format " [%b%p%] ")
   (setq mode-line-misc-info (remove '(global-mode-string ("" global-mode-string)) mode-line-misc-info))
   (mood-line-mode)
   :custom
@@ -555,12 +559,18 @@ The used fonts have different names on different computers:
 #+begin_src emacs-lisp
   (if (string= system-name "Duys-MBP.home")
       (setq duy/default-font "Fira Mono"
-            duy/variable-font "IBM Plex Sans")
+            duy/variable-font "IBM Plex Sans"
+            duy/default-font-size 12.0
+            duy/variable-font-size 12.0)
     (if (string= system-name "NL5CG1462QH6")
         (setq duy/default-font "FiraMono Nerd Font Mono"
-              duy/variable-font "Avenir Next LT Pro")
+              duy/variable-font "IBM Plex Sans"
+              duy/default-font-size 10.0
+              duy/variable-font-size 11.0)
       (setq duy/default-font nil
-            duy/variable-font nil)))
+            duy/variable-font nil
+            duy/default-font-size nil
+            duy/variable-font-size nil)))
 #+end_src
 
 Set fonts:
@@ -576,12 +586,26 @@ Settings for daemon mode:
 #+begin_src emacs-lisp
   (defun duy/setup-font-faces-daemon()
     (when (daemonp)
-      (set-face-attribute 'default nil :font (font-spec :family duy/default-font))
-      (set-face-attribute 'fixed-pitch nil :font (font-spec :family duy/default-font))
-      (set-face-attribute 'variable-pitch nil :font (font-spec :family duy/variable-font))))
+      (set-face-attribute 'default nil :font (font-spec :family duy/default-font :size duy/default-font-size))
+      (set-face-attribute 'fixed-pitch nil :font (font-spec :family duy/default-font :size duy/default-font-size))
+      (set-face-attribute 'variable-pitch nil :font (font-spec :family duy/variable-font :size duy/variable-font-size))))
 
   (add-hook 'after-init-hook 'duy/setup-font-faces-daemon)
   (add-hook 'server-after-make-frame-hook 'duy/setup-font-faces-daemon)
+#+end_src
+
+** all-the-icons
+
+#+begin_src emacs-lisp
+;; (use-package all-the-icons
+;;   :config
+;;   ;; Make sure the icon fonts are good to go
+;;   (set-fontset-font t 'unicode (font-spec :family "all-the-icons") nil 'append)
+;;   (set-fontset-font t 'unicode (font-spec :family "file-icons") nil 'append)
+;;   (set-fontset-font t 'unicode (font-spec :family "Material Icons") nil 'append)
+;;   (set-fontset-font t 'unicode (font-spec :family "github-octicons") nil 'append)
+;;   (set-fontset-font t 'unicode (font-spec :family "FontAwesome") nil 'append)
+;;   (set-fontset-font t 'unicode (font-spec :family "Weather Icons") nil 'append))
 #+end_src
 
 * Terminals

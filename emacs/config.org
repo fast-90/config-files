@@ -221,7 +221,18 @@ Evil collection is a collection of Evil bindings for the parts of Emacs that Evi
   :ensure t
   :after evil
   :config
-  (setq evil-collection-mode-list '(flymake xref vterm dashboard dired ibuffer magit pdf doc-view company embark)) ; Modes to activate Evil keybindings for
+  (setq evil-collection-mode-list '(flymake
+                                    xref
+                                    vterm
+                                    dashboard
+                                    dired
+                                    ibuffer
+                                    magit
+                                    pdf
+                                    doc-view
+                                    company
+                                    embark
+                                    helpful)) ; Modes to activate Evil keybindings for
   (evil-collection-init))
 #+end_src
 
@@ -498,7 +509,7 @@ The used fonts have different names on different computers:
             duy/variable-font "IBM Plex Sans")
     (if (string= system-name "NL5CG1462QH6")
         (setq duy/default-font "FiraMono Nerd Font Mono"
-              duy/variable-font "Avenir Next LT Pro")
+              duy/variable-font "IBM Plex Sans")
       (setq duy/default-font nil
             duy/variable-font nil)))
 #+end_src
@@ -1206,14 +1217,13 @@ Set todo keywords, tags etc.
       org-log-state-notes-insert-after-drawers nil)
 
 (setq org-tag-alist (quote (("@reading" . ?r)
-                            ("@programming" . ?p)
+                            ("@coding" . ?c)
+                            ("@writing" . ?w)
                             ("@office" . ?o)
                             ("@home" . ?h)
-                            ("@school" . ?s)
                             (:newline)
-                            ("WAITING" . ?w)
-                            ("HOLD" . ?H)
-                            ("CANCELLED" . ?c))))
+                            ("WAITING" . ?W)
+                            ("HOLD" . ?H))))
 
 (setq org-fast-tag-selection-single-key nil)
 #+end_src
@@ -1318,7 +1328,9 @@ Function to automatically group TODOs by title.
 	 )))
 #+end_src
 
-*** org-agenda tags alignment
+*** org-agenda tags display settings
+
+Align all tags at the right border of the agenda window:
 
 #+begin_src emacs-lisp
   (defun duy/realign-agenda-tags ()
@@ -1327,6 +1339,12 @@ Function to automatically group TODOs by title.
     (org-agenda-align-tags))
 
   (add-hook 'org-agenda-finalize-hook 'duy/realign-agenda-tags)
+#+end_src
+
+Hide the =project= tag in org-agenda, since by definition in our setup all items will have the tag:
+
+#+begin_src emacs-lisp
+(setq org-agenda-hide-tags-regexp (regexp-opt '("project")))
 #+end_src
 
 ** Inbox management

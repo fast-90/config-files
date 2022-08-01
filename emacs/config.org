@@ -433,11 +433,28 @@ Package to easily navigate cursor within buffers. Using this over evil-easymotio
 #+begin_src emacs-lisp
 (use-package tab-bar
   :ensure t
+  :init  
+  (defun tab-bar-tab-name-format-comfortable (tab i)
+    (propertize (concat " " (tab-bar-tab-name-format-default tab i) " ")
+                'face (funcall tab-bar-tab-face-function tab)))
+  (add-to-list 'tab-bar-format 'tab-bar-format-align-right 'append)
+  (add-to-list 'tab-bar-format 'tab-bar-format-global 'append)
+  (setq global-mode-string '(" " display-time-string battery-mode-line-string))
   :custom
-  (tab-bar-show nil)
+  (tab-bar-show t)
+  (tab-bar-close-button-show nil)
+  (tab-bar-new-button-show nil)
+  (tab-bar-tab-name-format-function #'tab-bar-tab-name-format-comfortable)
+  :custom-face
+  (tab-bar ((t (:background nil :inherit 'mode-line :height 1.0 :foreground "white"))))
+  (tab-bar-tab ((t (:bold t :height 1.1 :foreground "sienna"))))
+  (tab-bar-tab-inactive ((t (:background nil :inherit 'mode-line :height 1.1 ))))
   :config
   (leader-keys
     "t" '(:keymap tab-prefix-map :wk "Tabs")))
+
+
+;; (setq global-mode-string '(" " display-time-string battery-mode-line-string))  ; Should be set after doom-modeline because it resets this value
 #+end_src
 
 * Themes and fonts
@@ -453,28 +470,31 @@ Package to easily navigate cursor within buffers. Using this over evil-easymotio
   (load-theme 'doom-snazzy t))  ;; Ones I liked and used: doom-one, doom-dark+, doom-solarized-light, doom-snazzy, doom-palenight
 #+end_src
 
-** Doom modeline
+** Modeline
+
+*** Doom modeline
 
 This package depends on all-the-icons package. When installing Doom modeline for the first time, please run 'all-the-icons-install-fonts' via M-x first.
 
 #+begin_src emacs-lisp
-(use-package doom-modeline
-  :ensure t
-  :init
-  (doom-modeline-mode 1)
-  (display-time)
-  (display-battery-mode)
-  :custom
-  (display-time-24hr-format t)
-  (display-time-day-and-date t))
+;; (use-package doom-modeline
+;;   :ensure t
+;;   :config
+;;   (setq doom-modeline-fn-alist (remove '(battery . doom-modeline-segment--battery) doom-modeline-fn-alist))
+;;   (doom-modeline-mode 1)
+;;   ;; (display-time)
+;;   ;; (display-battery-mode)
+;;   :custom
+;;   (display-time-24hr-format t)
+;;   (display-time-day-and-date t))
 #+end_src
 
 Ensure icons are used in Daemon mode:
 
 #+begin_src emacs-lisp
-(add-hook 'server-after-make-frame-hook
- (lambda ()
-     (setq doom-modeline-icon (display-graphic-p))))
+;; (add-hook 'server-after-make-frame-hook
+;;  (lambda ()
+;;      (setq doom-modeline-icon (display-graphic-p))))
 #+end_src
 
 NOTE: ~(doom-modeline-mode)~ results in ~(error "bar is not a defined segment")~ in emacs@29. See also: https://githubhot.com/repo/seagle0128/doom-modeline/issues/505
@@ -486,6 +506,46 @@ To fix, run this code *once*:
 ;;       (--map
 ;;        (cons (remove-pos-from-symbol (car it)) (cdr it))
 ;;        doom-modeline-fn-alist))
+#+end_src
+
+*** Smart mode line
+
+I am using =smart-mode-line= to format battery percentage in the global tab-bar. In particular, this automatically sets the colour based on the battery status.
+
+Note: =sml/setup=  messes up the branch name in the mode-line (https://github.com/Malabarba/smart-mode-line/issues/255). Therefore, I use a custom function (which is based on the =sml/setup= source code) to format the battery string.
+
+#+begin_src emacs-lisp
+(use-package smart-mode-line
+  :ensure t
+  :init
+  (defun duy/battery-formatting ()
+    (eval-after-load 'battery
+    '(defadvice battery-update (after sml/after-battery-update-advice () activate)
+       "Change battery color."
+       (when battery-mode-line-string
+         (setq battery-mode-line-string
+               (propertize battery-mode-line-string
+                           'face 'sml/battery))))))
+  (duy/battery-formatting))
+#+end_src
+
+*** Mood-line
+
+Currently trying =mood-line= over =doom-modeline= as the latter messes up the battery string in the top right corner.
+
+#+begin_src emacs-lisp
+(use-package mood-line
+  :ensure t
+  :init
+  (setq battery-mode-line-format " %b%p% ")
+  (setq mode-line-misc-info (remove '(global-mode-string ("" global-mode-string)) mode-line-misc-info))
+  (mood-line-mode)
+  :custom
+  (display-time-24hr-format t)
+  (display-time-day-and-date t)
+  :config
+  (display-time-mode)
+  (display-battery-mode))
 #+end_src
 
 ** Fonts

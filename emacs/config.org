@@ -604,7 +604,7 @@ The used fonts have different names on different computers:
 
 #+begin_src emacs-lisp
   (if (string= system-name "Duys-MBP.home")
-      (setq duy/default-font "Fira Mono"
+      (setq duy/default-font "FiraMono Nerd Font Mono"
             duy/variable-font "IBM Plex Sans"
             duy/default-font-size 12.0
             duy/variable-font-size 12.0)

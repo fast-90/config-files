@@ -514,24 +514,63 @@ To fix, run this code *once*:
 
 *** Smart mode line
 
-I am using =smart-mode-line= to format battery percentage in the global tab-bar. In particular, this automatically sets the colour based on the battery status.
+I am using =smart-mode-line= to format battery percentage in the global tab-bar. In particular, this automatically sets the icon colour based on the battery status.
 
 Note: =sml/setup=  messes up the branch name in the mode-line (https://github.com/Malabarba/smart-mode-line/issues/255). Therefore, I use a custom function (which is based on the =sml/setup= source code) to format the battery string.
+
+**** Helper function for battery formatting
+
+#+begin_src emacs-lisp
+(defun duy/charging ()
+  "Check whether computer is charging"
+  (let ((result (funcall battery-status-function)))
+    (let ((charging (cdr (assoc 66 result))))
+      (if (not (string= charging "Discharging")) t nil))))
+
+(defun duy/battery-percentage nil
+  "Get battery percentage (100% = 1000000)"
+  (let
+      ((result
+        (funcall battery-status-function)))
+    (let
+        ((percentage-string
+          (cdr
+           (assoc 112 result))))
+      (let
+          ((percentage
+            (string-to-number percentage-string)))
+        percentage))))
+
+(defun duy/battery-icon ()
+  "Set battery icon based on battery charge status and percentage"
+  (if (duy/charging) ""
+    (if (> (duy/battery-percentage) 90.0) ""
+      (if (> (duy/battery-percentage) 65.0) ""
+        (if (> (duy/battery-percentage) 35.0) ""
+          (if (> (duy/battery-percentage) 15.0) "" ""))))))
+
+(defface duy/battery
+  '((t :inherit sml/battery :weight normal)) "")
+
+(defun duy/battery-formatting ()
+  "Apply battery formatting when updating battery status"
+  (eval-after-load 'battery
+    '(defadvice battery-update (after sml/after-battery-update-advice () activate)
+       "Change battery color and icon."
+       (when battery-mode-line-string
+         (setq battery-mode-line-string
+               (propertize battery-mode-line-string
+                           'face 'duy/battery)
+               battery-mode-line-format (concat " " (duy/battery-icon) "[%b%p%] "))))))
+#+end_src
 
 #+begin_src emacs-lisp
 (use-package smart-mode-line
   :ensure t
   :init
-  (defun duy/battery-formatting ()
-    (eval-after-load 'battery
-    '(defadvice battery-update (after sml/after-battery-update-advice () activate)
-       "Change battery color."
-       (when battery-mode-line-string
-         (setq battery-mode-line-string
-               (propertize battery-mode-line-string
-                           'face 'sml/battery))))))
   (duy/battery-formatting))
 #+end_src
+
 
 *** Mood-line
 
@@ -541,7 +580,7 @@ Currently trying =mood-line= over =doom-modeline= as the latter messes up the ba
 (use-package mood-line
   :ensure t
   :init
-  (setq battery-mode-line-format " [%b%p%] ")
+  ;; (setq battery-mode-line-format (concat " " (duy/battery-icon) "%b%p% ")
   (setq mode-line-misc-info (remove '(global-mode-string ("" global-mode-string)) mode-line-misc-info))
   (mood-line-mode)
   :custom

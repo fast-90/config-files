@@ -71,10 +71,13 @@ Add MELPA/ELPA/Non-GNU/ELPA-dev to package archives.
 (setq-default fill-column 79)		        ; Set fill column to 80 rather than 70, in all cases.
 (pixel-scroll-precision-mode 1)	        ; Precision scrolling
 (setq ring-bell-function 'ignore)		; Disable bell sound
-(setq-default indent-tabs-mode nil)		; Disable bell sound
+(setq-default indent-tabs-mode nil)		; Don't use tabs for indentation
+(setq use-default-font-for-symbols nil)       ; Don't use use default fonts for symbols
 
+;; Change locations of backups, autosaves and manual customizations
 (setq backup-directory-alist `(("." . "~/.saves")))
 (setq auto-save-file-name-transforms `((".*", "~/.saves/" t)))
+(setq custom-file (expand-file-name "custom.el" user-emacs-directory))
 #+end_src
 
 ** Garbage collection
@@ -123,6 +126,9 @@ Add MELPA/ELPA/Non-GNU/ELPA-dev to package archives.
   ([remap describe-command] . helpful-command)
   ([remap describe-variable] . helpful-variable)
   ([remap describe-key] . helpful-key))
+
+(use-package hydra
+  :ensure t)
 #+end_src
 
 ** OS specific settings
@@ -444,14 +450,47 @@ Package to easily navigate cursor within buffers. Using this over evil-easymotio
 #+begin_src emacs-lisp
 (use-package tab-bar
   :ensure t
+  :hook (server-after-make-frame-hook . (lambda () (tab-bar-rename-tab "main")))
+  :init  
+  (defun tab-bar-tab-name-format-comfortable (tab i)
+    (propertize (concat " " (tab-bar-tab-name-format-default tab i) " ")
+                'face (funcall tab-bar-tab-face-function tab)))
+  (add-to-list 'tab-bar-format 'tab-bar-format-align-right 'append)
+  (add-to-list 'tab-bar-format 'tab-bar-format-global 'append)
+  (setq global-mode-string '(" " display-time-string battery-mode-line-string))
   :custom
-  (tab-bar-show nil)
+  (tab-bar-show t)
+  (tab-bar-close-button-show nil)
+  (tab-bar-new-button-show nil)
+  (tab-bar-tab-name-format-function #'tab-bar-tab-name-format-comfortable)
+  :custom-face
+  (tab-bar ((t (:background nil :inherit 'mode-line :height 1.0 :foreground "white"))))
+  (tab-bar-tab ((t (:bold t :height 1.1 :foreground "sienna"))))
+  (tab-bar-tab-inactive ((t (:background nil :inherit 'mode-line :height 1.1 ))))
   :config
   (leader-keys
     "t" '(:keymap tab-prefix-map :wk "Tabs")))
+
+
+;; (setq global-mode-string '(" " display-time-string battery-mode-line-string))  ; Should be set after doom-modeline because it resets this value
 #+end_src
 
 * Themes and fonts
+
+** all-the-icons
+
+#+begin_src emacs-lisp
+(use-package all-the-icons
+  :ensure t
+  :config
+  ;; Make sure the icon fonts are good to go
+  (set-fontset-font t 'unicode (font-spec :family "all-the-icons") nil 'prepend)
+  (set-fontset-font t 'unicode (font-spec :family "file-icons") nil 'prepend)
+  (set-fontset-font t 'unicode (font-spec :family "Material Icons") nil 'prepend)
+  (set-fontset-font t 'unicode (font-spec :family "github-octicons") nil 'prepend)
+  (set-fontset-font t 'unicode (font-spec :family "FontAwesome") nil 'prepend)
+  (set-fontset-font t 'unicode (font-spec :family "Weather Icons") nil 'prepend))
+#+end_src
 
 ** Theme
 
@@ -464,28 +503,109 @@ Package to easily navigate cursor within buffers. Using this over evil-easymotio
   (load-theme 'doom-snazzy t))  ;; Ones I liked and used: doom-one, doom-dark+, doom-solarized-light, doom-snazzy, doom-palenight
 #+end_src
 
-** Doom modeline
+** Battery formatting
+
+This section contains my custom setup to format =battery-mode-line-string=, which will be shown at the top in the global tab-bar. It is mainly copied from the source of =smart-mode-line= and adjusted to my own liking. Main reason for doing this myself is I am not using any other functions of =smart-mode-line=, and =sml/setup=  also messes up the branch name in the mode-line (https://github.com/Malabarba/smart-mode-line/issues/255).
+
+#+begin_src emacs-lisp
+(defun duy/charging-wsl ()
+  "Check whether WSL computer is charging"
+  (let ((result (funcall battery-status-function)))
+    (let ((charging (cdr (assoc 66 result))))
+      (if (not (string= charging "Discharging")) t nil))))
+
+(defun duy/charging-macos ()
+  "Check whether MacOS computer is charging"
+  (let ((result (funcall battery-status-function)))
+    (let ((charging (cdr (assoc 76 result))))
+      (if (string= charging "A/C") t nil))))
+
+(defun duy/charging ()
+  "Check whether computer is charging"
+  (if duy/is-wsl (duy/charging-wsl)
+    (if duy/is-macos (duy/charging-macos) nil)))
+
+(defun duy/battery-percentage nil
+  "Get battery percentage (100% = 1000000)"
+  (let
+      ((result
+        (funcall battery-status-function)))
+    (let
+        ((percentage-string
+          (cdr
+           (assoc 112 result))))
+      (let
+          ((percentage
+            (string-to-number percentage-string)))
+        percentage))))
+
+(defun duy/battery-icon ()
+  "Set battery icon based on battery charge status and percentage"
+  (if (duy/charging) (all-the-icons-faicon "plug")
+    (if (> (duy/battery-percentage) 95.0) (all-the-icons-faicon "battery-full")
+      (if (> (duy/battery-percentage) 70.0) (all-the-icons-faicon "battery-three-quarters")
+        (if (> (duy/battery-percentage) 40.0) (all-the-icons-faicon "battery-half")
+          (if (> (duy/battery-percentage) battery-load-critical) (all-the-icons-faicon "battery-quarter") (all-the-icons-faicon "battery-empty")))))))
+
+(defface duy/battery-charging
+  '((t :foreground "ForestGreen" :weight normal)) "")
+
+(defface duy/battery-discharging
+  '((t :inherit warning :weight normal)) "")
+
+(defun duy/set-battery-font ()
+  "Set `duy/battery' face depending on battery state."
+  (if (duy/charging)
+      (copy-face 'duy/battery-charging 'duy/battery)
+    (copy-face 'duy/battery-discharging 'duy/battery)))
+
+(defadvice battery-update (before duy/set-battery-font activate)
+  "Fontify the battery display."
+  (duy/set-battery-font)
+  (setq battery-mode-line-format (concat " " (duy/battery-icon) "[%b%p%] ")))
+
+(defun duy/battery-formatting ()
+  "Apply battery formatting when updating battery status"
+  (eval-after-load 'battery
+    '(defadvice battery-update (after duy/after-battery-update-advice () activate)
+       "Change battery color and icon."
+       (when battery-mode-line-string
+         (setq battery-mode-line-string
+               (propertize battery-mode-line-string
+                           'face 'duy/battery))))))
+
+(duy/battery-formatting)
+(display-battery-mode)
+(add-hook 'server-after-make-frame-hook 'battery-update)
+#+end_src
+
+** Modeline
+
+*** Doom modeline
+
+Currently using mood-line as a test.
 
 This package depends on all-the-icons package. When installing Doom modeline for the first time, please run 'all-the-icons-install-fonts' via M-x first.
 
 #+begin_src emacs-lisp
-(use-package doom-modeline
-  :ensure t
-  :init
-  (doom-modeline-mode 1)
-  (display-time)
-  (display-battery-mode)
-  :custom
-  (display-time-24hr-format t)
-  (display-time-day-and-date t))
+;; (use-package doom-modeline
+;;   :ensure t
+;;   :config
+;;   (setq doom-modeline-fn-alist (remove '(battery . doom-modeline-segment--battery) doom-modeline-fn-alist))
+;;   (doom-modeline-mode 1)
+;;   ;; (display-time)
+;;   ;; (display-battery-mode)
+;;   :custom
+;;   (display-time-24hr-format t)
+;;   (display-time-day-and-date t))
 #+end_src
 
 Ensure icons are used in Daemon mode:
 
 #+begin_src emacs-lisp
-(add-hook 'server-after-make-frame-hook
- (lambda ()
-     (setq doom-modeline-icon (display-graphic-p))))
+;; (add-hook 'server-after-make-frame-hook
+;;  (lambda ()
+;;      (setq doom-modeline-icon (display-graphic-p))))
 #+end_src
 
 NOTE: ~(doom-modeline-mode)~ results in ~(error "bar is not a defined segment")~ in emacs@29. See also: https://githubhot.com/repo/seagle0128/doom-modeline/issues/505
@@ -499,19 +619,42 @@ To fix, run this code *once*:
 ;;        doom-modeline-fn-alist))
 #+end_src
 
+*** Mood-line
+
+Currently trying =mood-line= over =doom-modeline= as the latter messes up the battery string in the top right corner.
+
+#+begin_src emacs-lisp
+(use-package mood-line
+  :ensure t
+  :init
+  ;; (setq battery-mode-line-format (concat " " (duy/battery-icon) "%b%p% ")
+  (setq mode-line-misc-info (remove '(global-mode-string ("" global-mode-string)) mode-line-misc-info))
+  (mood-line-mode)
+  :custom
+  (display-time-24hr-format t)
+  (display-time-day-and-date t)
+  :config
+  (display-time-mode)
+  (display-battery-mode))
+#+end_src
+
 ** Fonts
 
 The used fonts have different names on different computers:
 
 #+begin_src emacs-lisp
   (if (string= system-name "Duys-MBP.home")
-      (setq duy/default-font "Fira Mono"
-            duy/variable-font "IBM Plex Sans")
+      (setq duy/default-font "FiraMono Nerd Font Mono"
+            duy/variable-font "IBM Plex Sans"
+            duy/default-font-size 12.0
+            duy/variable-font-size 12.0)
     (if (string= system-name "NL5CG1462QH6")
         (setq duy/default-font "FiraMono Nerd Font Mono"
               duy/variable-font "IBM Plex Sans")
       (setq duy/default-font nil
-            duy/variable-font nil)))
+            duy/variable-font nil
+            duy/default-font-size nil
+            duy/variable-font-size nil)))
 #+end_src
 
 Set fonts:
@@ -522,14 +665,22 @@ Set fonts:
   (set-face-attribute 'variable-pitch nil :font (font-spec :family duy/variable-font))
 #+end_src
 
-Settings for daemon mode:
+** Font settings for daemon mode
+
+Font settings for daemon mode:
 
 #+begin_src emacs-lisp
-  (defun duy/setup-font-faces-daemon()
-    (when (and (display-graphic-p) duy/is-wsl)
-      (set-face-attribute 'default nil :font (font-spec :family duy/default-font :height 100))
-      (set-face-attribute 'fixed-pitch nil :font (font-spec :family duy/default-font :height 100))
-      (set-face-attribute 'variable-pitch nil :font (font-spec :family duy/variable-font :height 110))))
+(defun duy/setup-font-faces-daemon()
+  (when (daemonp)
+    (set-face-attribute 'default nil :font (font-spec :family duy/default-font :size duy/default-font-size))
+    (set-face-attribute 'fixed-pitch nil :font (font-spec :family duy/default-font :size duy/default-font-size))
+    (set-face-attribute 'variable-pitch nil :font (font-spec :family duy/variable-font :size duy/variable-font-size))
+    (set-fontset-font t 'unicode (font-spec :family "all-the-icons") nil 'prepend)
+    (set-fontset-font t 'unicode (font-spec :family "file-icons") nil 'prepend)
+    (set-fontset-font t 'unicode (font-spec :family "Material Icons") nil 'prepend)
+    (set-fontset-font t 'unicode (font-spec :family "github-octicons") nil 'prepend)
+    (set-fontset-font t 'unicode (font-spec :family "FontAwesome") nil 'prepend)
+    (set-fontset-font t 'unicode (font-spec :family "Weather Icons") nil 'prepend)))
 
   (add-hook 'after-init-hook 'duy/setup-font-faces-daemon)
   (add-hook 'server-after-make-frame-hook 'duy/setup-font-faces-daemon)
@@ -545,7 +696,6 @@ Settings for daemon mode:
     (when (processp proc)
       (set-process-query-on-exit-flag proc nil))))
 #+end_src
-
 
 ** vterm
 
@@ -880,6 +1030,21 @@ Enabling icons in Corfu:
     "g"   '(:ignore t                 :wk "Git")
     "g s" '(magit                     :wk "Magit status")
     "g m" '(activate-smerge-mode/body :wk "Smerge")))
+#+end_src
+
+#+begin_src emacs-lisp
+(defhydra activate-smerge-mode ()
+  "Smerge mode"
+  ("j" smerge-next "next")
+  ("k" smerge-prev "prev")
+  ("u" smerge-keep-upper "keep upper")
+  ("l" smerge-keep-lower "keep lower")
+  ("c" smerge-keep-current "keep current")
+  ("h" smerge-refine "highlight")
+  ("d" smerge-kill-current "delete current")
+  ("a" smerge-keep-all "keep all")
+  ("b" smerge-keep-base "keep base")
+  ("q" nil "quit"))
 #+end_src
 
 * Org mode

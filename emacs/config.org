@@ -481,15 +481,7 @@ Package to easily navigate cursor within buffers. Using this over evil-easymotio
 
 #+begin_src emacs-lisp
 (use-package all-the-icons
-  :ensure t
-  :config
-  ;; Make sure the icon fonts are good to go
-  (set-fontset-font t 'unicode (font-spec :family "all-the-icons") nil 'prepend)
-  (set-fontset-font t 'unicode (font-spec :family "file-icons") nil 'prepend)
-  (set-fontset-font t 'unicode (font-spec :family "Material Icons") nil 'prepend)
-  (set-fontset-font t 'unicode (font-spec :family "github-octicons") nil 'prepend)
-  (set-fontset-font t 'unicode (font-spec :family "FontAwesome") nil 'prepend)
-  (set-fontset-font t 'unicode (font-spec :family "Weather Icons") nil 'prepend))
+  :ensure t)
 #+end_src
 
 ** Theme
@@ -649,18 +641,20 @@ Currently trying =mood-line= over =doom-modeline= as the latter messes up the ba
 The used fonts have different names on different computers:
 
 #+begin_src emacs-lisp
-  (if (string= system-name "Duys-MBP.home")
+(if (string= system-name "Duys-MBP.home")
+    (setq duy/default-font "FiraMono Nerd Font Mono"
+          duy/variable-font "IBM Plex Sans"
+          duy/default-font-size 12.0
+          duy/variable-font-size 12.0)
+  (if (string= system-name "NL5CG1462QH6")
       (setq duy/default-font "FiraMono Nerd Font Mono"
             duy/variable-font "IBM Plex Sans"
-            duy/default-font-size 12.0
+            duy/default-font-size 10.5
             duy/variable-font-size 12.0)
-    (if (string= system-name "NL5CG1462QH6")
-        (setq duy/default-font "FiraMono Nerd Font Mono"
-              duy/variable-font "IBM Plex Sans")
-      (setq duy/default-font nil
-            duy/variable-font nil
-            duy/default-font-size nil
-            duy/variable-font-size nil)))
+    (setq duy/default-font nil
+          duy/variable-font nil
+          duy/default-font-size nil
+          duy/variable-font-size nil)))
 #+end_src
 
 Set fonts:
@@ -680,13 +674,7 @@ Font settings for daemon mode:
   (when (daemonp)
     (set-face-attribute 'default nil :font (font-spec :family duy/default-font :size duy/default-font-size))
     (set-face-attribute 'fixed-pitch nil :font (font-spec :family duy/default-font :size duy/default-font-size))
-    (set-face-attribute 'variable-pitch nil :font (font-spec :family duy/variable-font :size duy/variable-font-size))
-    (set-fontset-font t 'unicode (font-spec :family "all-the-icons") nil 'prepend)
-    (set-fontset-font t 'unicode (font-spec :family "file-icons") nil 'prepend)
-    (set-fontset-font t 'unicode (font-spec :family "Material Icons") nil 'prepend)
-    (set-fontset-font t 'unicode (font-spec :family "github-octicons") nil 'prepend)
-    (set-fontset-font t 'unicode (font-spec :family "FontAwesome") nil 'prepend)
-    (set-fontset-font t 'unicode (font-spec :family "Weather Icons") nil 'prepend)))
+    (set-face-attribute 'variable-pitch nil :font (font-spec :family duy/variable-font :size duy/variable-font-size))))
 
   (add-hook 'after-init-hook 'duy/setup-font-faces-daemon)
   (add-hook 'server-after-make-frame-hook 'duy/setup-font-faces-daemon)

@@ -216,7 +216,7 @@ c.completion.shrink = True
 ### Dark Mode ###
 
 # Use dark mode when site has dark theme (e.g. Chrome-style)
-# c.colors.webpage.preferred_color_scheme = "dark"
+c.colors.webpage.preferred_color_scheme = "dark"
 
 # Force dark mode on pages (even if they don't have a dark theme, e.g. Gmail site)
 # c.colors.webpage.darkmode.enabled = True

@@ -464,7 +464,7 @@ Package to easily navigate cursor within buffers. Using this over evil-easymotio
   (tab-bar-new-button-show nil)
   (tab-bar-tab-name-format-function #'tab-bar-tab-name-format-comfortable)
   :custom-face
-  (tab-bar ((t (:background nil :inherit 'mode-line :height 1.0 :foreground "white"))))
+  (tab-bar ((t (:background nil :inherit 'mode-line :font "Iosevka Comfy" :height 1.0 :foreground "white"))))
   (tab-bar-tab ((t (:bold t :height 1.1 :foreground "sienna"))))
   (tab-bar-tab-inactive ((t (:background nil :inherit 'mode-line :height 1.1 ))))
   :config
@@ -492,8 +492,21 @@ Package to easily navigate cursor within buffers. Using this over evil-easymotio
   :init
   (setq doom-themes-enable-bold t
 	doom-themes-enable-italic t)
-  (load-theme 'doom-snazzy t))  ;; Ones I liked and used: doom-one, doom-dark+, doom-solarized-light, doom-snazzy, doom-palenight
+  (load-theme 'doom-vibrant t))  ;; Ones I liked and used: doom-one, doom-dark+, doom-solarized-light, doom-snazzy, doom-palenight
 #+end_src
+
+Other good themes:
+
+- doom-palenight
+- doom-one
+- doom-vibrant
+- doom-dark+ (VS Code like)
+- doom-tomorrow-night
+- doom-xcode
+- doom-material
+- doom-ayu-mirage
+- doom-monokai-pro
+
 
 ** Battery formatting
 
@@ -535,11 +548,11 @@ This section contains my custom setup to format =battery-mode-line-string=, whic
 
 (defun duy/battery-icon ()
   "Set battery icon based on battery charge status and percentage"
-  (if (duy/charging) (all-the-icons-faicon "plug")
-    (if (> (duy/battery-percentage) 95.0) (all-the-icons-faicon "battery-full")
-      (if (> (duy/battery-percentage) 70.0) (all-the-icons-faicon "battery-three-quarters")
-        (if (> (duy/battery-percentage) 40.0) (all-the-icons-faicon "battery-half")
-          (if (> (duy/battery-percentage) battery-load-critical) (all-the-icons-faicon "battery-quarter") (all-the-icons-faicon "battery-empty")))))))
+  (if (duy/charging) (all-the-icons-faicon "plug" :v-adjust 0.05)
+    (if (> (duy/battery-percentage) 95.0) (all-the-icons-faicon "battery-full" :v-adjust 0.05)
+      (if (> (duy/battery-percentage) 70.0) (all-the-icons-faicon "battery-three-quarters" :v-adjust 0.05)
+        (if (> (duy/battery-percentage) 40.0) (all-the-icons-faicon "battery-half" :v-adjust 0.05)
+          (if (> (duy/battery-percentage) battery-load-critical) (all-the-icons-faicon "battery-quarter" :v-adjust 0.05) (all-the-icons-faicon "battery-empty" :v-adjust 0.05)))))))
 
 (defface duy/battery-charging
   '((t :foreground "ForestGreen" :weight normal)) "")

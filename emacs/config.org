@@ -1153,6 +1153,9 @@ Enabling icons in Corfu:
     "C"   '(org-capture :wk "Capture"))
   (local-leader-keys
     :keymaps 'org-mode-map
+    "I" '(org-clock-in      :wk "Clock in")
+    "O" '(org-clock-out     :wk "Clock out")
+    "C" '(org-clock-cancel  :wk "Clock cancel")
     "o" '(org-open-at-point :wk "Open link")))
 #+end_src
 

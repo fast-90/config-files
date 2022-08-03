@@ -464,7 +464,7 @@ Package to easily navigate cursor within buffers. Using this over evil-easymotio
   (tab-bar-new-button-show nil)
   (tab-bar-tab-name-format-function #'tab-bar-tab-name-format-comfortable)
   :custom-face
-  (tab-bar ((t (:background nil :inherit 'mode-line :font "Iosevka Comfy" :height 1.0 :foreground "white"))))
+  (tab-bar ((t (:background nil :inherit 'mode-line :font "IBM Plex Mono" :height 1.0 :foreground "white"))))
   (tab-bar-tab ((t (:bold t :height 1.1 :foreground "sienna"))))
   (tab-bar-tab-inactive ((t (:background nil :inherit 'mode-line :height 1.1 ))))
   :config
@@ -569,7 +569,9 @@ This section contains my custom setup to format =battery-mode-line-string=, whic
 (defadvice battery-update (before duy/set-battery-font activate)
   "Fontify the battery display."
   (duy/set-battery-font)
-  (setq battery-mode-line-format (concat " " (duy/battery-icon) "[%b%p%] ")))
+  (if duy/is-macos
+      (setq battery-mode-line-format (concat " " (duy/battery-icon) " [%b%p%] "))
+      (setq battery-mode-line-format (concat " " (duy/battery-icon) "[%b%p%] "))))
 
 (defun duy/battery-formatting ()
   "Apply battery formatting when updating battery status"

@@ -463,6 +463,7 @@ Package to easily navigate cursor within buffers. Using this over evil-easymotio
   (tab-bar-close-button-show nil)
   (tab-bar-new-button-show nil)
   (tab-bar-tab-name-format-function #'tab-bar-tab-name-format-comfortable)
+  (tab-bar-select-tab-modifiers '(meta))
   :custom-face
   (tab-bar ((t (:background nil :inherit 'mode-line :font "IBM Plex Mono" :height 1.0 :foreground "white"))))
   (tab-bar-tab ((t (:bold t :height 1.1 :foreground "sienna"))))

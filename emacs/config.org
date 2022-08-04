@@ -1103,6 +1103,7 @@ Enabling icons in Corfu:
                                   ("el" . "src emacs-lisp")
                                   ("d" . "definition")
                                   ("t" . "theorem")))
+  (org-clock-mode-line-total 'current)
   :custom-face
   ;; (variable-pitch ((t (:family "IBM Plex Sans"))))
   (org-document-title ((t (:weight bold :height 1.5))))

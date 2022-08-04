@@ -1901,6 +1901,16 @@ This has the following benefits compared to other things I tried:
 - Don't need to use =poetry-tracking-mode=, which can be slow in my experience.
 - Creates replicable configs across machines.
 
+** Rust
+
+#+begin_src emacs-lisp
+(use-package rustic
+  :ensure t
+  :config
+  (setq rustic-format-on-save t)
+  (setq rustic-lsp-client 'eglot))
+#+end_src
+
 ** Jupyter
 
 #+begin_src emacs-lisp

@@ -774,7 +774,7 @@ I also enabled directory tracking and named vterm buffer, see also here how to s
 
 #+begin_src emacs-lisp
 (use-package vertico
-  :straight t
+  :straight (:files (:defaults "extensions/*"))
   :bind (:map vertico-map
               ("C-j" . vertico-next)
               ("C-k" . vertico-previous)
@@ -790,7 +790,14 @@ I also enabled directory tracking and named vterm buffer, see also here how to s
 *** Vertico-directory
 
 #+begin_src emacs-lisp
-
+(use-package vertico-directory
+  :after vertico
+  :straight nil
+  ;; More convenient directory navigation commands
+  :bind (:map vertico-map
+              ("RET" . vertico-directory-enter)
+              ("DEL" . vertico-directory-delete-char)
+              ("C-<backspace>" . vertico-directory-delete-word)))
 #+end_src
 
 ** Orderless

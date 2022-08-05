@@ -5,28 +5,26 @@
 Add MELPA/ELPA/Non-GNU/ELPA-dev to package archives.
 
 #+begin_src emacs-lisp
-  (require 'package)
+(defvar bootstrap-version)
+(let ((bootstrap-file
+      (expand-file-name "straight/repos/straight.el/bootstrap.el" user-emacs-directory))
+      (bootstrap-version 5))
+  (unless (file-exists-p bootstrap-file)
+    (with-current-buffer
+        (url-retrieve-synchronously
+        "https://raw.githubusercontent.com/raxod502/straight.el/develop/install.el"
+        'silent 'inhibit-cookies)
+      (goto-char (point-max))
+      (eval-print-last-sexp)))
+  (load bootstrap-file nil 'nomessage))
 
-  (setq package-archives
-        '(("melpa" . "https://melpa.org/packages/")
-          ("elpa" . "https://elpa.gnu.org/packages/")
-          ("nongnu" . "https://elpa.nongnu.org/nongnu/")
-          ("elpa-devel" . "https://elpa.gnu.org/devel/")))
-
-  ;; Initialize the packages, avoiding a re-initialization.
-
-  (unless (bound-and-true-p package--initialized)
-    (package-initialize))
+(straight-use-package 'use-package)
 #+end_src
 
 ** Setup use-package
 
 #+begin_src emacs-lisp
 ;; Make sure `use-package' is available.
-
-(unless (package-installed-p 'use-package)
-  (package-refresh-contents)
-  (package-install 'use-package))
 
 ;; Configure `use-package' prior to loading it.
 
@@ -47,9 +45,9 @@ Add MELPA/ELPA/Non-GNU/ELPA-dev to package archives.
 (eval-when-compile
   (require 'use-package))
 
-(use-package diminish :ensure t :after use-package) ;; if you use :diminish
-(use-package bind-key :ensure t :after use-package) ;; if you use any :bind variant
-(use-package delight :ensure t :after use-package)  ;; Use delighting for modes
+(use-package diminish :straight t :after use-package) ;; if you use :diminish
+(use-package bind-key :straight t :after use-package) ;; if you use any :bind variant
+(use-package delight :straight t :after use-package)  ;; Use delighting for modes
 #+end_src
 * Default settings 
 
@@ -84,7 +82,7 @@ Add MELPA/ELPA/Non-GNU/ELPA-dev to package archives.
 
 #+begin_src emacs-lisp
 (use-package gcmh
-  :ensure t
+  :straight t
   :diminish gcmh-mode
   :custom
   (gcmh-mode 1)
@@ -113,13 +111,13 @@ Add MELPA/ELPA/Non-GNU/ELPA-dev to package archives.
   (recentf-mode 1))
 
 (use-package undo-tree
-  :ensure t
+  :straight t
   :init
   (setq undo-tree-auto-save-history nil)
   (global-undo-tree-mode))
 
 (use-package helpful
-  :ensure t
+  :straight t
   :commands (helpful-callable helpful-variable helpful-command helpful-key)
   :bind
   ([remap describe-function] . helpful-function)
@@ -128,7 +126,7 @@ Add MELPA/ELPA/Non-GNU/ELPA-dev to package archives.
   ([remap describe-key] . helpful-key))
 
 (use-package hydra
-  :ensure t)
+  :straight t)
 #+end_src
 
 ** OS specific settings
@@ -202,7 +200,7 @@ The Evil package(s) enable Vim-like keybindings.
 
 #+begin_src emacs-lisp
 (use-package evil
-  :ensure t
+  :straight t
   :init      ;; tweak evil's configuration before loading it
   (setq evil-want-integration t) ;; This is optional since it's already set to t by default.
   (setq evil-want-keybinding nil)
@@ -224,7 +222,7 @@ Evil collection is a collection of Evil bindings for the parts of Emacs that Evi
 
 #+begin_src emacs-lisp
 (use-package evil-collection
-  :ensure t
+  :straight t
   :after evil
   :config
   (setq evil-collection-mode-list '(flymake
@@ -246,7 +244,7 @@ Bind kj in insert mode to ESC.
 
 #+begin_src emacs-lisp
 (use-package evil-escape
-  :ensure t
+  :straight t
   :init
   (evil-escape-mode 1)
   (setq evil-escape-key-sequence "kj")
@@ -257,7 +255,7 @@ Evil nerd commenter for line comment.
 
 #+begin_src emacs-lisp
 (use-package evil-nerd-commenter
-  :ensure t
+  :straight t
   :bind (("C-'" . evilnc-comment-or-uncomment-lines)
          ("C-," . evilnc-comment-or-uncomment-lines)
   :map org-mode-map)
@@ -270,7 +268,7 @@ Evil-org adds evil bindings to org-agenda.
 #+begin_src emacs-lisp
 
 (use-package evil-org
-  :ensure t
+  :straight t
   :after org
   :hook (org-mode . (lambda () evil-org-mode))
   :config
@@ -283,7 +281,7 @@ evil-surround enables surrounding of (Vim) text objects (e.g. brackets or quotes
 
 #+begin_src emacs-lisp
 (use-package evil-surround
-  :ensure t
+  :straight t
   :config
   (global-evil-surround-mode 1))
 #+end_src
@@ -295,7 +293,7 @@ function (similar to Spacemacs/Doom/VSpaceCode).
 
 #+begin_src emacs-lisp
 (use-package general
-  :ensure t
+  :straight t
   :init
   (setq general-override-states '(insert
                                   emacs
@@ -353,16 +351,16 @@ function (similar to Spacemacs/Doom/VSpaceCode).
       "j d" '(dired-jump :wk "dired-jump")))
 
   (use-package dired-single
-    :ensure t
+    :straight t
     :after dired)
 
   (use-package all-the-icons-dired
-    :ensure t
+    :straight t
     :after dired
     :hook (dired-mode-hook . all-the-icons-dired-mode))
 
   (use-package dired-hide-dotfiles
-    :ensure t
+    :straight t
     :after dired
     :hook (dired-mode-hook . dired-hide-dotfiles-mode)
     :init
@@ -431,7 +429,7 @@ Package to easily navigate cursor within buffers. Using this over evil-easymotio
 
 #+begin_src emacs-lisp
     (use-package avy
-      :ensure t
+      :straight t
       :after consult
       :config
       (leader-keys
@@ -448,7 +446,7 @@ Package to easily navigate cursor within buffers. Using this over evil-easymotio
 
 #+begin_src emacs-lisp
 (use-package tab-bar
-  :ensure t
+  :straight t
   :hook (server-after-make-frame-hook . (lambda () (tab-bar-rename-tab "main")))
   :init  
   (defun tab-bar-tab-name-format-comfortable (tab i)
@@ -481,14 +479,14 @@ Package to easily navigate cursor within buffers. Using this over evil-easymotio
 
 #+begin_src emacs-lisp
 (use-package all-the-icons
-  :ensure t)
+  :straight t)
 #+end_src
 
 ** Theme
 
 #+begin_src emacs-lisp
 (use-package doom-themes
-  :ensure t
+  :straight t
   :init
   (setq doom-themes-enable-bold t
 	doom-themes-enable-italic t)
@@ -602,7 +600,7 @@ This package depends on all-the-icons package. When installing Doom modeline for
 
 #+begin_src emacs-lisp
 ;; (use-package doom-modeline
-;;   :ensure t
+;;   :straight t
 ;;   :config
 ;;   (setq doom-modeline-fn-alist (remove '(battery . doom-modeline-segment--battery) doom-modeline-fn-alist))
 ;;   (doom-modeline-mode 1)
@@ -638,7 +636,7 @@ Currently trying =mood-line= over =doom-modeline= as the latter messes up the ba
 
 #+begin_src emacs-lisp
 (use-package mood-line
-  :ensure t
+  :straight t
   :init
   ;; (setq battery-mode-line-format (concat " " (duy/battery-icon) "%b%p% ")
   (setq mode-line-misc-info (remove '(global-mode-string ("" global-mode-string)) mode-line-misc-info))
@@ -710,7 +708,7 @@ Font settings for daemon mode:
 
 #+begin_src emacs-lisp
   (use-package vterm
-    :ensure t
+    :straight t
     :bind (:map vterm-mode-map
                 ("C-b" . vterm-send-C-b))
     :config
@@ -729,7 +727,7 @@ I also enabled directory tracking and named vterm buffer, see also here how to s
 
 #+begin_src emacs-lisp
 (use-package vterm-toggle
-  :ensure t
+  :straight t
   :custom
   (vterm-buffer-name-string "vterm: %s")
   (vterm-toggle-project-root t)
@@ -760,7 +758,7 @@ I also enabled directory tracking and named vterm buffer, see also here how to s
 
 #+begin_src emacs-lisp
 (use-package exec-path-from-shell
-  :ensure t
+  :straight t
   :if duy/is-macos
   :defer nil
   :config
@@ -776,7 +774,7 @@ I also enabled directory tracking and named vterm buffer, see also here how to s
 
 #+begin_src emacs-lisp
 (use-package vertico
-  :ensure t
+  :straight t
   :bind (:map vertico-map
               ("C-j" . vertico-next)
               ("C-k" . vertico-previous)
@@ -792,21 +790,14 @@ I also enabled directory tracking and named vterm buffer, see also here how to s
 *** Vertico-directory
 
 #+begin_src emacs-lisp
-(use-package vertico-directory
-  :after vertico
-  :ensure nil
-  ;; More convenient directory navigation commands
-  :bind (:map vertico-map
-              ("RET" . vertico-directory-enter)
-              ("DEL" . vertico-directory-delete-char)
-              ("C-<backspace>" . vertico-directory-delete-word)))
+
 #+end_src
 
 ** Orderless
 
 #+begin_src emacs-lisp
 (use-package orderless
-  :ensure t
+  :straight t
   :custom
   (completion-styles '(partial-completion orderless flex))
   (completion-category-defaults nil)
@@ -820,7 +811,7 @@ I also enabled directory tracking and named vterm buffer, see also here how to s
 #+begin_src emacs-lisp
 ;; Persist history over Emacs restarts. Vertico sorts by history position.
 (use-package savehist
-  :ensure t
+  :straight t
   :defer 2
   :config
   (savehist-mode))
@@ -830,8 +821,7 @@ I also enabled directory tracking and named vterm buffer, see also here how to s
 
 #+begin_src emacs-lisp
 (use-package marginalia
-  :pin melpa
-  :ensure t
+  :straight t
   :defer 3
   :custom (marginalia-annotators '(marginalia-annotators-light))
   :config
@@ -842,7 +832,7 @@ I also enabled directory tracking and named vterm buffer, see also here how to s
 
 #+begin_src emacs-lisp
 (use-package which-key
-  :ensure t
+  :straight t
   :defer 4
   :diminish which-key-mode
   :custom
@@ -855,7 +845,7 @@ I also enabled directory tracking and named vterm buffer, see also here how to s
 
 #+begin_src emacs-lisp
 ;; (use-package company
-;;   :ensure t
+;;   :straight t
 ;;   :defer t
 ;;   :diminish ""
 ;;   :custom
@@ -883,7 +873,7 @@ Alternative to company.
 
 #+begin_src emacs-lisp
 (use-package corfu
-  :ensure t
+  :straight t
   :bind (:map corfu-map
          ("C-j" . corfu-next)
          ("C-k" . corfu-previous)
@@ -903,7 +893,7 @@ Enabling icons in Corfu:
 
 #+begin_src emacs-lisp
 (use-package kind-icon
-  :ensure t
+  :straight t
   :after corfu
   :custom
   (kind-icon-default-face 'corfu-default) ; to compute blended backgrounds correctly
@@ -915,7 +905,7 @@ Enabling icons in Corfu:
 
 #+begin_src emacs-lisp
 (use-package consult
-  :ensure t
+  :straight t
   :bind (("C-s" . consult-line)
          :map minibuffer-local-map
          ("C-r" . consult-history)))
@@ -925,7 +915,7 @@ Enabling icons in Corfu:
 
 #+begin_src emacs-lisp
   (use-package embark
-    :ensure t
+    :straight t
     :bind
     (("C-;" . embark-act)          ;; pick some comfortable binding
      ("C-:" . embark-dwim)         ;; good alternative: M-.
@@ -942,7 +932,7 @@ Enabling icons in Corfu:
   ;; (("C-." . embark-act)))) ;; alternative for `describe-bindings'
 
   (use-package embark-consult
-    :ensure t
+    :straight t
     :after (embark consult)
     :demand t ; only necessary if you have the hook below
     ;; if you want to have consult previews as you move around an
@@ -969,7 +959,7 @@ Enabling icons in Corfu:
 
 #+begin_src emacs-lisp
 (use-package ace-window
-  :ensure t
+  :straight t
   :config
     (setq aw-keys '(?a ?s ?d ?f ?g ?h ?j ?k ?l)
           aw-dispatch-always t)
@@ -981,7 +971,7 @@ Enabling icons in Corfu:
 
 #+begin_src emacs-lisp
 (use-package popper
-  :ensure t
+  :straight t
   :bind (("C-`"   . popper-toggle-latest)
          ("M-`"   . popper-cycle)
          ("C-M-`" . popper-toggle-type)
@@ -1024,7 +1014,7 @@ Enabling icons in Corfu:
 
 #+begin_src emacs-lisp
 (use-package flyspell-correct
-  :ensure t
+  :straight t
   :after flyspell
   :bind ([remap ispell-word] . flyspell-correct-wrapper))
 #+end_src
@@ -1033,7 +1023,7 @@ Enabling icons in Corfu:
 
 #+begin_src emacs-lisp
 (use-package magit
-  :ensure t
+  :straight t
   :config
   (leader-keys
     "g"   '(:ignore t                 :wk "Git")
@@ -1183,7 +1173,7 @@ Enabling icons in Corfu:
 
 #+begin_src emacs-lisp
   (use-package org-bullets
-    :ensure t)
+    :straight t)
 
   (add-hook 'org-mode-hook (lambda () (org-bullets-mode 1)))
 #+end_src
@@ -1194,7 +1184,7 @@ Org-appear shows the emphasis markers when your cursor is on the text, even if ~
 
 #+begin_src emacs-lisp
 (use-package org-appear
-  :ensure t
+  :straight t
   :hook (org-mode-hook . org-appear-mode))
 #+end_src
 
@@ -1202,7 +1192,7 @@ Org-appear shows the emphasis markers when your cursor is on the text, even if ~
 
 #+begin_src emacs-lisp
   (use-package org-roam
-    :ensure t
+    :straight t
     :init
     (setq org-roam-v2-ack t)
     :custom
@@ -1248,7 +1238,7 @@ Vulpea is a package written by d12frosted with additional functions for org and 
 
 #+begin_src emacs-lisp
 (use-package vulpea
-  :ensure t)
+  :straight t)
 #+end_src
 
 *** s.el
@@ -1257,7 +1247,7 @@ s.el is an emacs string manipulation package.
 
 #+begin_src emacs-lisp
 (use-package s
-  :ensure t)
+  :straight t)
 #+end_src
 
 *** Dynamic org-agenda
@@ -1385,7 +1375,7 @@ Use org-super-agenda to group TODOs in agenda view.
 #+begin_src emacs-lisp
 
 (use-package org-super-agenda
-  :ensure t
+  :straight t
   :config
   (add-hook 'org-agenda-mode-hook 'org-super-agenda-mode)
   (setq org-super-agenda-header-map (make-sparse-keymap)))
@@ -1683,7 +1673,7 @@ Function to archive all done task in current org agenda/file.
 
 #+begin_src emacs-lisp
   (use-package powerthesaurus
-    :ensure t
+    :straight t
     :config
     (leader-keys
       "s d" '(powerthesaurus-lookup-dwim :wk "Powerthesaurus")))
@@ -1693,7 +1683,7 @@ Function to archive all done task in current org agenda/file.
 
 #+begin_src emacs-lisp
   (use-package olivetti
-    :ensure t
+    :straight t
     :defer t
     :diminish
     :custom
@@ -1729,7 +1719,7 @@ Keybindings for web-browsing:
 
 #+begin_src emacs-lisp
 (use-package project
-  :ensure t
+  :straight t
   :init
   (setq project-switch-commands '((project-find-file "Find file" "f")
                                   (project-find-dir "Find dir" "d")
@@ -1777,7 +1767,7 @@ Ensure =direnv= is installed via your OS package manager.
 
 #+begin_src emacs-lisp
 (use-package envrc
-  :ensure t
+  :straight t
   :init
   (envrc-global-mode 1))
 #+end_src
@@ -1786,7 +1776,7 @@ Ensure =direnv= is installed via your OS package manager.
 
 #+begin_src emacs-lisp
 (use-package eglot
-  :ensure t
+  :straight t
   :defer t
   :hook (python-mode-hook . eglot-ensure)
   :init
@@ -1808,7 +1798,7 @@ Ensure =direnv= is installed via your OS package manager.
 
 #+begin_src emacs-lisp
 (use-package python
-  :ensure t
+  :straight t
   :custom
   (python-indent-guess-indent-offset-verbose nil))
 #+end_src
@@ -1821,7 +1811,7 @@ Alternatives include [[https://github.com/jorgenschaefer/pyvenv][pyvenv.el]], [[
 
 #+begin_src emacs-lisp
 (use-package poetry
-  :ensure t
+  :straight t
   :defer t)
   ;; :config
   ;; ;; Checks for the correct virtualenv. Better strategy IMO because the default
@@ -1839,7 +1829,7 @@ Currently using in combination with =direnv= ([[https://github.com/direnv/direnv
 
 #+begin_src emacs-lisp
 (use-package blacken
-  :ensure t
+  :straight t
   :defer t
   :custom
   (blacken-allow-py36 t)
@@ -1851,7 +1841,7 @@ Currently using in combination with =direnv= ([[https://github.com/direnv/direnv
 
 #+begin_src emacs-lisp
 (use-package numpydoc
-  :ensure t
+  :straight t
   :defer t
   :custom
   (numpydoc-insert-examples-block nil)
@@ -1868,7 +1858,7 @@ Currently using in combination with =direnv= ([[https://github.com/direnv/direnv
 
 #+begin_src emacs-lisp
 ;; (use-package pyenv-mode
-;;   :ensure t)
+;;   :straight t)
 #+end_src
 
 *** conda
@@ -1883,7 +1873,7 @@ Furthermore, poetry is actually set up in a way to be able to use with conda as 
 
 #+begin_src emacs-lisp
 (use-package conda
-  :ensure t
+  :straight t
   :defer t)
 #+end_src
 
@@ -1905,7 +1895,7 @@ This has the following benefits compared to other things I tried:
 
 #+begin_src emacs-lisp
 (use-package rustic
-  :ensure t
+  :straight t
   :config
   (setq rustic-format-on-save t)
   (setq rustic-lsp-client 'eglot))
@@ -1936,7 +1926,7 @@ See also [[https://orgmode.org/manual/Using-Header-Arguments.html][here]] for mo
 #+begin_src emacs-lisp
 (when duy/is-wsl
   (use-package ahk-mode
-    :ensure t))
+    :straight t))
 #+end_src
 
 * PDF
@@ -1958,7 +1948,7 @@ See also [[https://orgmode.org/manual/Using-Header-Arguments.html][here]] for mo
 
 #+begin_src emacs-lisp
 (use-package pdf-tools
-  :ensure t
+  :straight t
   :init
   (pdf-tools-install)
   :bind (:map pdf-occur-buffer-mode-map
@@ -1973,7 +1963,7 @@ See also [[https://orgmode.org/manual/Using-Header-Arguments.html][here]] for mo
 ;; pdf-view-restore remembers last position in pdf before closing
 
 (use-package pdf-view-restore
-  :ensure t
+  :straight t
   :after pdf-tools
   :hook
   (pdf-view-mode-hook . pdf-view-restore-mode)
@@ -1986,7 +1976,7 @@ See also [[https://orgmode.org/manual/Using-Header-Arguments.html][here]] for mo
 #+begin_src emacs-lisp
 (when (string= system-name "Duys-MBP.home")
   (use-package ledger-mode
-    :ensure t
+    :straight t
     :custom
     (ledger-reports '(("Balance (EUR)" "%(binary) -f %(ledger-file) bal --exchange EUR --price-db .pricedb Assets Liabilities")
                       ("Balance (MV)" "%(binary) -f %(ledger-file) bal -V --price-db .pricedb Assets Liabilities")

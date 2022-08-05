@@ -315,8 +315,7 @@ function (similar to Spacemacs/Doom/VSpaceCode).
   (general-create-definer local-leader-keys
     :states '(normal visual emacs motion) ; consider adding motion for using with easymotion
     :keymaps 'override 
-    :prefix "SPC m")
-  )
+    :prefix ","))
 #+end_src
 
 *** Eval keybindings

@@ -465,14 +465,11 @@ Package to easily navigate cursor within buffers. Using this over evil-easymotio
   (tab-bar-select-tab-modifiers '(meta))
   :custom-face
   (tab-bar ((t (:background nil :inherit 'mode-line :font "IBM Plex Mono" :height 1.0 :foreground "white"))))
-  (tab-bar-tab ((t (:bold t :height 1.1 :foreground "sienna"))))
-  (tab-bar-tab-inactive ((t (:background nil :inherit 'mode-line :height 1.1 ))))
+  (tab-bar-tab ((t (:bold t :height 1.0 :foreground "sienna"))))
+  (tab-bar-tab-inactive ((t (:background nil :inherit 'mode-line :height 1.0 ))))
   :config
   (leader-keys
     "t" '(:keymap tab-prefix-map :wk "Tabs")))
-
-
-;; (setq global-mode-string '(" " display-time-string battery-mode-line-string))  ; Should be set after doom-modeline because it resets this value
 #+end_src
 
 * Themes and fonts

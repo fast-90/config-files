@@ -1958,14 +1958,18 @@ See also [[https://orgmode.org/manual/Using-Header-Arguments.html][here]] for mo
   :straight t
   :init
   (pdf-tools-install)
+  :hook
+  (pdf-view-mode-hook . evil-collection-pdf-setup))
+
+(use-package pdf-occur
+  :straight nil
+  :after pdf-tools
   :bind (:map pdf-occur-buffer-mode-map
               ("C-<return>" . pdf-occur-view-occurrence)
               ("C-j" . duy/pdf-occur-view-next)
               ("C-k" . duy/pdf-occur-view-prev)
               :map pdf-view-mode-map
-              ("C-s" . pdf-occur))
-  :hook
-  (pdf-view-mode-hook . evil-collection-pdf-setup))
+              ("C-s" . pdf-occur)))
 
 ;; pdf-view-restore remembers last position in pdf before closing
 

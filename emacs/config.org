@@ -1069,7 +1069,7 @@ Enabling icons in Corfu:
 
 #+begin_src emacs-lisp
   (use-package org
-    :straight t
+    :straight (:type built-in)
     :init
     (org-babel-do-load-languages
      'org-babel-load-languages

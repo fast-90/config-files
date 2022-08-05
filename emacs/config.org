@@ -549,10 +549,10 @@ This section contains my custom setup to format =battery-mode-line-string=, whic
 (defun duy/battery-icon ()
   "Set battery icon based on battery charge status and percentage"
   (if (duy/charging) (all-the-icons-faicon "plug" :v-adjust 0.04)
-    (if (> (duy/battery-percentage) 95.0) (all-the-icons-faicon "battery-full" :v-adjust 0.04)
-      (if (> (duy/battery-percentage) 70.0) (all-the-icons-faicon "battery-three-quarters" :v-adjust 0.04)
-        (if (> (duy/battery-percentage) 40.0) (all-the-icons-faicon "battery-half" :v-adjust 0.04)
-          (if (> (duy/battery-percentage) battery-load-critical) (all-the-icons-faicon "battery-quarter" :v-adjust 0.04) (all-the-icons-faicon "battery-empty" :v-adjust 0.04)))))))
+    (if (> (duy/battery-percentage) 95.0) (all-the-icons-faicon "battery-full" :v-adjust -0.05)
+      (if (> (duy/battery-percentage) 70.0) (all-the-icons-faicon "battery-three-quarters" :v-adjust -0.05)
+        (if (> (duy/battery-percentage) 40.0) (all-the-icons-faicon "battery-half" :v-adjust -0.05)
+          (if (> (duy/battery-percentage) battery-load-critical) (all-the-icons-faicon "battery-quarter" :v-adjust -0.05) (all-the-icons-faicon "battery-empty" :v-adjust -0.05)))))))
 
 (defface duy/battery-charging
   '((t :foreground "ForestGreen" :weight normal)) "")

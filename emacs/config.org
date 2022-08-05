@@ -1995,15 +1995,18 @@ See also [[https://orgmode.org/manual/Using-Header-Arguments.html][here]] for mo
     :config
     (local-leader-keys
       :keymaps '(ledger-mode-map ledger-report-mode-map)
-      "r" '(ledger-report :wk "Report")
       "a" '(ledger-add-transaction :wk "Add transaction")
-      "e" '(ledger-report-edit-report :wk "Edit report")
-      "g" '(ledger-report-goto :wk "Go to report")
-      "s" '(ledger-report-save :wk "Save report"))
+      "o" '(nil :wk "Report")
+      "o r" '(ledger-report :wk "Report")
+      "o e" '(ledger-report-edit-report :wk "Edit report")
+      "o g" '(ledger-report-goto :wk "Go to report")
+      "o s" '(ledger-report-save :wk "Save report")
+      "r" '(nil :wk "Reconcile")
+      "r r" '(ledger-reconcile :wk "Reconcile")
+      "r q" '(ledger-reconcile-quit :wk "Quit"))
     (general-define-key
      :states '(normal motion override)
      :keymaps '(ledger-report-mode-map)
      "q"  'ledger-report-quit
      "r"  'ledger-report-redo)))
 #+end_src
-

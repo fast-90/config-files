@@ -1139,6 +1139,7 @@ Enabling icons in Corfu:
   ;; Remove the empty space added during clock in when clocking out
   ((org-clock-out-hook org-clock-cancel-hook). (lambda ()
                           (setq global-mode-string (delete " " global-mode-string))))
+  (kill-emacs-hook . org-save-all-org-buffers)
   :bind
   (:map org-mode-map
         ("C-M-h" . org-shiftleft)

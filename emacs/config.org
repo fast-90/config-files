@@ -472,6 +472,13 @@ Package to easily navigate cursor within buffers. Using this over evil-easymotio
     "t" '(:keymap tab-prefix-map :wk "Tabs")))
 #+end_src
 
+** Tab-bookmark
+
+#+begin_src emacs-lisp
+(use-package tab-bookmark
+  :straight (tab-bookmark :type git :host github :repo "minad/tab-bookmark"))
+#+end_src
+
 * Themes and fonts
 
 ** all-the-icons

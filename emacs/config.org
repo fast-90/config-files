@@ -1087,6 +1087,7 @@ Enabling icons in Corfu:
     (font-lock-add-keywords 'org-mode
                             '(("^ *\\([-]\\) "
                                (0 (prog1 () (compose-region (match-beginning 1) (match-end 1) "•"))))))
+    (setq org-format-latex-options (plist-put org-format-latex-options :scale 1.3))
     :custom
     (org-confirm-babel-evaluate nil)     ; Do not ask for confirmation when evaluating src blocks
     (org-catch-invisible-edits 'show)    ; When making invisible edits, show the location of the edit

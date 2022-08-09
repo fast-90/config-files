@@ -482,6 +482,7 @@ Font settings for daemon mode:
 #+begin_src emacs-lisp
 (defun duy/setup-font-faces-daemon()
   (when (daemonp)
+    (set-face-attribute 'tab-bar nil :font (font-spec :family "IBM Plex Mono" :size duy/default-font-size))
     (set-face-attribute 'default nil :font (font-spec :family duy/default-font :size duy/default-font-size))
     (set-face-attribute 'fixed-pitch nil :font (font-spec :family duy/default-font :size duy/default-font-size))
     (set-face-attribute 'variable-pitch nil :font (font-spec :family duy/variable-font :size duy/variable-font-size))))

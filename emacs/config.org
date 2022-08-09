@@ -1105,6 +1105,7 @@ Enabling icons in Corfu:
                                     ("E" . "export")
                                     ("l" . "export latex")
                                     ("py" . "src python")
+                                    ("ru" . "src rust")
                                     ("sh" . "src h")
                                     ("q" . "quote")
                                     ("s" . "src")

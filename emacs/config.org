@@ -642,9 +642,9 @@ Currently trying =mood-line= over =doom-modeline= as the latter messes up the ba
 
 #+begin_src emacs-lisp
 (use-package mood-line
-  :straight t
+  :straight (:host gitlab :repo "trev-dev/mood-line")
   :init
-  ;; (setq battery-mode-line-format (concat " " (duy/battery-icon) "%b%p% ")
+  ;; (setq battery-mode-line-format (concat " " (duy/battery-icon) "%b%p% "))
   (setq mode-line-misc-info (remove '(global-mode-string ("" global-mode-string)) mode-line-misc-info))
   (mood-line-mode)
   :custom

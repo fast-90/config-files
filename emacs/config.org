@@ -1139,7 +1139,7 @@ Enabling icons in Corfu:
                                     ("el" . "src emacs-lisp")
                                     ("d" . "definition")
                                     ("t" . "theorem")))
-    (org-clock-mode-line-total 'current)
+    (org-clock-mode-line-total 'today)
     :custom-face
     (org-document-title ((t (:weight bold :height 1.5))))
     (org-done ((t (:strike-through t :weight bold))))

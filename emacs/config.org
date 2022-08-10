@@ -1021,6 +1021,19 @@ Package to easily navigate cursor within buffers. Using this over evil-easymotio
         "j h" '(consult-outline     :wk "Jump to heading")))
 #+end_src
 
+** ace-link
+
+#+begin_src emacs-lisp
+(use-package ace-link
+  :straight t
+  :config
+  (evil-collection-define-key 'normal 'helpful-mode-map
+   "o" 'ace-link-help)
+  :general
+  (local-leader-keys
+    "o" '(ace-link-org :wk "Open link")))
+#+end_src
+
 * Popper
 
 #+begin_src emacs-lisp
@@ -1202,8 +1215,7 @@ Package to easily navigate cursor within buffers. Using this over evil-easymotio
       :keymaps 'org-mode-map
       "I" '(org-clock-in      :wk "Clock in")
       "O" '(org-clock-out     :wk "Clock out")
-      "C" '(org-clock-cancel  :wk "Clock cancel")
-      "o" '(org-open-at-point :wk "Open link")))
+      "C" '(org-clock-cancel  :wk "Clock cancel")))
 #+end_src
 
 ** Capture templates

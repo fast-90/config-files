@@ -51,6 +51,7 @@ Add MELPA/ELPA/Non-GNU/ELPA-dev to package archives.
 (use-package bind-key :straight t :after use-package) ;; if you use any :bind variant
 (use-package delight :straight t :after use-package)  ;; Use delighting for modes
 #+end_src
+
 * Default settings 
 
 #+begin_src emacs-lisp
@@ -521,6 +522,11 @@ Other good themes:
   (setq modus-themes-mode-line '(accented))
   (setq modus-themes-markup '(background intense))
   (setq modus-themes-mixed-fonts t)
+  (setq modus-themes-headings
+        '((0 . (bold 1.5))
+          (1 . (rainbow overline bold 1.3))
+          (2 . (bold 1.2))
+          (3 . (bold 1.1))))
   (defun duy/modus-themes-toggle ()
     "Toggle between `modus-operandi' and `modus-vivendi' themes.
 This uses `enable-theme' instead of the standard method of
@@ -537,8 +543,8 @@ manual."
       (_ (error "No Modus theme is loaded; evaluate `modus-themes-load-themes' first"))))
   :config
   (load-theme 'modus-vivendi t)
+  (load-theme 'modus-operandi t t)
   (set-face-attribute 'tab-bar nil :font (font-spec :family "IBM Plex Mono" :size duy/default-font-size))  ; Loading modus theme resets tab-bar font, so we need to set it (again)
-  :general
   (leader-keys
     "T" '(nil :wk "Toggle")
     "T T" '(duy/modus-themes-toggle :wk "Toggle modus theme")))
@@ -1172,12 +1178,12 @@ Package to easily navigate cursor within buffers. Using this over evil-easymotio
                                     ("t" . "theorem")))
     (org-clock-mode-line-total 'today)
     :custom-face
-    (org-document-title ((t (:weight bold :height 1.5))))
-    (org-done ((t (:strike-through t :weight bold))))
-    (org-headline-done ((t (:strike-through t))))
-    (org-level-1 ((t (:height 1.3 :weight bold))))
-    (org-level-2 ((t (:height 1.2 :weight bold))))
-    (org-level-3 ((t (:height 1.1 :weight bold))))
+    ;; (org-document-title ((t (:weight bold :height 1.5))))
+    ;; (org-done ((t (:strike-through t :weight bold))))
+    ;; (org-headline-done ((t (:strike-through t))))
+    ;; (org-level-1 ((t (:height 1.3 :weight bold))))
+    ;; (org-level-2 ((t (:height 1.2 :weight bold))))
+    ;; (org-level-3 ((t (:height 1.1 :weight bold))))
     (org-image-actual-width (/ (display-pixel-width) 2))
     ;; (org-block ((nil (:foreground nil :inherit 'fixed-pitch))))
     ;; (org-table ((nil (:inherit 'fixed-pitch))))

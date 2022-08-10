@@ -527,18 +527,19 @@ Other good themes:
 *** Modus themes
 
 #+begin_src emacs-lisp
-(use-package emacs
+(use-package modus-themes
+  :straight t
   :init
   (setq modus-themes-subtle-line-numbers t)
   (setq modus-themes-hl-line '(intense))
-  (setq modus-themes-region '(accented))
+  (setq modus-themes-region '(bg-only accented))
   (setq modus-themes-paren-match '(intense))
   (setq modus-themes-org-blocks 'gray-background)
   (setq modus-themes-completions
         '((selection . (accented))))
   (setq modus-themes-mode-line '(accented))
   :config
-  (load-theme 'modus-vivendi)
+  (load-theme 'modus-vivendi t t)
   (set-face-attribute 'tab-bar nil :font (font-spec :family "IBM Plex Mono" :size duy/default-font-size)))  ; Loading modus theme resets tab-bar font, so we need to set it (again)
 #+end_src
 

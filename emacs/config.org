@@ -455,7 +455,7 @@ The used fonts have different names on different computers:
     (setq duy/default-font "FiraMono Nerd Font Mono"
           duy/variable-font "IBM Plex Sans"
           duy/default-font-size 13.0
-          duy/variable-font-size 13.0)
+          duy/variable-font-size 14.0)
   (if (string= system-name "NL5CG1462QH6")
       (setq duy/default-font "FiraMono Nerd Font Mono"
             duy/variable-font "IBM Plex Sans"
@@ -538,8 +538,10 @@ Other good themes:
   (setq modus-themes-completions
         '((selection . (accented))))
   (setq modus-themes-mode-line '(accented))
+  (setq modus-themes-markup '(background intense))
+  (setq modus-themes-mixed-fonts t)
   :config
-  (load-theme 'modus-vivendi t t)
+  (load-theme 'modus-vivendi t)
   (set-face-attribute 'tab-bar nil :font (font-spec :family "IBM Plex Mono" :size duy/default-font-size)))  ; Loading modus theme resets tab-bar font, so we need to set it (again)
 #+end_src
 
@@ -1146,16 +1148,16 @@ Enabling icons in Corfu:
     (org-level-2 ((t (:height 1.2 :weight bold))))
     (org-level-3 ((t (:height 1.1 :weight bold))))
     (org-image-actual-width (/ (display-pixel-width) 2))
-    (org-block ((nil (:foreground nil :inherit 'fixed-pitch))))
-    (org-table ((nil (:inherit 'fixed-pitch))))
-    (org-formula ((nil (:inherit 'fixed-pitch))))
-    (org-code ((nil (:inherit (shadow fixed-pitch)))))
-    (org-indent ((nil (:inherit (org-hide fixed-pitch)))))
-    (org-verbatim ((nil (:inherit (shadow fixed-pitch)))))
-    (org-special-keyword ((nil (:inherit (font-lock-comment-face fixed-pitch)))))
-    (org-meta-line ((nil (:inherit (font-lock-comment-face fixed-pitch)))))
-    (org-checkbox ((nil (:inherit 'fixed-pitch))))
-    (org-block-begin-line ((nil (:inherit 'fixed-pitch))))
+    ;; (org-block ((nil (:foreground nil :inherit 'fixed-pitch))))
+    ;; (org-table ((nil (:inherit 'fixed-pitch))))
+    ;; (org-formula ((nil (:inherit 'fixed-pitch))))
+    ;; (org-code ((nil (:inherit (shadow fixed-pitch)))))
+    ;; (org-indent ((nil (:inherit (org-hide fixed-pitch)))))
+    ;; (org-verbatim ((nil (:inherit (shadow fixed-pitch)))))
+    ;; (org-special-keyword ((nil (:inherit (font-lock-comment-face fixed-pitch)))))
+    ;; (org-meta-line ((nil (:inherit (font-lock-comment-face fixed-pitch)))))
+    ;; (org-checkbox ((nil (:inherit 'fixed-pitch))))
+    ;; (org-block-begin-line ((nil (:inherit 'fixed-pitch))))
     :hook
     (org-mode-hook . duy/org-mode-setup)
     ;; Prepend org-mode-line-string to global-mode-string when clocking in

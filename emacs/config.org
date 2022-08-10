@@ -1,8 +1,8 @@
 * Package management
 
-** Set package archives
+** Set straight.el
 
-Add MELPA/ELPA/Non-GNU/ELPA-dev to package archives.
+Bootstrap code as per the instructions:
 
 #+begin_src emacs-lisp
 (setq straight-check-for-modifications '(find-when-checking))
@@ -50,6 +50,15 @@ Add MELPA/ELPA/Non-GNU/ELPA-dev to package archives.
 (use-package diminish :straight t :after use-package) ;; if you use :diminish
 (use-package bind-key :straight t :after use-package) ;; if you use any :bind variant
 (use-package delight :straight t :after use-package)  ;; Use delighting for modes
+#+end_src
+
+** use-package-ensure-system-package
+
+This =use-package= extension allows us to use the =:ensure-system-package= keyword to only install/load packages if a certain binary package is available.
+
+#+begin_src emacs-lisp
+(use-package use-package-ensure-system-package
+  :straight t)
 #+end_src
 
 * Default settings 
@@ -1743,15 +1752,13 @@ Function to archive all done task in current org agenda/file.
 Open URLs in qutebrowser:
 
 #+begin_src emacs-lisp
+(use-package emacs
+  :ensure-system-package qutebrowser
+  :config
   (setq browse-url-browser-function 'browse-url-generic
         browse-url-generic-program "qutebrowser")
-#+end_src
-
-Keybindings for web-browsing:
-
-#+begin_src emacs-lisp
   (leader-keys
-    "u" '(browse-url :wk "Browse URL"))
+    "u" '(browse-url :wk "Browse URL")))
 #+end_src
 
 * Pandoc
@@ -1930,6 +1937,7 @@ This has the following benefits compared to other things I tried:
 #+begin_src emacs-lisp
 (use-package rustic
   :straight t
+  :ensure-system-package rustup
   :config
   (setq rustic-format-on-save t)
   (setq rustic-lsp-client 'eglot))
@@ -1940,6 +1948,7 @@ This has the following benefits compared to other things I tried:
 #+begin_src emacs-lisp
 (use-package jupyter
   :straight t
+  :ensure-system-package jupyter
   :bind (:map jupyter-repl-mode-map 
               ("C-j" . 'jupyter-repl-forward-cell)
               ("C-k" . 'jupyter-repl-backward-cell))
@@ -2015,6 +2024,7 @@ See also [[https://orgmode.org/manual/Using-Header-Arguments.html][here]] for mo
 (when (string= system-name "Duys-MBP.home")
   (use-package ledger-mode
     :straight t
+    :ensure-system-package ledger
     :custom
     (ledger-reports '(("Balance (EUR)" "%(binary) -f %(ledger-file) bal --exchange EUR --price-db .pricedb Assets Liabilities")
                       ("Balance (MV)" "%(binary) -f %(ledger-file) bal -V --price-db .pricedb Assets Liabilities")

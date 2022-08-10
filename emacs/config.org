@@ -529,9 +529,11 @@ manual."
     (interactive)
     (pcase (modus-themes--current-theme)
       ('modus-operandi (progn (enable-theme 'modus-vivendi)
-                              (disable-theme 'modus-operandi)))
+                              (disable-theme 'modus-operandi)
+                              (org-mode-restart)))
       ('modus-vivendi (progn (enable-theme 'modus-operandi)
-                             (disable-theme 'modus-vivendi)))
+                             (disable-theme 'modus-vivendi)
+                             (org-mode-restart)))
       (_ (error "No Modus theme is loaded; evaluate `modus-themes-load-themes' first"))))
   :config
   (load-theme 'modus-vivendi t)

@@ -726,7 +726,9 @@ Currently trying =mood-line= over =doom-modeline= as the latter messes up the ba
 
 #+begin_src emacs-lisp
 (use-package tab-bookmark
-  :straight (tab-bookmark :type git :host github :repo "minad/tab-bookmark"))
+  :straight (tab-bookmark :type git :host github :repo "minad/tab-bookmark")
+  :init
+  (setq bookmark-set-fringe-mark nil))
 #+end_src
 
 * Terminals

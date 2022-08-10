@@ -330,7 +330,7 @@ function (similar to Spacemacs/Doom/VSpaceCode).
   "e r"   '(eval-region     :wk "Eval region"))
 #+end_src
 
-* Navigation
+* File and buffer management
 
 ** Dired
 
@@ -424,25 +424,6 @@ Keybindings for buffer management.
  "f S" '(write-file          :wk "Save file as...")
  "f U" '(sudo-edit           :wk "Sudo edit file"))
 #+End_src
-
-** Avy
-
-Package to easily navigate cursor within buffers. Using this over evil-easymotion because Avy does not distinguish between forward and backward and allows jumping across visible buffers.
-
-#+begin_src emacs-lisp
-    (use-package avy
-      :straight t
-      :after consult
-      :config
-      (leader-keys
-        "j"   '(:ignore t           :wk "Jump to")
-        "j f" '(avy-goto-char       :wk "Find char")
-        "j s" '(avy-goto-char-2     :wk "Find char 2")
-        "j c" '(avy-goto-char-timer :wk "Find char timer")
-        "j j" '(avy-goto-char-timer :wk "Find char timer")
-        "j l" '(avy-goto-line       :wk "Jump to line")
-        "j h" '(consult-outline     :wk "Jump to heading")))
-#+end_src
 
 * Fonts and themes
 
@@ -1021,6 +1002,25 @@ Enabling icons in Corfu:
       "w" '(ace-window :wk "ace-window")))
 #+end_src
   
+** Avy
+
+Package to easily navigate cursor within buffers. Using this over evil-easymotion because Avy does not distinguish between forward and backward and allows jumping across visible buffers.
+
+#+begin_src emacs-lisp
+    (use-package avy
+      :straight t
+      :after consult
+      :config
+      (leader-keys
+        "j"   '(:ignore t           :wk "Jump to")
+        "j f" '(avy-goto-char       :wk "Find char")
+        "j s" '(avy-goto-char-2     :wk "Find char 2")
+        "j c" '(avy-goto-char-timer :wk "Find char timer")
+        "j j" '(avy-goto-char-timer :wk "Find char timer")
+        "j l" '(avy-goto-line       :wk "Jump to line")
+        "j h" '(consult-outline     :wk "Jump to heading")))
+#+end_src
+
 * Popper
 
 #+begin_src emacs-lisp

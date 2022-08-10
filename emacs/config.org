@@ -886,35 +886,7 @@ I also enabled directory tracking and named vterm buffer, see also here how to s
   (which-key-mode 1))
 #+end_src
 
-** Company
-
-#+begin_src emacs-lisp
-;; (use-package company
-;;   :straight t
-;;   :defer t
-;;   :diminish ""
-;;   :custom
-;;   (company-dabbrev-other-buffers t)
-;;   (company-dabbrev-code-other-buffers t)
-;;   ;; M-<num> to select an option according to its number.
-;;   (company-show-numbers t)
-;;   ;; Only 2 letters required for completion to activate.
-;;   (company-minimum-prefix-length 3)
-;;   ;; Do not downcase completions by default.
-;;   (company-dabbrev-downcase nil)
-;;   ;; Even if I write something with the wrong case,
-;;   ;; provide the correct casing.
-;;   (company-dabbrev-ignore-case t)
-;;   ;; company completion wait
-;;   (company-idle-delay 0.2)
-;;   ;; No company-mode in shell & eshell
-;;   (company-global-modes '(not eshell-mode shell-mode))
-;;   :hook ((prog-mode-hook . company-mode)))
-#+end_src
-
 ** Corfu
-
-Alternative to company.
 
 #+begin_src emacs-lisp
 (use-package corfu
@@ -984,18 +956,6 @@ Enabling icons in Corfu:
     ;; auto-updating embark collect buffer
     :hook
     (embark-collect-mode . consult-preview-at-point-mode))
-#+end_src
-
-*** WSL/Windows specific Embark actions
-
-#+begin_src emacs-lisp
-;; (when (and (eq system-type 'gnu/linux)
-;;            (string-match "WSL" operating-system-release))
-;; (bind-keys
-;;    :map embark-url-map
-;;    ("e" . browse-url-edge)
-;;    :map embark-file-map
-;;    ("<C-return>" . duy/open-file-with-wsl)))
 #+end_src
 
 * Windows and movement
@@ -1933,15 +1893,6 @@ Currently using in combination with =direnv= ([[https://github.com/direnv/direnv
   (local-leader-keys
     :keymaps 'python-mode-map
     "n" '(numpydoc-generate :wk "Generate docstring")))
-#+end_src
-
-*** Pyenv-mode
-
-~pyenv-mode~ is used to (de)activate pyenv environments via ~pyenv-mode-set~ and ~pyenv-mode-unset~. This allows us to start a REPL or Jupyter (org) notebook in the correct environment.
-
-#+begin_src emacs-lisp
-;; (use-package pyenv-mode
-;;   :straight t)
 #+end_src
 
 *** conda

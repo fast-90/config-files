@@ -1468,7 +1468,12 @@ Set todo keywords, tags etc.
 
 (setq org-todo-keywords
       '((sequence "TODO(t)" "NEXT(n)" "|" "DONE(d)")
-        (sequence "WAITING(w@/!)" "HOLD(h@/!)" "|" "CANCELLED(c)")))
+        (sequence "WAITING(w!)" "HOLD(h!)" "|" "CANCELLED(c)")))
+
+(setq org-todo-keyword-faces
+      '(("TODO" . '(org-todo))
+        ("NEXT" . '(bold org-todo))
+        ("WAITING" . '(shadow org-todo))))
 
 (setq org-log-done 'time
       org-log-into-drawer t

@@ -1150,6 +1150,8 @@ Package to easily navigate cursor within buffers. Using this over evil-easymotio
     (org-clock-mode-line-total 'today)
     :custom-face
     ;; (org-document-title ((t (:weight bold :height 1.5))))
+    (org-headline-done ((t (:inherit 'shadow :strike-through t))))
+    (org-agenda-done ((t (:inherit 'shadow))))
     ;; (org-done ((t (:strike-through t :weight bold))))
     ;; (org-headline-done ((t (:strike-through t))))
     ;; (org-level-1 ((t (:height 1.3 :weight bold))))

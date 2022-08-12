@@ -1108,7 +1108,7 @@ Package to easily navigate cursor within buffers. Using this over evil-easymotio
 
 #+begin_src emacs-lisp
   (use-package org
-    :straight (:type built-in)
+    :straight t
     :init
     (org-babel-do-load-languages
      'org-babel-load-languages

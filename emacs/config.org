@@ -1339,21 +1339,15 @@ Org-appear shows the emphasis markers when your cursor is on the text, even if ~
 Enable clocktables to use file title instead of file name. Temporary fix until [[file:~/.emacs.default/straight/repos/org/0001-lisp-org-clock.el-Show-file-title-in-org-clock-clock.patch][patch]] has been sent and merged to main.
 
 #+begin_src emacs-lisp
-(defun org-clock-get-file-prop (file-name name)
-  "Get a property from FILE-NAME called NAME as a string. Returns
-short FILE-NAME if property is not found."
+(defun org-clock-get-file-title (file-name)
+  "Get the file title from FILE-NAME as a string. Returns short
+FILE-NAME if title is not found."
   (with-current-buffer (find-file-noselect file-name)
-    (org-with-point-at 1
-      (if (re-search-forward (concat "^#\\+" name ": \\(.*\\)")
-                             (point-max) t)
-          (let ((value (string-trim
-                        (buffer-substring-no-properties
-                         (match-beginning 1)
-                         (match-end 1)))))
-            (unless (string-empty-p value)
-              value))
-        (let ((value (file-name-nondirectory file-name)))
-          value)))))
+    (let ((macros (org-macro--collect-macros)))
+      (let ((title (assoc-default "title" macros)))
+        (if (null title)
+            (file-name-nondirectory file-name)
+          title)))))
 #+end_src
 
 #+begin_src emacs-lisp
@@ -1519,7 +1513,7 @@ from the dynamic block definition."
 			     "\n")
 
                      (if filetitle
-                         (org-clock-get-file-prop file-name "title")
+                         (org-clock-get-file-title file-name)
                        (file-name-nondirectory file-name))
 		     (if level?    "| " "") ;level column, maybe
 		     (if timestamp "| " "") ;timestamp column, maybe

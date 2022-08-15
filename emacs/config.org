@@ -2082,6 +2082,29 @@ Function to archive all done task in current org agenda/file.
     (olivetti-fringe ((t (:background "#122")))))
 #+end_src
 
+** Logos
+
+#+begin_src emacs-lisp
+(use-package logos
+  :straight t
+  :init
+  (setq logos-outlines-are-pages t)
+  (setq-default logos-olivetti t)
+  (let ((map global-map))
+    (define-key map [remap narrow-to-region] #'logos-narrow-dwim)
+    (define-key map [remap forward-page] #'logos-forward-page-dwim)
+    (define-key map [remap backward-page] #'logos-backward-page-dwim)
+    (define-key map (kbd "<f9>") #'logos-focus-mode))
+  :bind
+  (:map logos-focus-mode-map
+        ("M-[" . logos-backward-page-dwim)
+        ("M-]" . logos-forward-page-dwim))
+  :config
+  (local-leader-keys
+    :map 'logos-focus-mode-map
+    "n" '(:keymap narrow-map :wk "Narrow")))
+#+end_src
+
 * Web browsing
 
 Open URLs in qutebrowser:

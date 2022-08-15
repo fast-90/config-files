@@ -51,19 +51,17 @@
 ;;; early-init.el ends here
 #+end_src
 
-* Lexical bindings
+* =init.el=
 
-#+begin_src emacs-lisp
-;; -*- lexical-binding: t; -*-
-#+end_src
+The code in this section is tangled to =init.el=. Loading this file with ~org-babel-load-file~ requires loading ~org~. Hence, if we want to use the latest version of ~org~ via ~straight~, we need to ensure both packages are loaded in =init.el=.
 
-* Package management
+** Package management
 
-** Set straight.el
+*** Set straight.el
 
 Bootstrap code as per the instructions:
 
-#+begin_src emacs-lisp
+#+begin_src emacs-lisp :tangle (expand-file-name "init.el" user-emacs-directory)
 (setq straight-check-for-modifications '(find-when-checking))
 
 (defvar bootstrap-version)
@@ -82,9 +80,9 @@ Bootstrap code as per the instructions:
 (straight-use-package 'use-package)
 #+end_src
 
-** Setup use-package
+*** Setup use-package
 
-#+begin_src emacs-lisp
+#+begin_src emacs-lisp :tangle (expand-file-name "init.el" user-emacs-directory)
 ;; Make sure `use-package' is available.
 
 ;; Configure `use-package' prior to loading it.
@@ -111,13 +109,110 @@ Bootstrap code as per the instructions:
 (use-package delight :straight t :after use-package)  ;; Use delighting for modes
 #+end_src
 
-** use-package-ensure-system-package
+*** use-package-ensure-system-package
 
 This =use-package= extension allows us to use the =:ensure-system-package= keyword to only install/load packages if a certain binary package is available.
 
-#+begin_src emacs-lisp
+#+begin_src emacs-lisp :tangle (expand-file-name "init.el" user-emacs-directory)
 (use-package use-package-ensure-system-package
   :straight t)
+#+end_src
+
+*** Load config with org mode
+
+Use latest version of ~org~ via ~straight~.
+
+#+begin_src emacs-lisp :tangle (expand-file-name "init.el" user-emacs-directory)
+;; (defun duy/org-mode-setup ()
+;;   (variable-pitch-mode 1)
+;;   (visual-line-mode 1)
+;;   (evil-org-mode 1)
+;;   (display-line-numbers-mode 0)
+;;   (setq flyspell-generic-check-word-predicate 'org-mode-flyspell-verify)  ;; Don't spell check src blocks
+;;   (setq-local corfu-auto nil))  ;; Don't auto complete in org-buffers (to avoid org-roam link inserts)
+#+end_src
+
+#+begin_src emacs-lisp :tangle (expand-file-name "init.el" user-emacs-directory)
+;; (use-package org
+;;   :straight t
+;;   :init
+;;   (org-babel-do-load-languages
+;;    'org-babel-load-languages
+;;    '((emacs-lisp . t)
+;;      (python . t)))
+;;   (with-eval-after-load 'flycheck
+;;     (flycheck-add-mode 'proselint 'org-mode))
+;;   ;; Change bullets to actual bullets
+;;   (font-lock-add-keywords 'org-mode
+;;                           '(("^ *\\([-]\\) "
+;;                              (0 (prog1 () (compose-region (match-beginning 1) (match-end 1) "•"))))))
+;;   (setq org-format-latex-options (plist-put org-format-latex-options :scale 1.3))
+;;   :custom
+;;   (org-confirm-babel-evaluate nil)     ; Do not ask for confirmation when evaluating src blocks
+;;   (org-catch-invisible-edits 'show)    ; When making invisible edits, show the location of the edit
+;;   (org-ellipsis " ▼ ")
+;;   (org-src-fontify-natively t)         ; Fontify code in src blocks
+;;   (org-edit-src-content-indentation 2) ; Indentation within the src blocks
+;;   (org-startup-indented t)             ; Org headings are indented, as is the text within the headings
+;;   (org-hide-leading-stars nil)
+;;   (org-src-preserve-indentation t)
+;;   (org-hide-emphasis-markers t)        ; Hide markers around emphasised word (e.g. *bold*, /italic/ etc.)
+;;   (org-adapt-indentation t)
+;;   (org-structure-template-alist '(("a" . "export ascii")
+;;                                   ("c" . "center")
+;;                                   ("C" . "comment")
+;;                                   ("e" . "example")
+;;                                   ("E" . "export")
+;;                                   ("l" . "export latex")
+;;                                   ("py" . "src python")
+;;                                   ("ru" . "src rust")
+;;                                   ("sh" . "src h")
+;;                                   ("q" . "quote")
+;;                                   ("s" . "src")
+;;                                   ("v" . "verse")
+;;                                   ("el" . "src emacs-lisp")
+;;                                   ("d" . "definition")
+;;                                   ("t" . "theorem")))
+;;   (org-clock-mode-line-total 'today)
+;;   :custom-face
+;;   (org-headline-done ((t (:inherit 'shadow :strike-through t))))
+;;   (org-agenda-done ((t (:inherit 'shadow))))
+;;   (org-image-actual-width (/ (display-pixel-width) 2))
+;;   :hook
+;;   (org-mode-hook . duy/org-mode-setup)
+;;   ;; Prepend org-mode-line-string to global-mode-string when clocking in
+;;   (org-clock-in-hook . (lambda ()
+;;                          (delq 'org-mode-line-string global-mode-string)  ; Delete first as org-clock-in appends it automatically
+;;                          (setq global-mode-string (add-to-list 'global-mode-string 'org-mode-line-string))
+;;                          (setq global-mode-string (add-to-list 'global-mode-string " "))))  ;; global-mode-string should always start with an empty space
+;;   ;; Remove the empty space added during clock in when clocking out
+;;   ((org-clock-out-hook org-clock-cancel-hook). (lambda ()
+;;                                                  (setq global-mode-string (delete " " global-mode-string))))
+;;   (kill-emacs-hook . org-save-all-org-buffers)
+;;   :bind
+;;   (:map org-mode-map
+;;         ("C-M-h" . org-shiftleft)
+;;         ("C-M-l" . org-shiftright))
+;;   :config
+;;   (advice-add 'org-refile :after (lambda (&rest _) (org-save-all-org-buffers)))
+;;   (require 'org-habit)
+;;   (require 'org-tempo))
+#+end_src
+
+#+begin_src emacs-lisp :tangle (expand-file-name "init.el" user-emacs-directory)
+(use-package org
+  :straight t)
+
+(org-babel-load-file
+ (expand-file-name
+  "~/repos/config-files/emacs/config.org"))
+#+end_src
+
+
+* Lexical bindings
+
+#+begin_src emacs-lisp
+;; -*- lexical-binding: t; -*-
 #+end_src
 
 * Default settings 
@@ -1166,96 +1261,96 @@ Package to easily navigate cursor within buffers. Using this over evil-easymotio
 #+end_src
 
 #+begin_src emacs-lisp
-  (use-package org
-    :straight (:type built-in)
-    :init
-    (org-babel-do-load-languages
-     'org-babel-load-languages
-     '((emacs-lisp . t)
-       (python . t)))
-    (with-eval-after-load 'flycheck
-      (flycheck-add-mode 'proselint 'org-mode))
-    ;; Change bullets to actual bullets
-    (font-lock-add-keywords 'org-mode
-                            '(("^ *\\([-]\\) "
-                               (0 (prog1 () (compose-region (match-beginning 1) (match-end 1) "•"))))))
-    (setq org-format-latex-options (plist-put org-format-latex-options :scale 1.3))
-    :custom
-    (org-confirm-babel-evaluate nil)     ; Do not ask for confirmation when evaluating src blocks
-    (org-catch-invisible-edits 'show)    ; When making invisible edits, show the location of the edit
-    (org-ellipsis " ▼ ")
-    (org-src-fontify-natively t)         ; Fontify code in src blocks
-    (org-edit-src-content-indentation 2) ; Indentation within the src blocks
-    (org-startup-indented t)             ; Org headings are indented, as is the text within the headings
-    (org-hide-leading-stars nil)
-    (org-src-preserve-indentation t)
-    (org-hide-emphasis-markers t)        ; Hide markers around emphasised word (e.g. *bold*, /italic/ etc.)
-    (org-adapt-indentation t)
-    (org-structure-template-alist '(("a" . "export ascii")
-                                    ("c" . "center")
-                                    ("C" . "comment")
-                                    ("e" . "example")
-                                    ("E" . "export")
-                                    ("l" . "export latex")
-                                    ("py" . "src python")
-                                    ("ru" . "src rust")
-                                    ("sh" . "src h")
-                                    ("q" . "quote")
-                                    ("s" . "src")
-                                    ("v" . "verse")
-                                    ("el" . "src emacs-lisp")
-                                    ("d" . "definition")
-                                    ("t" . "theorem")))
-    (org-clock-mode-line-total 'today)
-    :custom-face
-    ;; (org-document-title ((t (:weight bold :height 1.5))))
-    (org-headline-done ((t (:inherit 'shadow :strike-through t))))
-    (org-agenda-done ((t (:inherit 'shadow))))
-    ;; (org-done ((t (:strike-through t :weight bold))))
-    ;; (org-headline-done ((t (:strike-through t))))
-    ;; (org-level-1 ((t (:height 1.3 :weight bold))))
-    ;; (org-level-2 ((t (:height 1.2 :weight bold))))
-    ;; (org-level-3 ((t (:height 1.1 :weight bold))))
-    (org-image-actual-width (/ (display-pixel-width) 2))
-    ;; (org-block ((nil (:foreground nil :inherit 'fixed-pitch))))
-    ;; (org-table ((nil (:inherit 'fixed-pitch))))
-    ;; (org-formula ((nil (:inherit 'fixed-pitch))))
-    ;; (org-code ((nil (:inherit (shadow fixed-pitch)))))
-    ;; (org-indent ((nil (:inherit (org-hide fixed-pitch)))))
-    ;; (org-verbatim ((nil (:inherit (shadow fixed-pitch)))))
-    ;; (org-special-keyword ((nil (:inherit (font-lock-comment-face fixed-pitch)))))
-    ;; (org-meta-line ((nil (:inherit (font-lock-comment-face fixed-pitch)))))
-    ;; (org-checkbox ((nil (:inherit 'fixed-pitch))))
-    ;; (org-block-begin-line ((nil (:inherit 'fixed-pitch))))
-    :hook
-    (org-mode-hook . duy/org-mode-setup)
-    ;; Prepend org-mode-line-string to global-mode-string when clocking in
-    (org-clock-in-hook . (lambda ()
-                           (delq 'org-mode-line-string global-mode-string)  ; Delete first as org-clock-in appends it automatically
-                           (setq global-mode-string (add-to-list 'global-mode-string 'org-mode-line-string))
-                           (setq global-mode-string (add-to-list 'global-mode-string " "))))  ;; global-mode-string should always start with an empty space
-    ;; Remove the empty space added during clock in when clocking out
-    ((org-clock-out-hook org-clock-cancel-hook). (lambda ()
-                                                   (setq global-mode-string (delete " " global-mode-string))))
-    (kill-emacs-hook . org-save-all-org-buffers)
-    :bind
-    (:map org-mode-map
-          ("C-M-h" . org-shiftleft)
-          ("C-M-l" . org-shiftright))
-    :config
-    (advice-add 'org-refile :after (lambda (&rest _) (org-save-all-org-buffers)))
-    (require 'org-habit)
-    (require 'org-tempo)
-    (leader-keys
-      "o"   '(:ignore t   :wk "Org")
-      "a"   '(org-agenda  :wk "Agenda")
-      "c"   '(org-capture :wk "Capture")
-      "C"   '(org-capture :wk "Capture"))
-    (local-leader-keys
-      :keymaps 'org-mode-map
-      "I" '(org-clock-in      :wk "Clock in")
-      "O" '(org-clock-out     :wk "Clock out")
-      "C" '(org-clock-cancel  :wk "Clock cancel")))
+(use-package org
+  :straight t
+  :init
+  (org-babel-do-load-languages
+   'org-babel-load-languages
+   '((emacs-lisp . t)
+     (python . t)))
+  (with-eval-after-load 'flycheck
+    (flycheck-add-mode 'proselint 'org-mode))
+  ;; Change bullets to actual bullets
+  (font-lock-add-keywords 'org-mode
+                          '(("^ *\\([-]\\) "
+                             (0 (prog1 () (compose-region (match-beginning 1) (match-end 1) "•"))))))
+  (setq org-format-latex-options (plist-put org-format-latex-options :scale 1.3))
+  :custom
+  (org-confirm-babel-evaluate nil)     ; Do not ask for confirmation when evaluating src blocks
+  (org-catch-invisible-edits 'show)    ; When making invisible edits, show the location of the edit
+  (org-ellipsis " ▼ ")
+  (org-src-fontify-natively t)         ; Fontify code in src blocks
+  (org-edit-src-content-indentation 2) ; Indentation within the src blocks
+  (org-startup-indented t)             ; Org headings are indented, as is the text within the headings
+  (org-hide-leading-stars nil)
+  (org-src-preserve-indentation t)
+  (org-hide-emphasis-markers t)        ; Hide markers around emphasised word (e.g. *bold*, /italic/ etc.)
+  (org-adapt-indentation t)
+  (org-structure-template-alist '(("a" . "export ascii")
+                                  ("c" . "center")
+                                  ("C" . "comment")
+                                  ("e" . "example")
+                                  ("E" . "export")
+                                  ("l" . "export latex")
+                                  ("py" . "src python")
+                                  ("ru" . "src rust")
+                                  ("sh" . "src h")
+                                  ("q" . "quote")
+                                  ("s" . "src")
+                                  ("v" . "verse")
+                                  ("el" . "src emacs-lisp")
+                                  ("d" . "definition")
+                                  ("t" . "theorem")))
+  (org-clock-mode-line-total 'today)
+  :custom-face
+  ;; (org-document-title ((t (:weight bold :height 1.5))))
+  (org-headline-done ((t (:inherit 'shadow :strike-through t))))
+  (org-agenda-done ((t (:inherit 'shadow))))
+  ;; (org-done ((t (:strike-through t :weight bold))))
+  ;; (org-headline-done ((t (:strike-through t))))
+  ;; (org-level-1 ((t (:height 1.3 :weight bold))))
+  ;; (org-level-2 ((t (:height 1.2 :weight bold))))
+  ;; (org-level-3 ((t (:height 1.1 :weight bold))))
+  (org-image-actual-width (/ (display-pixel-width) 2))
+  ;; (org-block ((nil (:foreground nil :inherit 'fixed-pitch))))
+  ;; (org-table ((nil (:inherit 'fixed-pitch))))
+  ;; (org-formula ((nil (:inherit 'fixed-pitch))))
+  ;; (org-code ((nil (:inherit (shadow fixed-pitch)))))
+  ;; (org-indent ((nil (:inherit (org-hide fixed-pitch)))))
+  ;; (org-verbatim ((nil (:inherit (shadow fixed-pitch)))))
+  ;; (org-special-keyword ((nil (:inherit (font-lock-comment-face fixed-pitch)))))
+  ;; (org-meta-line ((nil (:inherit (font-lock-comment-face fixed-pitch)))))
+  ;; (org-checkbox ((nil (:inherit 'fixed-pitch))))
+  ;; (org-block-begin-line ((nil (:inherit 'fixed-pitch))))
+  :hook
+  (org-mode-hook . duy/org-mode-setup)
+  ;; Prepend org-mode-line-string to global-mode-string when clocking in
+  (org-clock-in-hook . (lambda ()
+                         (delq 'org-mode-line-string global-mode-string)  ; Delete first as org-clock-in appends it automatically
+                         (setq global-mode-string (add-to-list 'global-mode-string 'org-mode-line-string))
+                         (setq global-mode-string (add-to-list 'global-mode-string " "))))  ;; global-mode-string should always start with an empty space
+  ;; Remove the empty space added during clock in when clocking out
+  ((org-clock-out-hook org-clock-cancel-hook). (lambda ()
+                                                 (setq global-mode-string (delete " " global-mode-string))))
+  (kill-emacs-hook . org-save-all-org-buffers)
+  :bind
+  (:map org-mode-map
+        ("C-M-h" . org-shiftleft)
+        ("C-M-l" . org-shiftright))
+  :config
+  (advice-add 'org-refile :after (lambda (&rest _) (org-save-all-org-buffers)))
+  (require 'org-habit)
+  (require 'org-tempo)
+  (leader-keys
+    "o"   '(:ignore t   :wk "Org")
+    "a"   '(org-agenda  :wk "Agenda")
+    "c"   '(org-capture :wk "Capture")
+    "C"   '(org-capture :wk "Capture"))
+  (local-leader-keys
+    :keymaps 'org-mode-map
+    "I" '(org-clock-in      :wk "Clock in")
+    "O" '(org-clock-out     :wk "Clock out")
+    "C" '(org-clock-cancel  :wk "Clock cancel")))
 #+end_src
 
 ** Capture templates
@@ -1603,7 +1698,7 @@ from the dynamic block definition."
 #+end_src
 
 #+begin_src emacs-lisp
-(setq org-clock-clocktable-formatter #'my/org-clocktable-write-default)
+;; (setq org-clock-clocktable-formatter #'my/org-clocktable-write-default)
 #+end_src
 
 * Org agenda (using org-roam)

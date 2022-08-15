@@ -1115,6 +1115,7 @@ Package to easily navigate cursor within buffers. Using this over evil-easymotio
     "s"   '(nil                              :wk "Spell check")
     "s r" '(flyspell-region                  :wk "Flyspell region")
     "s b" '(flyspell-buffer                  :wk "Flyspell buffer")
+    "s w" '(flyspell-correct-at-point        :wk "Flyspell word and correct")
     "s B" '(duy/flyspell-delete-all-overlays :wk "Delete spell check buffer")))
 #+end_src
 

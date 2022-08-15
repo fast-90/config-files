@@ -205,6 +205,12 @@ This =use-package= extension allows us to use the =:ensure-system-package= keywo
 
 (use-package hydra
   :straight t)
+
+(use-package so-long
+  :init
+  (setq so-long-mode-line-label nil)
+  :config
+  (global-so-long-mode 1))
 #+end_src
 
 ** OS specific settings
@@ -2396,7 +2402,11 @@ See also [[https://orgmode.org/manual/Using-Header-Arguments.html][here]] for mo
                       ("reg" "%(binary) -f %(ledger-file) reg --price-db .pricedb")))
     :init
     (add-to-list 'auto-mode-alist '("\\.pricedb\\'" . ledger-mode))
+    :hook
+    (ledger-report-mode-hook . so-long-minor-mode)
     :config
+    (advice-add 'ledger-report-redo :before (lambda (&rest _) (so-long-minor-mode -1)))
+    (advice-add 'ledger-report-redo :after (lambda (&rest _) (so-long-minor-mode 1)))
     (local-leader-keys
       :keymaps '(ledger-mode-map ledger-report-mode-map)
       "a" '(ledger-add-transaction    :wk "Add transaction")

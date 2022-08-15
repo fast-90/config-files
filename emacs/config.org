@@ -150,6 +150,12 @@ This =use-package= extension allows us to use the =:ensure-system-package= keywo
 (setq custom-file (expand-file-name "custom.el" user-emacs-directory))
 #+end_src
 
+** Repeat mode
+
+#+begin_src emacs-lisp
+(repeat-mode 1)
+#+end_src
+
 ** Garbage collection
 
 #+begin_src emacs-lisp

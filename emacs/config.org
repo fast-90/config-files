@@ -2377,6 +2377,7 @@ See also [[https://orgmode.org/manual/Using-Header-Arguments.html][here]] for mo
      :states  '(normal motion override)
      :keymaps '(ledger-report-mode-map)
      "q"  'ledger-report-quit
+     "e"  'ledger-report-edit-report
      "r"  'ledger-report-redo)
     (general-define-key
      :states  '(normal motion override)

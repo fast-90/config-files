@@ -30,8 +30,9 @@
 (tool-bar-mode -1)
 (scroll-bar-mode -1)
 (tooltip-mode -1)
-(menu-bar-mode 1)
+(menu-bar-mode -1)
 (set-fringe-mode 10)
+(add-to-list 'default-frame-alist '(undecorated . t))
 ;; Create a package-quickstart.el
 ;; (setq package-quickstart t)
 
@@ -244,6 +245,12 @@ Use latest version of ~org~ via ~straight~.
 (setq custom-file (expand-file-name "custom.el" user-emacs-directory))
 #+end_src
 
+** Repeat mode
+
+#+begin_src emacs-lisp
+(repeat-mode 1)
+#+end_src
+
 ** Garbage collection
 
 #+begin_src emacs-lisp
@@ -293,6 +300,18 @@ Use latest version of ~org~ via ~straight~.
 
 (use-package hydra
   :straight t)
+
+(use-package so-long
+  :init
+  (setq so-long-mode-line-label nil)
+  (defun duy/so-long-toggle ()
+    "Toggle so-long-minor mode in current buffer"
+    (interactive)
+    (if (bound-and-true-p so-long-minor-mode)
+        (so-long-revert)
+      (so-long-minor-mode)))
+  :config
+  (global-so-long-mode 1))
 #+end_src
 
 ** OS specific settings
@@ -1209,6 +1228,7 @@ Package to easily navigate cursor within buffers. Using this over evil-easymotio
     "s"   '(nil                              :wk "Spell check")
     "s r" '(flyspell-region                  :wk "Flyspell region")
     "s b" '(flyspell-buffer                  :wk "Flyspell buffer")
+    "s w" '(flyspell-correct-at-point        :wk "Flyspell word and correct")
     "s B" '(duy/flyspell-delete-all-overlays :wk "Delete spell check buffer")))
 #+end_src
 
@@ -1903,6 +1923,29 @@ Function to archive all done task in current org agenda/file.
     (olivetti-fringe ((t (:background "#122")))))
 #+end_src
 
+** Logos
+
+#+begin_src emacs-lisp
+(use-package logos
+  :straight t
+  :init
+  (setq logos-outlines-are-pages t)
+  (setq-default logos-olivetti t)
+  (let ((map global-map))
+    (define-key map [remap narrow-to-region] #'logos-narrow-dwim)
+    (define-key map [remap forward-page] #'logos-forward-page-dwim)
+    (define-key map [remap backward-page] #'logos-backward-page-dwim)
+    (define-key map (kbd "<f9>") #'logos-focus-mode))
+  :bind
+  (:map logos-focus-mode-map
+        ("M-[" . logos-backward-page-dwim)
+        ("M-]" . logos-forward-page-dwim))
+  :config
+  (local-leader-keys
+    :map 'logos-focus-mode-map
+    "n" '(:keymap narrow-map :wk "Narrow")))
+#+end_src
+
 * Web browsing
 
 Open URLs in qutebrowser:
@@ -2188,6 +2231,11 @@ See also [[https://orgmode.org/manual/Using-Header-Arguments.html][here]] for mo
                       ("reg" "%(binary) -f %(ledger-file) reg --price-db .pricedb")))
     :init
     (add-to-list 'auto-mode-alist '("\\.pricedb\\'" . ledger-mode))
+    ;; (advice-add 'ledger-report-edit-report :before #'so-long-revert)
+    ;; (advice-add 'ledger-report-edit-report :after #'so-long-minor-mode)
+    ;; :hook
+    ;; (ledger-report-mode-hook . so-long-minor-mode)
+    ;; (ledger-report-after-report-hook . so-long-minor-mode)
     :config
     (local-leader-keys
       :keymaps '(ledger-mode-map ledger-report-mode-map)
@@ -2200,7 +2248,9 @@ See also [[https://orgmode.org/manual/Using-Header-Arguments.html][here]] for mo
      :states  '(normal motion override)
      :keymaps '(ledger-report-mode-map)
      "q"  'ledger-report-quit
-     "r"  'ledger-report-redo)
+     "e"  'ledger-report-edit-report
+     "r"  'ledger-report-redo
+     "s"  'duy/so-long-toggle)
     (general-define-key
      :states  '(normal motion override)
      :keymaps '(ledger-reconcile-mode-map)

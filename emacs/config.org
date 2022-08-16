@@ -32,7 +32,23 @@
 (tooltip-mode -1)
 (menu-bar-mode -1)
 (set-fringe-mode 10)
-(add-to-list 'default-frame-alist '(undecorated . t))
+
+;;; Change appearance of titlebar
+(setq duy/is-macos
+      (string= system-type "darwin"))
+
+(setq duy/is-wsl
+      (and (eq system-type 'gnu/linux)
+           (string-match "WSL" operating-system-release)))
+
+(cond (duy/is-wsl
+       (add-to-list 'default-frame-alist '(undecorated . t)))
+      (duy/is-macos
+       (add-to-list 'default-frame-alist '(ns-transparent-titlebar . t))
+       (add-to-list 'default-frame-alist '(ns-appearance . dark))
+       (setq ns-use-proxy-icon nil)
+       (setq frame-title-format nil)))
+
 ;; Create a package-quickstart.el
 ;; (setq package-quickstart t)
 
@@ -222,7 +238,7 @@ Use latest version of ~org~ via ~straight~.
 (setq-default cursor-type 'bar)               ; Line-style cursor similar to other text editors
 (setq inhibit-startup-screen t)               ; Disable startup screen
 (setq initial-scratch-message "")	        ; Make *scratch* buffer blank
-(setq-default frame-title-format '("%b"))     ; Make window title the buffer name
+;; (setq-default frame-title-format '("%b"))     ; Make window title the buffer name
 (setq confirm-kill-processes nil)		; Stop confirming the killing of processes
 (setq use-short-answers t)                    ; y-or-n-p makes answering questions faster
 (show-paren-mode t)                           ; Visually indicates pair of matching parentheses

@@ -209,6 +209,12 @@ This =use-package= extension allows us to use the =:ensure-system-package= keywo
 (use-package so-long
   :init
   (setq so-long-mode-line-label nil)
+  (defun duy/so-long-toggle ()
+    "Toggle so-long-minor mode in current buffer"
+    (interactive)
+    (if (bound-and-true-p so-long-minor-mode)
+        (so-long-revert)
+      (so-long-minor-mode)))
   :config
   (global-so-long-mode 1))
 #+end_src
@@ -2402,11 +2408,12 @@ See also [[https://orgmode.org/manual/Using-Header-Arguments.html][here]] for mo
                       ("reg" "%(binary) -f %(ledger-file) reg --price-db .pricedb")))
     :init
     (add-to-list 'auto-mode-alist '("\\.pricedb\\'" . ledger-mode))
-    :hook
-    (ledger-report-mode-hook . so-long-minor-mode)
+    ;; (advice-add 'ledger-report-edit-report :before #'so-long-revert)
+    ;; (advice-add 'ledger-report-edit-report :after #'so-long-minor-mode)
+    ;; :hook
+    ;; (ledger-report-mode-hook . so-long-minor-mode)
+    ;; (ledger-report-after-report-hook . so-long-minor-mode)
     :config
-    (advice-add 'ledger-report-redo :before (lambda (&rest _) (so-long-minor-mode -1)))
-    (advice-add 'ledger-report-redo :after (lambda (&rest _) (so-long-minor-mode 1)))
     (local-leader-keys
       :keymaps '(ledger-mode-map ledger-report-mode-map)
       "a" '(ledger-add-transaction    :wk "Add transaction")
@@ -2419,7 +2426,8 @@ See also [[https://orgmode.org/manual/Using-Header-Arguments.html][here]] for mo
      :keymaps '(ledger-report-mode-map)
      "q"  'ledger-report-quit
      "e"  'ledger-report-edit-report
-     "r"  'ledger-report-redo)
+     "r"  'ledger-report-redo
+     "s"  'duy/so-long-toggle)
     (general-define-key
      :states  '(normal motion override)
      :keymaps '(ledger-reconcile-mode-map)

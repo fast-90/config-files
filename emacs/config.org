@@ -1873,6 +1873,7 @@ Function to archive all done task in current org agenda/file.
   (pulsar-global-mode 1)
   (setq pulsar-face 'pulsar-magenta)
   (add-to-list 'pulsar-pulse-functions 'ace-window)
+  (add-to-list 'pulsar-pulse-functions 'tab-bar-select-tab)
   (add-function :after after-focus-change-function (lambda () (if (frame-focus-state) (pulsar-pulse-line))))
   :hook
   (consult-after-jump-hook . pulsar-recenter-top)

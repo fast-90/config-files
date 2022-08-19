@@ -1044,7 +1044,10 @@ Enabling icons in Corfu:
   :straight t
   :bind (("C-s" . consult-line)
          :map minibuffer-local-map
-         ("C-r" . consult-history)))
+         ("C-r" . consult-history))
+  :config
+  (leader-keys
+    "j h" '(consult-outline :wk "Jump to heading")))
 #+end_src
 
 ** Embark
@@ -1096,18 +1099,16 @@ Enabling icons in Corfu:
 Package to easily navigate cursor within buffers. Using this over evil-easymotion because Avy does not distinguish between forward and backward and allows jumping across visible buffers.
 
 #+begin_src emacs-lisp
-    (use-package avy
-      :straight t
-      :after consult
-      :config
-      (leader-keys
-        "j"   '(:ignore t           :wk "Jump to")
-        "j f" '(avy-goto-char       :wk "Find char")
-        "j s" '(avy-goto-char-2     :wk "Find char 2")
-        "j c" '(avy-goto-char-timer :wk "Find char timer")
-        "j j" '(avy-goto-char-timer :wk "Find char timer")
-        "j l" '(avy-goto-line       :wk "Jump to line")
-        "j h" '(consult-outline     :wk "Jump to heading")))
+(use-package avy
+  :straight t
+  :config
+  (leader-keys
+    "j"   '(:ignore t           :wk "Jump to")
+    "j f" '(avy-goto-char       :wk "Find char")
+    "j s" '(avy-goto-char-2     :wk "Find char 2")
+    "j c" '(avy-goto-char-timer :wk "Find char timer")
+    "j j" '(avy-goto-char-timer :wk "Find char timer")
+    "j l" '(avy-goto-line       :wk "Jump to line")))
 #+end_src
 
 ** ace-link
@@ -1336,39 +1337,39 @@ Org-appear shows the emphasis markers when your cursor is on the text, even if ~
 ** Org roam
 
 #+begin_src emacs-lisp
-  (use-package org-roam
-    :straight t
-    :init
-    (setq org-roam-v2-ack t)
-    :custom
-    (org-roam-directory "~/org-roam-notes")
-    (org-roam-completion-everywhere t)
-    (org-roam-capture-templates
-     '(("d" "default" plain
-        "%?"
-        :if-new (file+head "%<%Y%m%d%H%M%S>-${slug}.org" "#+title: ${title}\n#+date: %U\n")
-        :unnarrowed t)))
-    (org-roam-dailies-capture-templates
-     '(("d" "default" entry "* %<%I:%M %p>: %?"
-        :if-new (file+head "%<%Y-%m-%d>.org" "#+title: %<%Y-%m-%d>\n"))))
-    :bind (:map org-mode-map
-                ("C-M-i" . completion-at-point)
-                :map org-roam-dailies-map
-                ("Y" . org-roam-dailies-capture-yesterday)
-                ("T" . org-roam-dailies-capture-tomorrow))
-    :config
-    (require 'org-roam-dailies) ;; Ensure the keymap is available
-    (setq org-roam-node-display-template #("${title:*} ${tags:40}" 11 21
-                                           (face org-tag)))
-    (org-roam-db-autosync-mode)
-    (leader-keys
-      "n"   '(:ignore t              :wk "Roam")
-      "n l" '(org-roam-buffer-toggle :wk "Buffer toggle")
-      "n f" '(org-roam-node-find     :wk "Find")
-      "n i" '(org-roam-node-insert   :wk "Insert")
-      "n t" '(org-roam-tag-add       :wk "Add tag")
-      "n T" '(org-roam-tag-remove    :wk "Remove tag")
-      "n d" '(org-roam-dailies-map   :wk "Dailies")))
+(use-package org-roam
+  :straight t
+  :init
+  (setq org-roam-v2-ack t)
+  :custom
+  (org-roam-directory "~/org-roam-notes")
+  (org-roam-completion-everywhere t)
+  (org-roam-capture-templates
+   '(("d" "default" plain
+      "%?"
+      :if-new (file+head "%<%Y%m%d%H%M%S>-${slug}.org" "#+title: ${title}\n#+date: %U\n")
+      :unnarrowed t)))
+  (org-roam-dailies-capture-templates
+   '(("d" "default" entry "* %<%I:%M %p>: %?"
+      :if-new (file+head "%<%Y-%m-%d>.org" "#+title: %<%Y-%m-%d>\n"))))
+  :bind (:map org-mode-map
+              ("C-M-i" . completion-at-point)
+              :map org-roam-dailies-map
+              ("Y" . org-roam-dailies-capture-yesterday)
+              ("T" . org-roam-dailies-capture-tomorrow))
+  :config
+  (require 'org-roam-dailies) ;; Ensure the keymap is available
+  (setq org-roam-node-display-template #("${title:*} ${tags:40}" 11 21
+                                         (face org-tag)))
+  (org-roam-db-autosync-mode)
+  (leader-keys
+    "n"   '(:ignore t              :wk "Roam")
+    "n l" '(org-roam-buffer-toggle :wk "Buffer toggle")
+    "n f" '(org-roam-node-find     :wk "Find")
+    "n i" '(org-roam-node-insert   :wk "Insert")
+    "n t" '(org-roam-tag-add       :wk "Add tag")
+    "n T" '(org-roam-tag-remove    :wk "Remove tag")
+    "n d" '(org-roam-dailies-map   :wk "Dailies")))
 #+end_src
 
 * Org agenda (using org-roam)
@@ -1518,7 +1519,6 @@ Refer to `org-agenda-prefix-format' for more information."
 Use org-super-agenda to group TODOs in agenda view.
 
 #+begin_src emacs-lisp
-
 (use-package org-super-agenda
   :straight t
   :config
@@ -1532,7 +1532,6 @@ Use org-super-agenda to group TODOs in agenda view.
 Set todo keywords, tags etc.
 
 #+begin_src emacs-lisp
-
 (setq org-todo-keywords
       '((sequence "TODO(t)" "NEXT(n)" "|" "DONE(d)")
         (sequence "WAITING(w!)" "HOLD(h!)" "|" "CANCELLED(c)")))
@@ -1584,12 +1583,10 @@ Function to archive all done task in current org agenda/file.
 
 Function to automatically group TODOs by title.
 #+begin_src emacs-lisp
-
 (org-super-agenda--def-auto-group title "title of org file"
   :key-form (org-super-agenda--when-with-marker-buffer (org-super-agenda--get-marker item)
               (org-roam-db--file-title))
   :header-form key)
-
 #+end_src
 
 *** Layout of agenda
@@ -1797,7 +1794,6 @@ Function to archive all done task in current org agenda/file.
 *** org-calendar bindings
 
 #+begin_src emacs-lisp
-
 (defmacro my-org-in-calendar (command)
   (let ((name (intern (format "my-org-in-calendar-%s" command))))
     `(progn
@@ -1822,27 +1818,27 @@ Function to archive all done task in current org agenda/file.
 ** Thesaurus
 
 #+begin_src emacs-lisp
-  (use-package powerthesaurus
-    :straight t
-    :config
-    (leader-keys
-      "s d" '(powerthesaurus-lookup-dwim :wk "Powerthesaurus")))
+(use-package powerthesaurus
+  :straight t
+  :config
+  (leader-keys
+    "s d" '(powerthesaurus-lookup-dwim :wk "Powerthesaurus")))
 #+end_src
 
 ** Olivetti
 
 #+begin_src emacs-lisp
-  (use-package olivetti
-    :straight t
-    :defer t
-    :diminish
-    :custom
-    (olivetti-body-width 0.67)
-    (olivetti-minimum-body-width 80)
-    (olivetti-recall-visual-line-mode-entry-state t)
-    (olivetti-style "fancy")
-    :custom-face
-    (olivetti-fringe ((t (:background "#122")))))
+(use-package olivetti
+  :straight t
+  :defer t
+  :diminish
+  :custom
+  (olivetti-body-width 0.67)
+  (olivetti-minimum-body-width 80)
+  (olivetti-recall-visual-line-mode-entry-state t)
+  (olivetti-style "fancy")
+  :custom-face
+  (olivetti-fringe ((t (:background "#122")))))
 #+end_src
 
 ** Logos

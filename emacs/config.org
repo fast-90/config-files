@@ -2172,14 +2172,18 @@ See also [[https://orgmode.org/manual/Using-Header-Arguments.html][here]] for mo
     (ledger-reports '(("Balance (EUR)" "%(binary) -f %(ledger-file) bal --exchange EUR --price-db .pricedb Assets Liabilities")
                       ("Balance (MV)" "%(binary) -f %(ledger-file) bal -V --price-db .pricedb Assets Liabilities")
                       ("bal" "%(binary) -f %(ledger-file) bal --price-db .pricedb")
-                      ("reg" "%(binary) -f %(ledger-file) reg --price-db .pricedb")))
+                      ("reg" "%(binary) -f %(ledger-file) reg --price-db .pricedb")
+                      ("Monthly averages" "%(binary) -f %(ledger-file) reg --price-db .pricedb -MA")))
     :init
     (add-to-list 'auto-mode-alist '("\\.pricedb\\'" . ledger-mode))
+    (defun duy/disable-line-numbers ()
+      (display-line-numbers-mode 0))
     ;; (advice-add 'ledger-report-edit-report :before #'so-long-revert)
     ;; (advice-add 'ledger-report-edit-report :after #'so-long-minor-mode)
-    ;; :hook
+    :hook
     ;; (ledger-report-mode-hook . so-long-minor-mode)
     ;; (ledger-report-after-report-hook . so-long-minor-mode)
+    (ledger-report-after-report-hook . duy/disable-line-numbers)
     :config
     (local-leader-keys
       :keymaps '(ledger-mode-map ledger-report-mode-map)

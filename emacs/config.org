@@ -1874,10 +1874,20 @@ Function to archive all done task in current org agenda/file.
   (setq pulsar-face 'pulsar-magenta)
   (add-to-list 'pulsar-pulse-functions 'ace-window)
   (add-to-list 'pulsar-pulse-functions 'tab-bar-select-tab)
+  (add-to-list 'pulsar-pulse-functions 'evil-scroll-line-to-center)
+  (add-to-list 'pulsar-pulse-functions 'evil-scroll-line-to-top)
+  (add-to-list 'pulsar-pulse-functions 'evil-scroll-line-to-bottom)
+  (add-to-list 'pulsar-pulse-functions 'evil-scroll-down)
+  (add-to-list 'pulsar-pulse-functions 'evil-scroll-up)
+  (add-to-list 'pulsar-pulse-functions 'evil-avy-goto-line)
+  (add-to-list 'pulsar-pulse-functions 'evil-avy-goto-char)
+  (add-to-list 'pulsar-pulse-functions 'evil-avy-goto-char-2)
+  (add-to-list 'pulsar-pulse-functions 'evil-avy-goto-char-timer)
   (add-function :after after-focus-change-function (lambda () (if (frame-focus-state) (pulsar-pulse-line))))
   :hook
-  (consult-after-jump-hook . pulsar-recenter-top)
-  (consult-after-jump-hook . pulsar-reveal-entry))
+  (consult-after-jump-hook . pulsar-recenter-middle)
+  (consult-after-jump-hook . pulsar-reveal-entry)
+  (window-selection-change-functions . pulsar-pulse-line))
 #+end_src
 
 * Web browsing

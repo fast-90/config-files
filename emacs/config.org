@@ -1883,11 +1883,11 @@ Function to archive all done task in current org agenda/file.
   (add-to-list 'pulsar-pulse-functions 'evil-avy-goto-char)
   (add-to-list 'pulsar-pulse-functions 'evil-avy-goto-char-2)
   (add-to-list 'pulsar-pulse-functions 'evil-avy-goto-char-timer)
-  (add-to-list 'pulsar-pulse-functions 'vertico-directory-enter)  ;; For consult-buffer
   (add-function :after after-focus-change-function (lambda () (if (frame-focus-state) (pulsar-pulse-line))))
   :hook
   (consult-after-jump-hook . pulsar-recenter-middle)
-  (consult-after-jump-hook . pulsar-reveal-entry))
+  (consult-after-jump-hook . pulsar-reveal-entry)
+  (window-state-change-hook . pulsar-pulse-line))
 #+end_src
 
 * Web browsing

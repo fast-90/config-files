@@ -1047,7 +1047,8 @@ Enabling icons in Corfu:
          ("C-r" . consult-history))
   :config
   (leader-keys
-    "j h" '(consult-outline :wk "Jump to heading")))
+    "j h" '(consult-org-heading :wk "Jump to heading")
+    "j o" '(consult-outline     :wk "Jump to outline")))
 #+end_src
 
 ** Embark
@@ -1151,23 +1152,8 @@ Package to easily navigate cursor within buffers. Using this over evil-easymotio
 * Spell / syntax checking
 
 #+begin_src emacs-lisp
-(defun duy/flyspell-delete-all-overlays ()
-  "Delete all flyspell checks in buffer."
-  (interactive)
-  (flyspell-delete-all-overlays))
-#+end_src
-
-#+begin_src emacs-lisp
 (use-package flyspell
-  :defer t
-  :config
-  (leader-keys
-    ;; Use evil-next/prev-flyspell-error to navigate
-    "s"   '(nil                              :wk "Spell check")
-    "s r" '(flyspell-region                  :wk "Flyspell region")
-    "s b" '(flyspell-buffer                  :wk "Flyspell buffer")
-    "s w" '(flyspell-correct-at-point        :wk "Flyspell word and correct")
-    "s B" '(duy/flyspell-delete-all-overlays :wk "Delete spell check buffer")))
+  :defer t)
 #+end_src
 
 #+begin_src emacs-lisp
@@ -1175,6 +1161,36 @@ Package to easily navigate cursor within buffers. Using this over evil-easymotio
   :straight t
   :after flyspell
   :bind ([remap ispell-word] . flyspell-correct-wrapper))
+#+end_src
+
+#+begin_src emacs-lisp
+(use-package consult-flyspell
+  :straight t
+  :config
+  (defun duy/flyspell-buffer ()
+    "Flyspell buffer using consult."
+    (interactive)
+    (flyspell-buffer) (consult-flyspell))
+  (defun duy/flyspell-region ()
+    "Flyspell region using consult."
+    (interactive)
+    (call-interactively 'flyspell-region)
+    (call-interactively 'consult-flyspell))
+  (defun duy/flyspell-correct-all ()
+    "Correct all words, one by one"
+    (flyspell-correct-at-point) (consult-flyspell))
+  (defun duy/flyspell-delete-all-overlays ()
+    "Delete all flyspell checks in buffer."
+    (interactive)
+    (flyspell-delete-all-overlays))
+  (setq consult-flyspell-select-function 'duy/flyspell-correct-all)
+  (leader-keys
+    "s"   '(nil                              :wk "Spell check")
+    "s D" '(ispell-change-dictionary         :wk "Change dictionary")
+    "s r" '(duy/flyspell-region              :wk "Flyspell region")
+    "s b" '(duy/flyspell-buffer              :wk "Flyspell buffer")
+    "s w" '(flyspell-correct-at-point        :wk "Flyspell word and correct")
+    "s B" '(duy/flyspell-delete-all-overlays :wk "Delete spell check buffer")))
 #+end_src
 
 * Version control
@@ -1963,24 +1979,36 @@ Ensure =direnv= is installed via your OS package manager.
 
 ** LSP
 
+*** eglot
+
 #+begin_src emacs-lisp
 (use-package eglot
   :straight t
   :defer t
+  :after consult
   :hook (python-mode-hook . eglot-ensure)
   :init
   (define-key evil-normal-state-map (kbd "M-.") nil)
   (define-key evil-normal-state-map (kbd "C->") 'evil-repeat-pop-next)
+  (setq xref-show-xrefs-function #'consult-xref)
+  (setq xref-show-definitions-function #'consult-xref)
   :config
   (leader-keys
-    "l"     '(nil                              :wk "Lsp")
-    "l e"   '(nil                              :wk "Errors")
-    "l e n" '(flymake-goto-next-error          :wk "Next error")
-    "l e p" '(flymake-goto-prev-error          :wk "Previous error")
-    "l e d" '(flymake-show-buffer-diagnostics  :wk "Buffer diagnostics")
-    "l e D" '(flymake-show-project-diagnostics :wk "Project diagnostics")
-    "l d"   '(xref-find-definitions            :wk "Find definition")
-    "l r"   '(xref-find-references             :wk "Find references")))
+    "l"   '(nil                   :wk "Lsp")
+    "l e" '(consult-flymake       :wk "Error diagnostics")
+    "l d" '(xref-find-definitions :wk "Find definition")
+    "l r" '(xref-find-references  :wk "Find references")))
+#+end_src
+
+*** consult-eglot
+
+#+begin_src emacs-lisp
+(use-package consult-eglot
+  :straight t
+  :after eglot consult
+  :config
+  (leader-keys
+    "l s" '(consult-eglot-symbols :wk "Search symbols")))
 #+end_src
 
 ** Python

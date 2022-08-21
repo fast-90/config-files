@@ -2205,6 +2205,7 @@ See also [[https://orgmode.org/manual/Using-Header-Arguments.html][here]] for mo
     ;; (advice-add 'ledger-report-edit-report :before #'so-long-revert)
     ;; (advice-add 'ledger-report-edit-report :after #'so-long-minor-mode)
     :hook
+    (ledger-mode-hook . ledger-flymake-enable)
     ;; (ledger-report-mode-hook . so-long-minor-mode)
     ;; (ledger-report-after-report-hook . so-long-minor-mode)
     (ledger-report-after-report-hook . duy/disable-line-numbers)

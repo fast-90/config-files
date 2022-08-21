@@ -1382,6 +1382,18 @@ Org-appear shows the emphasis markers when your cursor is on the text, even if ~
     "n d" '(org-roam-dailies-map   :wk "Dailies")))
 #+end_src
 
+** Consult for org-roam
+
+#+begin_src emacs-lisp
+(use-package consult-org-roam
+  :straight t
+  :init
+  (consult-org-roam-mode 1)
+  :config
+  (leader-keys
+    "n s" '(consult-org-roam-search :wk "Search in notes")))
+#+end_src
+
 * Org agenda (using org-roam)
 
 ** Helper functions

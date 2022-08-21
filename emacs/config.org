@@ -390,7 +390,6 @@ Evil nerd commenter for line comment.
 Evil-org adds evil bindings to org-agenda.
 
 #+begin_src emacs-lisp
-
 (use-package evil-org
   :straight t
   :after org
@@ -398,7 +397,6 @@ Evil-org adds evil bindings to org-agenda.
   :config
   (require 'evil-org-agenda)
   (evil-org-agenda-set-keys))
-
 #+end_src
 
 evil-surround enables surrounding of (Vim) text objects (e.g. brackets or quotes)
@@ -409,8 +407,8 @@ evil-surround enables surrounding of (Vim) text objects (e.g. brackets or quotes
   :config
   (global-evil-surround-mode 1))
 #+end_src
-** General
 
+** General
 
 The config in this section enable SPC as a prefix to a useful and commonly used
 function (similar to Spacemacs/Doom/VSpaceCode).
@@ -437,19 +435,15 @@ function (similar to Spacemacs/Doom/VSpaceCode).
   (general-create-definer local-leader-keys
     :states '(normal visual emacs motion) ; consider adding motion for using with easymotion
     :keymaps 'override 
-    :prefix ","))
-#+end_src
-
-*** Eval keybindings
-
-#+begin_src emacs-lisp
-(leader-keys
-  "e"     '(:ignore t       :wk "Eval")
-  "e b"   '(eval-buffer     :wk "Eval elisp in buffer")
-  "e d"   '(eval-defun      :wk "Eval defun")
-  "e e"   '(eval-expression :wk "Eval elisp expression")
-  "e l"   '(eval-last-sexp  :wk "Eval last sexression")
-  "e r"   '(eval-region     :wk "Eval region"))
+    :prefix ",")
+  (leader-keys
+    "u"     '(universal-argument :wk "C-u")
+    "e"     '(:ignore t          :wk "Eval")
+    "e b"   '(eval-buffer        :wk "Eval elisp in buffer")
+    "e d"   '(eval-defun         :wk "Eval defun")
+    "e e"   '(eval-expression    :wk "Eval elisp expression")
+    "e l"   '(eval-last-sexp     :wk "Eval last sexression")
+    "e r"   '(eval-region        :wk "Eval region")))
 #+end_src
 
 * File and buffer management

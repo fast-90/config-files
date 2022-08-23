@@ -135,7 +135,7 @@ This =use-package= extension allows us to use the =:ensure-system-package= keywo
   :straight t)
 #+end_src
 
-*** Load config with org mode
+*** Load literate config with org mode
 
 Use latest version of ~org~ via ~straight~.
 
@@ -155,13 +155,16 @@ Use latest version of ~org~ via ~straight~.
 ;; -*- lexical-binding: t; -*-
 #+end_src
 
-* Default settings 
+* General configuration 
+
+** Default settings 
+
+Adjust emacs default settings like UI, indentation, bell sound, back up locations etc.
 
 #+begin_src emacs-lisp
 (setq-default cursor-type 'bar)               ; Line-style cursor similar to other text editors
 (setq inhibit-startup-screen t)               ; Disable startup screen
 (setq initial-scratch-message "")	        ; Make *scratch* buffer blank
-;; (setq-default frame-title-format '("%b"))     ; Make window title the buffer name
 (setq confirm-kill-processes nil)		; Stop confirming the killing of processes
 (setq use-short-answers t)                    ; y-or-n-p makes answering questions faster
 (show-paren-mode t)                           ; Visually indicates pair of matching parentheses
@@ -186,11 +189,17 @@ Use latest version of ~org~ via ~straight~.
 
 ** Repeat mode
 
+Repeat mode is a built-in mode implemented from Emacs 28. It allows  repeating certain commands without having to repeatedly press the prefix keys. I mainly use it for changing window sizes (~C-x~ { ~},{,^,v~}) and scrolling through pages with ~logos~ (~C-x~ {~[,]~}).
+
+See also [[https://karthinks.com/software/it-bears-repeating/][karthik's post]] on tips to use ~repeat-mode~.
+
 #+begin_src emacs-lisp
 (repeat-mode 1)
 #+end_src
 
 ** Garbage collection
+
+I copied this over from [[https://github.com/Nathan-Furnal/dotemacs/blob/master/init.el][Nathan Furlow's config,]] who based it on [[https://github.com/doomemacs/doomemacs/blob/develop/docs/faq.org#how-does-doom-start-up-so-quickly][Doomemacs's FAQ]] on garbage collection. Essentially, ~gcmh~ sets a high garbage collection threshold when actively using Emacs, and a low threshold when Emacs is not used.
 
 #+begin_src emacs-lisp
 (use-package gcmh
@@ -203,31 +212,47 @@ Use latest version of ~org~ via ~straight~.
   (gc-cons-percentage 0.1))
 #+end_src
 
-** Useful packages
+** Eldoc
 
 #+begin_src emacs-lisp
 (use-package eldoc
   :delight eldoc-mode
   :custom
   (eldoc-echo-area-use-multiline-p nil))
+#+end_src
 
+** Autorevert
+
+#+begin_src emacs-lisp
 (use-package autorevert
   :defer 2
   :delight auto-revert-mode
   :custom
   (auto-revert-use-notify nil))
+#+end_src
 
+** Recentf
+
+#+begin_src emacs-lisp
 (use-package recentf
   :defer 2
   :init
   (recentf-mode 1))
+#+end_src
 
+** undo-tree
+
+#+begin_src emacs-lisp
 (use-package undo-tree
   :straight t
   :init
   (setq undo-tree-auto-save-history nil)
   (global-undo-tree-mode))
+#+end_src
 
+** Helpful
+
+#+begin_src emacs-lisp
 (use-package helpful
   :straight t
   :commands (helpful-callable helpful-variable helpful-command helpful-key)
@@ -236,10 +261,18 @@ Use latest version of ~org~ via ~straight~.
   ([remap describe-command] . helpful-command)
   ([remap describe-variable] . helpful-variable)
   ([remap describe-key] . helpful-key))
+#+end_src
 
+** Hydra
+
+#+begin_src emacs-lisp
 (use-package hydra
   :straight t)
+#+end_src
 
+** So-long
+
+#+begin_src emacs-lisp
 (use-package so-long
   :init
   (setq so-long-mode-line-label nil)
@@ -253,9 +286,9 @@ Use latest version of ~org~ via ~straight~.
   (global-so-long-mode 1))
 #+end_src
 
-** OS specific settings
+* OS specific settings
 
-*** Define booleans for OS
+** Define booleans for OS
 
 #+begin_src emacs-lisp
 (setq duy/is-macos
@@ -342,6 +375,8 @@ The Evil package(s) enable Vim-like keybindings.
   (global-set-key (kbd "C-M-u") 'universal-argument))
 #+end_src
 
+** Evil collection
+
 Evil collection is a collection of Evil bindings for the parts of Emacs that Evil does not cover properly by default.
 
 #+begin_src emacs-lisp
@@ -364,6 +399,8 @@ Evil collection is a collection of Evil bindings for the parts of Emacs that Evi
   (evil-collection-init))
 #+end_src
 
+** Evil-escape
+
 Bind kj in insert mode to ESC.
 
 #+begin_src emacs-lisp
@@ -374,6 +411,8 @@ Bind kj in insert mode to ESC.
   (setq evil-escape-key-sequence "kj")
   (setq evil-escape-delay 0.2))
 #+end_src
+
+** Evil nerd commenter
 
 Evil nerd commenter for line comment.
 
@@ -386,6 +425,7 @@ Evil nerd commenter for line comment.
   ("C-'" . nil))
 #+end_src
 
+** Evil-org
 
 Evil-org adds evil bindings to org-agenda.
 
@@ -398,6 +438,8 @@ Evil-org adds evil bindings to org-agenda.
   (require 'evil-org-agenda)
   (evil-org-agenda-set-keys))
 #+end_src
+
+** Evil surround
 
 evil-surround enables surrounding of (Vim) text objects (e.g. brackets or quotes)
 

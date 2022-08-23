@@ -503,8 +503,13 @@ function (similar to Spacemacs/Doom/VSpaceCode).
       (setq dired-use-ls-dired t
             insert-directory-program "/usr/local/bin/gls"))
     :config
+    (defun duy/dired-single-up-directory ()
+      "Alternative for dired-single-up-directory.
+dired-single-up-directory still creates a new buffer."
+      (interactive)
+      (dired-single-buffer ".."))
     (evil-collection-define-key 'normal 'dired-mode-map
-      "h" '(lambda () (interactive) (dired-single-buffer ".."))  ;; dired-single-up-directory still creates a new buffer for w/e reason
+      "h" 'duy/dired-single-up-directory
       "l" 'dired-single-buffer)
     (leader-keys
       "d"   '(dired      :wk "dired")
@@ -554,10 +559,6 @@ Keybindings for buffer management.
   "b b" '(ibuffer                            :wk "Ibuffer")
   "b c" '(clone-indirect-buffer-other-window :wk "Clone indirect buffer other window")
   "b k" '(kill-current-buffer                :wk "Kill current buffer")
-  "b n" '(next-buffer                        :wk "Next buffer")
-  "b p" '(previous-buffer                    :wk "Previous buffer")
-  "b B" '(ibuffer-list-buffers               :wk "Ibuffer list buffers")
-  "b K" '(kill-buffer                        :wk "Kill buffer")
   "b 1" '(kill-other-buffers                 :wk "Kill other buffers"))
 #+end_src
 

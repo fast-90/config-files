@@ -1969,7 +1969,14 @@ Function to archive all done task in current org agenda/file.
   :hook
   (consult-after-jump-hook . pulsar-recenter-middle)
   (consult-after-jump-hook . pulsar-reveal-entry)
-  (window-configuration-change-hook . pulsar-pulse-line))
+  (logos-page-motion-hook . pulsar-recenter-middle)
+  ;; (window-configuration-change-hook . pulsar-pulse-line)  ;; Pulses when scrolling through org-agenda and when a pop-up (e.g. corfu or which-key) shows/changes
+  ;; (window-selection-change-functions . pulsar-pulse-line)  ;; Doesn't pulse when switching buffer in a single window
+  ;; (window-state-change-functions . pulsar-pulse-line) ;; Doesn't pulse when switching buffer in a single window
+  ;; (window-state-change-hook . pulsar-pulse-line)  ;; Pulses on blank lines in org-agenda and when a pop-up (e.g. corfu or which-key) shows/changes
+  ;; (window-buffer-change-functions . pulsar-pulse-line) ;; Doesn't pulse when switching buffer in a single window
+  (buffer-list-update-hook . pulsar-pulse-line)  ;; Pulses when which-key pop-up shows
+  )
 #+end_src
 
 * Web browsing

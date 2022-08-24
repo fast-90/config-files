@@ -1548,6 +1548,12 @@ tasks."
 
 ** Org agenda settings
 
+*** Show agenda in new tab
+
+#+begin_src emacs-lisp
+(setq org-agenda-window-setup 'other-tab)
+#+end_src
+
 *** Fix title org-roam file in todo list
 
 #+begin_src emacs-lisp

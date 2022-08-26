@@ -286,6 +286,14 @@ I copied this over from [[https://github.com/Nathan-Furnal/dotemacs/blob/master/
   (global-so-long-mode 1))
 #+end_src
 
+** Update load-path
+
+Add folder with custom libraries to load-path. Currently only used for =mail-config=.
+
+#+begin_src emacs-lisp
+(push (expand-file-name "lisp" user-emacs-directory) load-path)
+#+end_src
+
 * OS specific settings
 
 ** Define booleans for OS
@@ -395,6 +403,7 @@ Evil collection is a collection of Evil bindings for the parts of Emacs that Evi
                                     doc-view
                                     company
                                     embark
+                                    mu4e
                                     helpful)) ; Modes to activate Evil keybindings for
   (evil-collection-init))
 #+end_src
@@ -2305,5 +2314,11 @@ See also [[https://orgmode.org/manual/Using-Header-Arguments.html][here]] for mo
      :states  '(normal motion override)
      :keymaps '(ledger-reconcile-mode-map)
      "q"  'ledger-reconcile-quit)))
+#+end_src
+
+* Email
+
+#+begin_src emacs-lisp
+(require 'mail-config)
 #+end_src
 

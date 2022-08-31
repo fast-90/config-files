@@ -237,6 +237,7 @@ I copied this over from [[https://github.com/Nathan-Furnal/dotemacs/blob/master/
 (use-package recentf
   :defer 2
   :init
+  (add-to-list 'recentf-exclude (recentf-expand-file-name "~/.maildir/.*"))
   (recentf-mode 1))
 #+end_src
 
@@ -574,6 +575,12 @@ Keybindings for buffer management.
 ** File management
 
 #+begin_src emacs-lisp
+(defun duy/open-config ()
+  (interactive)
+  (find-file "~/repos/config-files/emacs/config.org"))
+#+end_src
+
+#+begin_src emacs-lisp
 (leader-keys
  "f"   '(:ignore t           :wk "File")
  "."   '(find-file           :wk "Find file")
@@ -583,7 +590,7 @@ Keybindings for buffer management.
  "f r" '(consult-recent-file :wk "Recent files")
  "f s" '(save-buffer         :wk "Save file")
  "f u" '(sudo-edit-find-file :wk "Sudo find file")
- "f C" '(copy-file           :wk "Copy file")
+ "f C" '(duy/open-config     :wk "Config file")
  "f D" '(delete-file         :wk "Delete file")
  "f R" '(rename-file         :wk "Rename file")
  "f S" '(write-file          :wk "Save file as...")

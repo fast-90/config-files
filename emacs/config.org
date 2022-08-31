@@ -597,7 +597,7 @@ Keybindings for buffer management.
 The used fonts have different names on different computers:
 
 #+begin_src emacs-lisp
-(if (string= system-name "Duys-MBP.home")
+(if (string= system-name "Duys-MBP")
     (setq duy/default-font "FiraMono Nerd Font Mono"
           duy/variable-font "IBM Plex Sans"
           duy/default-font-size 13.0

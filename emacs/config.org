@@ -237,8 +237,8 @@ I copied this over from [[https://github.com/Nathan-Furnal/dotemacs/blob/master/
 (use-package recentf
   :defer 2
   :init
-  (add-to-list 'recentf-exclude (recentf-expand-file-name "~/.maildir/.*"))
-  (recentf-mode 1))
+  (recentf-mode 1)
+  (add-to-list 'recentf-exclude (recentf-expand-file-name "~/.maildir/.*")))
 #+end_src
 
 ** undo-tree

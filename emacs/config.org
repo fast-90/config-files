@@ -698,6 +698,9 @@ Other good themes:
           (1 . (rainbow overline bold 1.3))
           (2 . (bold 1.2))
           (3 . (bold 1.1))))
+  (setq modus-themes-org-agenda
+        '((header-block . (variable-pitch 1.3 medium))
+          (header-date . (1.2))))
   (defun duy/modus-themes-toggle ()
     "Toggle between `modus-operandi' and `modus-vivendi' themes.
 This uses `enable-theme' instead of the standard method of
@@ -1351,6 +1354,7 @@ Package to easily navigate cursor within buffers. Using this over evil-easymotio
  ;; (org-block-begin-line ((nil (:inherit 'fixed-pitch))))
   :hook
   (org-mode-hook . duy/org-mode-setup)
+  (org-agenda-finalize-hook . (lambda () (display-line-numbers-mode 0)))
   ;; Prepend org-mode-line-string to global-mode-string when clocking in
   (org-clock-in-hook . (lambda ()
                          (delq 'org-mode-line-string global-mode-string)  ; Delete first as org-clock-in appends it automatically
@@ -1625,6 +1629,7 @@ Use org-super-agenda to group TODOs in agenda view.
   :straight t
   :config
   (add-hook 'org-agenda-mode-hook 'org-super-agenda-mode)
+  (setq org-super-agenda-header-prefix nil)
   (setq org-super-agenda-header-map (make-sparse-keymap)))
 
 #+end_src
@@ -1652,6 +1657,7 @@ Set todo keywords, tags etc.
                             ("@writing" . ?w)
                             ("@office" . ?o)
                             ("@home" . ?h)
+                            ("focus" . ?f)
                             (:newline)
                             ("WAITING" . ?W)
                             ("HOLD" . ?H))))
@@ -1695,66 +1701,83 @@ Function to automatically group TODOs by title.
 
 #+begin_src emacs-lisp
 (setq duy/agenda-group-main
-      '(
-	(:discard (:scheduled today))
-	(:discard (:scheduled past))
-	(:name "Next"
-	       :todo "NEXT")
-	(:name "Focus"
-	       :tag "focus")
-	(:name "Scheduled"
-	       :scheduled future)
-	(:name "Waiting"
-	       :todo "WAITING")
-	(:discard (:anything t))
-	))
+      '((:discard (:scheduled today))
+        (:discard (:scheduled past))
+        (:name none
+               :priority>= "C")
+        (:name "Currently focusing on\n"
+               :tag "focus")
+        (:name "Next actions\n"
+               :todo "NEXT")
+        (:name "Waiting on\n"
+               :todo "WAITING")
+        (:discard (:anything t))))
 
 (setq duy/agenda-group-today
-      '(
-	(:name "Today"
-	       :time-grid t
-	       :date today
-	       :scheduled today)
-	(:name "Upcoming deadlines"
-               :deadline future)
-	))
+      '((:name "Today"
+               :time-grid t
+               :date today
+               :scheduled today)
+        (:name "Upcoming deadlines"
+               :deadline future)))
 
 (setq duy/agenda-group-backlog
-      '(
-	(:discard (:tag "refile"))
-	(:auto-title t) ;; defined with org-super-agenda--def-auto-group
-	))
+      '((:discard (:tag "refile"))
+        (:auto-title t)))  ;; defined with org-super-agenda--def-auto-group
 
 (setq duy/agenda-group-backlog-unscheduled
-      '(
-	(:discard (:tag "refile"))
-	(:discard (:scheduled t))
-	(:discard (:deadline today))
-	(:auto-title t) ;; defined with org-super-agenda--def-auto-group
-	))
+      '((:discard (:tag "refile"))
+        (:discard (:scheduled t))
+        (:discard (:deadline today))
+        (:auto-title t))) ;; defined with org-super-agenda--def-auto-group
 
 (setq duy/agenda-group-inbox
-      '(
-	(:name ""
-	       :tag "refile")
-	(:discard (:anything t))
-	))
+      '((:name none
+               :tag "refile")
+        (:discard (:anything t))))
 
 (setq org-agenda-custom-commands
       `((" " "Agenda"
-	 ((agenda "" ((org-agenda-span 'day)
-		      (org-super-agenda-groups duy/agenda-group-today)))
-	  (todo "" ((org-agenda-overriding-header "Tasks")
-		    (org-super-agenda-groups duy/agenda-group-main)))
-	  (todo "" ((org-agenda-overriding-header "Inbox")
-		    (org-super-agenda-groups duy/agenda-group-inbox)))
-	  (todo "TODO" ((org-agenda-overriding-header "Backlog")
-			(org-super-agenda-groups duy/agenda-group-backlog-unscheduled)))
-	  ))
-	("b" "Backlog"
-	 ((todo "TODO" ((org-agenda-overriding-header "Backlog")
-			(org-super-agenda-groups duy/agenda-group-backlog))))
-	 )))
+         ((todo "" ((org-agenda-overriding-header "Important tasks\n")
+                    (org-super-agenda-groups duy/agenda-group-main)))
+          (agenda "" ((org-agenda-span 1)
+                      (org-deadline-warning-days 0)
+                      (org-agenda-block-separator nil)
+                      (org-scheduled-past-days 0)
+                      ;; We don't need the `org-agenda-date-today'
+                      ;; highlight because that only has a practical
+                      ;; utility in multi-day views.
+                      (org-agenda-day-face-function (lambda (date) 'org-agenda-date))
+                      (org-agenda-format-date "%A %-e %B %Y")
+                      (org-agenda-overriding-header "\nToday's agenda\n")))
+          (agenda "" ((org-agenda-start-on-weekday nil)
+                      (org-agenda-start-day "+1d")
+                      (org-agenda-span 3)
+                      (org-deadline-warning-days 0)
+                      (org-agenda-block-separator nil)
+                      (org-agenda-skip-function '(org-agenda-skip-entry-if 'todo 'done))
+                      (org-agenda-overriding-header "\nNext three days\n")))
+          (agenda "" ((org-agenda-time-grid nil)
+                      (org-agenda-start-on-weekday nil)
+                      ;; We don't want to replicate the previous section's
+                      ;; three days, so we start counting from the day after.
+                      (org-agenda-start-day "+4d")
+                      (org-agenda-span 14)
+                      (org-agenda-show-all-dates nil)
+                      (org-deadline-warning-days 0)
+                      (org-agenda-block-separator nil)
+                      (org-agenda-entry-types '(:deadline))
+                      (org-agenda-skip-function '(org-agenda-skip-entry-if 'todo 'done))
+                      (org-agenda-overriding-header "\nUpcoming deadlines (+14d)\n")))
+          (todo "" ((org-agenda-overriding-header "Inbox\n")
+                    (org-super-agenda-groups duy/agenda-group-inbox)
+                    (org-agenda-block-separator ?-)))
+          (todo "TODO" ((org-agenda-overriding-header "Backlog")
+                        (org-super-agenda-groups duy/agenda-group-backlog-unscheduled)
+                        (org-agenda-block-separator "")))))
+        ("b" "Backlog"
+         ((todo "TODO" ((org-agenda-overriding-header "Backlog")
+                        (org-super-agenda-groups duy/agenda-group-backlog)))))))
 #+end_src
 
 *** org-agenda tags display settings
@@ -2004,9 +2027,7 @@ Open URLs in qutebrowser:
   :ensure-system-package qutebrowser
   :config
   (setq browse-url-browser-function 'browse-url-generic
-        browse-url-generic-program "qutebrowser")
-  (leader-keys
-    "u" '(browse-url :wk "Browse URL")))
+        browse-url-generic-program "qutebrowser"))
 #+end_src
 
 * Pandoc

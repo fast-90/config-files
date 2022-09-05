@@ -238,6 +238,7 @@ I copied this over from [[https://github.com/Nathan-Furnal/dotemacs/blob/master/
   :defer 2
   :init
   (recentf-mode 1)
+  (add-to-list 'recentf-exclude (recentf-expand-file-name "/tmp/.*"))
   (add-to-list 'recentf-exclude (recentf-expand-file-name "~/.maildir/.*")))
 #+end_src
 
@@ -399,6 +400,7 @@ Evil collection is a collection of Evil bindings for the parts of Emacs that Evi
                                     dashboard
                                     dired
                                     ibuffer
+                                    calc
                                     magit
                                     pdf
                                     doc-view
@@ -1400,6 +1402,8 @@ Package to easily navigate cursor within buffers. Using this over evil-easymotio
          "* TODO %?\n%U\n" :clock-in nil :clock-resume t)
         ("t" "Today" plain (file general-task-file)
          "* TODO %?\n SCHEDULED: %t\n%U\n" :clock-in nil :clock-resume t)
+        ("m" "Mail" entry (file inbox-file)
+         "* TODO %:from: %a %?\n%U\n" :clock-in nil :clock-resume t)
         ))
 #+end_src
 

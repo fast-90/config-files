@@ -162,24 +162,24 @@ Use latest version of ~org~ via ~straight~.
 Adjust emacs default settings like UI, indentation, bell sound, back up locations etc.
 
 #+begin_src emacs-lisp
-(setq-default cursor-type 'bar)               ; Line-style cursor similar to other text editors
-(setq inhibit-startup-screen t)               ; Disable startup screen
-(setq initial-scratch-message "")	        ; Make *scratch* buffer blank
-(setq confirm-kill-processes nil)		; Stop confirming the killing of processes
-(setq use-short-answers t)                    ; y-or-n-p makes answering questions faster
-(show-paren-mode t)                           ; Visually indicates pair of matching parentheses
-(delete-selection-mode t)                     ; Start writing straight after deletion
-(put 'narrow-to-region 'disabled nil)	        ; Allows narrowing bound to C-x n n (region) and C-x n w (widen)
-(setq read-process-output-max (* 1024 1024))  ; Increase the amount of data which Emacs reads from the process
-(global-hl-line-mode 1)			; Highlight the current line to make it more visible
-(global-display-line-numbers-mode t)          ; Enable line numbers
-(setq display-line-numbers-type 'relative)    ; Set relative line numbers
-(setq create-lockfiles nil)                   ; lock files kill `npm start'
-(setq-default fill-column 79)		        ; Set fill column to 80 rather than 70, in all cases.
-(pixel-scroll-precision-mode 1)	        ; Precision scrolling
-(setq ring-bell-function 'ignore)		; Disable bell sound
-(setq-default indent-tabs-mode nil)		; Don't use tabs for indentation
-(setq use-default-font-for-symbols nil)       ; Don't use use default fonts for symbols
+(setq-default cursor-type 'bar)                       ; Line-style cursor similar to other text editors
+(setq inhibit-startup-screen t)                       ; Disable startup screen
+(setq initial-scratch-message "")                     ; Make *scratch* buffer blank
+(setq confirm-kill-processes nil)                     ; Stop confirming the killing of processes
+(setq use-short-answers t)                            ; y-or-n-p makes answering questions faster
+(show-paren-mode t)                                   ; Visually indicates pair of matching parentheses
+(delete-selection-mode t)                             ; Start writing straight after deletion
+(put 'narrow-to-region 'disabled nil)                 ; Allows narrowing bound to C-x n n (region) and C-x n w (widen)
+(setq read-process-output-max (* 1024 1024))          ; Increase the amount of data which Emacs reads from the process
+(global-hl-line-mode 1)                               ; Highlight the current line to make it more visible
+(add-hook 'prog-mode-hook 'display-line-numbers-mode) ; Enable line numbers for programming modes
+(setq display-line-numbers-type 'relative)            ; Set relative line numbers
+(setq create-lockfiles nil)                           ; lock files kill `npm start'
+(setq-default fill-column 79)                         ; Set fill column to 80 rather than 70, in all cases.
+(pixel-scroll-precision-mode 1)                       ; Precision scrolling
+(setq ring-bell-function 'ignore)                     ; Disable bell sound
+(setq-default indent-tabs-mode nil)                   ; Don't use tabs for indentation
+(setq use-default-font-for-symbols nil)               ; Don't use use default fonts for symbols
 
 ;; Change locations of backups, autosaves and manual customizations
 (setq backup-directory-alist `(("." . "~/.saves")))
@@ -1302,7 +1302,6 @@ Package to easily navigate cursor within buffers. Using this over evil-easymotio
   (variable-pitch-mode 1)
   (visual-line-mode 1)
   (evil-org-mode 1)
-  (display-line-numbers-mode 0)
   (setq flyspell-generic-check-word-predicate 'org-mode-flyspell-verify)  ;; Don't spell check src blocks
   (setq-local corfu-auto nil))  ;; Don't auto complete in org-buffers (to avoid org-roam link inserts)
 #+end_src
@@ -1356,7 +1355,6 @@ Package to easily navigate cursor within buffers. Using this over evil-easymotio
  ;; (org-block-begin-line ((nil (:inherit 'fixed-pitch))))
   :hook
   (org-mode-hook . duy/org-mode-setup)
-  (org-agenda-finalize-hook . (lambda () (display-line-numbers-mode 0)))
   ;; Prepend org-mode-line-string to global-mode-string when clocking in
   (org-clock-in-hook . (lambda ()
                          (delq 'org-mode-line-string global-mode-string)  ; Delete first as org-clock-in appends it automatically
@@ -2318,15 +2316,12 @@ See also [[https://orgmode.org/manual/Using-Header-Arguments.html][here]] for mo
                       ("Monthly averages" "%(binary) -f %(ledger-file) reg --price-db .pricedb -MA")))
     :init
     (add-to-list 'auto-mode-alist '("\\.pricedb\\'" . ledger-mode))
-    (defun duy/disable-line-numbers ()
-      (display-line-numbers-mode 0))
     ;; (advice-add 'ledger-report-edit-report :before #'so-long-revert)
     ;; (advice-add 'ledger-report-edit-report :after #'so-long-minor-mode)
     :hook
     (ledger-mode-hook . ledger-flymake-enable)
     ;; (ledger-report-mode-hook . so-long-minor-mode)
     ;; (ledger-report-after-report-hook . so-long-minor-mode)
-    (ledger-report-after-report-hook . duy/disable-line-numbers)
     :config
     (local-leader-keys
       :keymaps '(ledger-mode-map ledger-report-mode-map)

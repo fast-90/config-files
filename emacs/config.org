@@ -1352,7 +1352,7 @@ Package to easily navigate cursor within buffers. Using this over evil-easymotio
   (org-headline-done ((t (:inherit 'shadow :strike-through t))))
   (org-agenda-done ((t (:inherit 'shadow))))
   (org-image-actual-width (/ (display-pixel-width) 2))
- ;; (org-block-begin-line ((nil (:inherit 'fixed-pitch))))
+  ;; (org-block-begin-line ((nil (:inherit 'fixed-pitch))))
   :hook
   (org-mode-hook . duy/org-mode-setup)
   ;; Prepend org-mode-line-string to global-mode-string when clocking in
@@ -1367,7 +1367,12 @@ Package to easily navigate cursor within buffers. Using this over evil-easymotio
   :bind
   (:map org-mode-map
         ("C-M-h" . org-shiftleft)
-        ("C-M-l" . org-shiftright))
+        ("C-M-l" . org-shiftright)
+        ("C-M-j" . org-shiftdown)
+        ("C-M-k" . org-shiftup)
+        :map org-agenda-mode-map
+        ("C-M-j" . org-agenda-priority-down)
+        ("C-M-k" . org-agenda-priority-up))
   :config
   (advice-add 'org-refile :after (lambda (&rest _) (org-save-all-org-buffers)))
   (require 'org-habit)

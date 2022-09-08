@@ -1583,6 +1583,12 @@ tasks."
 (setq org-agenda-window-setup 'other-tab)
 #+end_src
 
+*** Disable inherited tags in agenda view
+
+#+begin_src emacs-lisp
+(setq org-agenda-show-inherited-tags nil)
+#+end_src
+
 *** Fix title org-roam file in todo list
 
 #+begin_src emacs-lisp

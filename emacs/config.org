@@ -1560,7 +1560,9 @@ tasks."
 
 (defun vulpea-agenda-files-update (&rest _)
   "Update the value of `org-agenda-files'."
-  (setq org-agenda-files (vulpea-project-files)))
+  (setq org-agenda-files (vulpea-project-files))
+  (when (file-exists-p "~/.calendar/calendar.org")
+    (add-to-list 'org-agenda-files "~/.calendar/calendar.org")))
 
 (add-hook 'find-file-hook #'vulpea-project-update-tag)
 (add-hook 'before-save-hook #'vulpea-project-update-tag)
@@ -1705,7 +1707,7 @@ Function to automatically group TODOs by title.
 (setq duy/agenda-group-main
       '((:discard (:scheduled today))
         (:discard (:scheduled past))
-        (:name none
+        (:name "Important tasks\n"
                :priority>= "C")
         (:name "Currently focusing on\n"
                :tag "focus")
@@ -1740,7 +1742,8 @@ Function to automatically group TODOs by title.
 
 (setq org-agenda-custom-commands
       `((" " "Agenda"
-         ((todo "" ((org-agenda-overriding-header "Important tasks\n")
+         ((todo "" ((org-agenda-overriding-header "Task list")
+                    (org-agenda-block-separator nil)
                     (org-super-agenda-groups duy/agenda-group-main)))
           (agenda "" ((org-agenda-span 1)
                       (org-deadline-warning-days 0)

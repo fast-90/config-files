@@ -1252,18 +1252,37 @@ Package to easily navigate cursor within buffers. Using this over evil-easymotio
   (defun duy/flyspell-correct-all ()
     "Correct all words, one by one"
     (flyspell-correct-at-point) (consult-flyspell))
+  (setq consult-flyspell-select-function 'duy/flyspell-correct-all)
   (defun duy/flyspell-delete-all-overlays ()
     "Delete all flyspell checks in buffer."
     (interactive)
     (flyspell-delete-all-overlays))
-  (setq consult-flyspell-select-function 'duy/flyspell-correct-all)
+  (defun duy/flyspell-correct-at-point ()
+    "Correct word at point."
+    (interactive)
+    (progn (flyspell-word) (flyspell-correct-at-point)))
+  (defvar duy/ispell-dicts
+    '(("English (US)" . "en_US")
+      ("English (GB)" . "en_GB")
+      ("Dutch" . "nl"))
+    "Alist of languages dictionaries")
+  (defun duy/ispell-dictionaries-complete ()
+    "Select an item from `duy/ispell-dicts'."
+    (interactive)
+    (let* ((dicts (mapcar #'car duy/ispell-dicts))
+           (choice (completing-read "Select dictionary: " dicts nil t))
+           (key (cdr (assoc `,choice duy/ispell-dicts))))
+      (ispell-change-dictionary key)
+      (message "Switched to %s" key)))
+  (setq ispell-dictionary "en_GB")
   (leader-keys
     "s"   '(nil                              :wk "Spell check")
-    "s D" '(ispell-change-dictionary         :wk "Change dictionary")
+    ;; "s D" '(ispell-change-dictionary         :wk "Change dictionary")
+    "s l" '(duy/ispell-dictionaries-complete :wk "Change language")
     "s r" '(duy/flyspell-region              :wk "Flyspell region")
     "s b" '(duy/flyspell-buffer              :wk "Flyspell buffer")
-    "s w" '(flyspell-correct-at-point        :wk "Flyspell word and correct")
-    "s B" '(duy/flyspell-delete-all-overlays :wk "Delete spell check buffer")))
+    "s w" '(duy/flyspell-correct-at-point    :wk "Flyspell word and correct")
+    "s u" '(duy/flyspell-delete-all-overlays :wk "Delete spell check buffer")))
 #+end_src
 
 * Version control

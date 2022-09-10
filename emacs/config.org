@@ -1099,12 +1099,15 @@ Enabling icons in Corfu:
 #+begin_src emacs-lisp
 (use-package consult
   :straight t
+  :init
+  (setq consult-locate-args "locate")
   :bind (("C-s" . consult-line)
          :map minibuffer-local-map
          ("C-r" . consult-history))
   :config
   (leader-keys
     "TAB" '(consult-buffer      :wk "Switch buffer")
+    "f l" '(consult-locate      :wk "Locate")
     "j h" '(consult-org-heading :wk "Jump to heading")
     "j o" '(consult-outline     :wk "Jump to outline")))
 #+end_src

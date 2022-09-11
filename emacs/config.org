@@ -520,7 +520,15 @@ function (similar to Spacemacs/Doom/VSpaceCode).
 dired-single-up-directory still creates a new buffer."
       (interactive)
       (dired-single-buffer ".."))
+    (defun duy/quit-dired-window ()
+      "Custom quit dired window.
+Kills buffer by default. With prefix argument, buries buffer."
+      (interactive)
+      (if current-prefix-arg
+          (quit-window)
+        (kill-this-buffer)))
     (evil-collection-define-key 'normal 'dired-mode-map
+      "q" 'duy/quit-dired-window
       "h" 'duy/dired-single-up-directory
       "l" 'dired-single-buffer)
     (leader-keys
@@ -1109,6 +1117,21 @@ Enabling icons in Corfu:
   :straight t
   :init
   (setq consult-locate-args "locate")
+  (defvar dired-source
+    (list :name     "Dired Buffer"
+          :category 'buffer
+          :narrow   ?d
+          :face     'consult-buffer
+          :history  'buffer-name-history
+          :state    #'consult--buffer-state
+          :items
+          (lambda ()
+            (mapcar #'buffer-name
+                    (seq-filter
+                     (lambda (x)
+                       (eq (buffer-local-value 'major-mode x) 'dired-mode))
+                     (buffer-list))))))
+  (add-to-list 'consult-buffer-sources 'dired-source 'append)
   :bind (("C-s" . consult-line)
          :map minibuffer-local-map
          ("C-r" . consult-history))

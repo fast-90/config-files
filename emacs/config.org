@@ -1532,6 +1532,23 @@ Org-appear shows the emphasis markers when your cursor is on the text, even if ~
     "n s" '(consult-org-roam-search :wk "Search in notes")))
 #+end_src
 
+** Salv-mode
+
+Salv-mode provides a local minor mode to save a buffer when Emacs is idle. I only need it for my org-roam notes as I am constantly changing them during each session.
+
+#+begin_src emacs-lisp
+(use-package salv
+  :straight (:host github :repo "alphapapa/salv.el")
+  :init
+  (defun duy/org-roam-salv-mode ()
+    "Enable salv-mode for org-roam files"
+    (when (and (buffer-file-name)
+               (file-in-directory-p (buffer-file-name) org-roam-directory))
+      (salv-mode 1)))
+  :hook
+  (org-mode-hook . duy/org-roam-salv-mode))
+#+end_src
+
 * Org agenda (using org-roam)
 
 ** Helper functions

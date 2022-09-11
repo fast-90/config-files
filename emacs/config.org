@@ -1117,6 +1117,10 @@ Enabling icons in Corfu:
   :straight t
   :init
   (setq consult-locate-args "locate")
+  :bind (("C-s" . consult-line)
+         :map minibuffer-local-map
+         ("C-r" . consult-history))
+  :config
   (defvar dired-source
     (list :name     "Dired Buffer"
           :category 'buffer
@@ -1132,10 +1136,6 @@ Enabling icons in Corfu:
                        (eq (buffer-local-value 'major-mode x) 'dired-mode))
                      (buffer-list))))))
   (add-to-list 'consult-buffer-sources 'dired-source 'append)
-  :bind (("C-s" . consult-line)
-         :map minibuffer-local-map
-         ("C-r" . consult-history))
-  :config
   (leader-keys
     "TAB" '(consult-buffer      :wk "Switch buffer")
     "f l" '(consult-locate      :wk "Locate")

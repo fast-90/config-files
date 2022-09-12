@@ -585,6 +585,23 @@ Keybindings for buffer management.
 ** File management
 
 #+begin_src emacs-lisp
+(defun duy/sudo-find-file (file)
+  "Open FILE as root."
+  (interactive "FOpen file as root: ")
+  (when (file-writable-p file)
+    (user-error "File is user writeable, aborting sudo"))
+  (find-file (if (file-remote-p file)
+                 (concat "/" (file-remote-p file 'method) ":"
+                         (file-remote-p file 'user) "@" (file-remote-p file 'host)
+                         "|sudo:root@"
+                         (file-remote-p file 'host) ":" (file-remote-p file 'localname))
+               (concat "/sudo:root@localhost:" file))))
+
+(defun duy/sudo-edit-file ()
+  "Edit current file as root."
+  (interactive)
+  (duy/sudo-find-file (buffer-file-name)))
+
 (defun duy/open-config ()
   "Open main config file."
   (interactive)
@@ -598,21 +615,21 @@ Keybindings for buffer management.
 
 #+begin_src emacs-lisp
 (leader-keys
- "f"   '(:ignore t              :wk "File")
+ "f"     '(:ignore t            :wk "File")
  "."     '(find-file            :wk "Find file")
  "f f"   '(find-file            :wk "Find file")
  "f F"   '(consult-find         :wk "Consult find")
  "f g"   '(consult-ripgrep      :wk "Consult ripgrep")
  "f r"   '(consult-recent-file  :wk "Recent files")
  "f s"   '(save-buffer          :wk "Save file")
- "f u"   '(sudo-edit-find-file  :wk "Sudo find file")
  "f z"   '(:ignore t            :wk "Configs")
  "f z c" '(duy/open-config      :wk "config.org")
  "f z m" '(duy/open-mail-config :wk "mail-config.org")
  "f D"   '(delete-file          :wk "Delete file")
  "f R"   '(rename-file          :wk "Rename file")
  "f S"   '(write-file           :wk "Save file as...")
- "f U"   '(sudo-edit            :wk "Sudo edit file"))
+ "f u"   '(duy/sudo-edit-file   :wk "Sudo edit file")
+ "f U"   '(duy/sudo-find-file   :wk "Sudo find file"))
 #+End_src
 
 * Fonts and themes
@@ -1168,6 +1185,7 @@ Enabling icons in Corfu:
   (define-key embark-file-map     (kbd "o") (my/embark-ace-action find-file))
   (define-key embark-buffer-map   (kbd "o") (my/embark-ace-action switch-to-buffer))
   (define-key embark-bookmark-map (kbd "o") (my/embark-ace-action bookmark-jump))
+  (define-key embark-file-map (kbd "S") 'duy/sudo-find-file)
   (when (and (eq system-type 'gnu/linux)
              (string-match "WSL" operating-system-release))
     (bind-keys

@@ -1475,7 +1475,7 @@ Package to easily navigate cursor within buffers. Using this over evil-easymotio
       '(("i" "Inbox" plain (file inbox-file)
          "* TODO %?\n%U\n" :clock-in nil :clock-resume t)
         ("t" "Today" plain (file general-task-file)
-         "* TODO %?\n SCHEDULED: %t\n%U\n" :clock-in nil :clock-resume t)
+         "* TODO %?\n SCHEDULED: %^t\n%U\n" :clock-in nil :clock-resume t)
         ("m" "Mail" entry (file inbox-file)
          "* TODO %:from: %a %?\n%U\n" :clock-in nil :clock-resume t)
         ))

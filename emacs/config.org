@@ -2410,6 +2410,7 @@ See also [[https://orgmode.org/manual/Using-Header-Arguments.html][here]] for mo
                       ("bal" "%(binary) -f %(ledger-file) bal --price-db .pricedb")
                       ("reg" "%(binary) -f %(ledger-file) reg --price-db .pricedb")
                       ("Monthly averages" "%(binary) -f %(ledger-file) reg --price-db .pricedb -MA")))
+    (ledger-reconcile-default-commodity "EUR")
     :init
     (add-to-list 'auto-mode-alist '("\\.pricedb\\'" . ledger-mode))
     ;; (advice-add 'ledger-report-edit-report :before #'so-long-revert)
@@ -2433,6 +2434,10 @@ See also [[https://orgmode.org/manual/Using-Header-Arguments.html][here]] for mo
      "e"  'ledger-report-edit-report
      "r"  'ledger-report-redo
      "s"  'duy/so-long-toggle)
+    (general-define-key
+     :states  '(normal motion override)
+     :keymaps '(ledger-reconcile-mode-map)
+     "TAB"  'ledger-reconcile-toggle)
     (general-define-key
      :states  '(normal motion override)
      :keymaps '(ledger-reconcile-mode-map)

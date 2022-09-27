@@ -1517,7 +1517,7 @@ Org-appear shows the emphasis markers when your cursor is on the text, even if ~
       :if-new (file+head "%<%Y%m%d%H%M%S>-${slug}.org" "#+title: ${title}\n#+date: %U\n")
       :unnarrowed t)))
   (org-roam-dailies-capture-templates
-   '(("d" "default" entry "* %<%I:%M %p>: %?"
+   '(("d" "default" entry "* %<%H:%M>: %?"
       :if-new (file+head "%<%Y-%m-%d>.org" "#+title: %<%Y-%m-%d>\n"))))
   :bind (:map org-mode-map
               ("C-M-i" . completion-at-point)

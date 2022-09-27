@@ -403,6 +403,7 @@ Evil collection is a collection of Evil bindings for the parts of Emacs that Evi
                                     calc
                                     magit
                                     pdf
+                                    elfeed
                                     doc-view
                                     company
                                     embark
@@ -2448,5 +2449,15 @@ See also [[https://orgmode.org/manual/Using-Header-Arguments.html][here]] for mo
 
 #+begin_src emacs-lisp
 (require 'mail-config)
+#+end_src
+
+* Elfeed
+
+#+begin_src emacs-lisp
+(use-package elfeed
+  :straight t
+  :config
+  (setq elfeed-feeds
+        '("https://www.greaterwrong.com/tag/bayes-theorem?showPostCount=true&useTagName=true&format=rss")))
 #+end_src
 

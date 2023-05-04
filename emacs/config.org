@@ -417,12 +417,12 @@ Evil collection is a collection of Evil bindings for the parts of Emacs that Evi
 Bind kj in insert mode to ESC.
 
 #+begin_src emacs-lisp
-(use-package evil-escape
-  :straight t
-  :init
-  (evil-escape-mode 1)
-  (setq evil-escape-key-sequence "kj")
-  (setq evil-escape-delay 0.2))
+;; (use-package evil-escape
+;;   :straight t
+;;   :init
+;;   (evil-escape-mode 1)
+;;   (setq evil-escape-key-sequence "jj")
+;;   (setq evil-escape-delay 0.2))
 #+end_src
 
 ** Evil nerd commenter
@@ -1412,7 +1412,7 @@ Package to easily navigate cursor within buffers. Using this over evil-easymotio
                                   ("l" . "export latex")
                                   ("py" . "src python")
                                   ("ru" . "src rust")
-                                  ("sh" . "src h")
+                                  ("sh" . "src sh")
                                   ("q" . "quote")
                                   ("s" . "src")
                                   ("v" . "verse")
@@ -1782,7 +1782,7 @@ Function to archive all done task in current org agenda/file.
    (lambda ()
      (org-archive-subtree)
      (setq org-map-continue-from (org-element-property :begin (org-element-at-point))))
-   "/DONE" 'file))
+   "/DONE\|CANCELLED" 'file))
 #+end_src
 
 *** Group TODOs by title
@@ -2448,7 +2448,7 @@ See also [[https://orgmode.org/manual/Using-Header-Arguments.html][here]] for mo
 * Email
 
 #+begin_src emacs-lisp
-(require 'mail-config)
+;; (require 'mail-config)
 #+end_src
 
 * Elfeed

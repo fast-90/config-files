@@ -417,12 +417,12 @@ Evil collection is a collection of Evil bindings for the parts of Emacs that Evi
 Bind kj in insert mode to ESC.
 
 #+begin_src emacs-lisp
-(use-package evil-escape
-  :straight t
-  :init
-  (evil-escape-mode 1)
-  (setq evil-escape-key-sequence "kj")
-  (setq evil-escape-delay 0.2))
+;; (use-package evil-escape
+;;   :straight t
+;;   :init
+;;   (evil-escape-mode 1)
+;;   (setq evil-escape-key-sequence "kj")
+;;   (setq evil-escape-delay 0.2))
 #+end_src
 
 ** Evil nerd commenter
@@ -2332,6 +2332,22 @@ This has the following benefits compared to other things I tried:
   :bind (:map jupyter-repl-mode-map 
               ("C-j" . 'jupyter-repl-forward-cell)
               ("C-k" . 'jupyter-repl-backward-cell))
+  :general
+  (defun duy/jupyter-org-insert-src-block-below ()
+    (interactive)
+    (let ((current-prefix-arg '(4))) (call-interactively 'jupyter-org-insert-src-block)))
+  (local-leader-keys
+    :keymaps 'org-mode-map
+    "j"     '(:ignore t                                 :wk "Jupyter")
+    "jc"    '(jupyter-org-clone-block                   :wk "Clone blocks")
+    "jm"    '(jupyter-org-merge-blocks                  :wk "Merge blocks")
+    "js"    '(jupyter-org-split-src-block               :wk "Split blocks")
+    "jM"    '(duy/jupyter-org-move-src-block-hydra/body :wk "Move block")
+    "ja"    '(jupyter-org-insert-src-block              :wk "Insert block above")
+    "jb"    '(duy/jupyter-org-insert-src-block-below    :wk "Insert block below")
+    "jd"    '(jupyter-org-kill-block-and-results        :wk "Kill block and results")
+    "je"    '(jupyter-org-execute-and-next-block        :wk "Execute and next block")
+    "jj"    '(jupyter-org-jump-to-visible-block         :wk "Jump to block"))
   :init
   (org-babel-do-load-languages
    'org-babel-load-languages            ; Languages allowed to run in Org Src blocks
@@ -2339,7 +2355,12 @@ This has the following benefits compared to other things I tried:
   (setq org-babel-default-header-args:jupyter-python '((:async . "yes")
                                                        (:session . "py")
                                                        (:kernel . "python3")))
-  (org-babel-jupyter-override-src-block "python"))
+  (org-babel-jupyter-override-src-block "python")
+  (defhydra duy/jupyter-org-move-src-block-hydra ()
+    "Move block"
+    ("j" (jupyter-org-move-src-block t) "Move down")
+    ("k" jupyter-org-move-src-block "Move up")
+    ("q" nil "quit")))
 #+end_src
 
 See also [[https://orgmode.org/manual/Using-Header-Arguments.html][here]] for more info on how to use ~header-args~ properties in org files.

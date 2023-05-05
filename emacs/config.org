@@ -1503,11 +1503,26 @@ Org-appear shows the emphasis markers when your cursor is on the text, even if ~
 
 ** Org roam
 
+Note: since updating to Emacs 29 (=emacs-plus@29=), I needed to make the following adjustments to get ~org-roam~ working again:
+
+- Pull the ~emacsql~ repository, and adjust straight recipe so that =emacs-sqlite-builtin.el= is included.
+- Set ~org-roam-database-connector~ to ='sqlite-builtin=.
+- In case of =EmacSQL SQLite= not found error, rebuild the binary by running =make= in the =~/.emacs.default/straight/repos/emacsql/= folder.
+
+Related github issues:
+- https://github.com/org-roam/org-roam/issues/2308
+
+#+begin_src emacs-lisp
+(use-package emacsql
+  :straight (:host github :repo: "magit/emacsql" :files (:defaults)))
+#+end_src
+
 #+begin_src emacs-lisp
 (use-package org-roam
   :straight t
   :init
   (setq org-roam-v2-ack t)
+  (setq org-roam-database-connector 'sqlite-builtin)
   :custom
   (org-roam-directory "~/org-roam-notes")
   (org-roam-completion-everywhere t)

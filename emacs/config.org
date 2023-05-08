@@ -2390,6 +2390,22 @@ import pandas
   :bind (:map jupyter-repl-mode-map 
               ("C-j" . 'jupyter-repl-forward-cell)
               ("C-k" . 'jupyter-repl-backward-cell))
+  :general
+  (defun duy/jupyter-org-insert-src-block-below ()
+    (interactive)
+    (let ((current-prefix-arg '(4))) (call-interactively 'jupyter-org-insert-src-block)))
+  (local-leader-keys
+    :keymaps 'org-mode-map
+    "j"     '(:ignore t                                 :wk "Jupyter")
+    "jc"    '(jupyter-org-clone-block                   :wk "Clone blocks")
+    "jm"    '(jupyter-org-merge-blocks                  :wk "Merge blocks")
+    "js"    '(jupyter-org-split-src-block               :wk "Split blocks")
+    "jM"    '(duy/jupyter-org-move-src-block-hydra/body :wk "Move block")
+    "ja"    '(jupyter-org-insert-src-block              :wk "Insert block above")
+    "jb"    '(duy/jupyter-org-insert-src-block-below    :wk "Insert block below")
+    "jd"    '(jupyter-org-kill-block-and-results        :wk "Kill block and results")
+    "je"    '(jupyter-org-execute-and-next-block        :wk "Execute and next block")
+    "jj"    '(jupyter-org-jump-to-visible-block         :wk "Jump to block"))
   :init
   (org-babel-do-load-languages
    'org-babel-load-languages            ; Languages allowed to run in Org Src blocks
@@ -2397,8 +2413,13 @@ import pandas
   (setq org-babel-default-header-args:jupyter-python '((:async . "yes")
                                                        (:session . "py")
                                                        (:kernel . "python3")))
+  (add-hook 'org-babel-after-execute-hook 'org-display-inline-images 'append)
   (org-babel-jupyter-override-src-block "python")
-  (add-hook 'org-babel-after-execute-hook 'org-display-inline-images 'append))
+  (defhydra duy/jupyter-org-move-src-block-hydra ()
+    "Move block"
+    ("j" (jupyter-org-move-src-block t) "Move down")
+    ("k" jupyter-org-move-src-block "Move up")
+    ("q" nil "quit")))
 #+end_src
 
 To ensure that =pandas.DataFrame= objects are displayed as =org= tables, add the following to the Jupyter startup file (=~/.ipython/profile_default/startup/50-middle.py=):
@@ -2516,6 +2537,8 @@ Using ~ox-ipynb~ to convert =.org= files to =.ipynb= files. The built in functio
                       ("reg" "%(binary) -f %(ledger-file) reg --price-db .pricedb")
                       ("Monthly averages" "%(binary) -f %(ledger-file) reg --price-db .pricedb -MA")))
     (ledger-reconcile-default-commodity "EUR")
+    (ledger-reconcile-toggle-to-pending t)
+    (ledger-clear-whole-transactions t)
     :init
     (add-to-list 'auto-mode-alist '("\\.pricedb\\'" . ledger-mode))
     ;; (advice-add 'ledger-report-edit-report :before #'so-long-revert)

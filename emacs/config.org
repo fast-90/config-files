@@ -1207,6 +1207,11 @@ Enabling icons in Corfu:
   (embark-collect-mode . consult-preview-at-point-mode))
 #+end_src
 
+** TODO Completions at point extensions (CAPE)
+
+Idea: use C-p or M-p as the prefix key.
+
+
 * Windows and movement
 
 ** ace-window
@@ -2345,7 +2350,7 @@ This has the following benefits compared to other things I tried:
 - Add venv to list of jupyter kernels by running
 
 #+begin_src bash :noeval
-dm run --venv {venv name} python -m ipykernel install --user --name "{desired kernel name}"
+pdm run --venv {venv name} python -m ipykernel install --user --name "{desired kernel name}"
 #+end_src
 
 - If kernel is still not recognised with ~jupyter-run-repl~, consider restarting emacs.
@@ -2416,7 +2421,11 @@ import pandas
     "Move block"
     ("j" (jupyter-org-move-src-block t) "Move down")
     ("k" jupyter-org-move-src-block "Move up")
-    ("q" nil "quit")))
+    ("q" nil "quit"))
+  (defun jupyter-ansi-color-apply-on-region (begin end)
+    "Fix to make org file decode ansi colors
+See also https://github.com/nnicandro/emacs-jupyter/issues/380"
+    (ansi-color-apply-on-region begin end t)))
 #+end_src
 
 To ensure that =pandas.DataFrame= objects are displayed as =org= tables, add the following to the Jupyter startup file (=~/.ipython/profile_default/startup/50-middle.py=):
@@ -2583,5 +2592,14 @@ Using ~ox-ipynb~ to convert =.org= files to =.ipynb= files. The built in functio
   :config
   (setq elfeed-feeds
         '("https://www.greaterwrong.com/tag/bayes-theorem?showPostCount=true&useTagName=true&format=rss")))
+#+end_src
+
+* ChatGPT
+
+#+begin_src emacs-lisp
+;; (use-package chatgpt-shell
+;;   :straight t
+;;   :custom
+;;   (chatgpt-shell-openai-key ""))
 #+end_src
 

@@ -2354,6 +2354,22 @@ import pandas
 
 - The above workflow can be replicated with any tool that allows the creation of environments (e.g. conda/pyenv/poetry).
   
+**** Development
+
+- Using Eglot and Pyright
+- Create =pyrightconfig.json= in the project root like below.
+- Ensure the project root folder is git version controlled
+  
+  #+begin_src js
+{
+    "exclude": [ ".venv" ],
+    "venvPath": ".",
+    "venv": ".venv",
+    "reportTypeshedErrors": false,
+    "reportMissingImports": true,
+    "reportMissingTypeStubs": false
+}
+  #+end_src
 ** Rust
 
 #+begin_src emacs-lisp

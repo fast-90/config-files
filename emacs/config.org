@@ -1408,7 +1408,7 @@ Package to easily navigate cursor within buffers. Using this over evil-easymotio
   (org-hide-leading-stars nil)
   (org-src-preserve-indentation t)
   (org-hide-emphasis-markers t)        ; Hide markers around emphasised word (e.g. *bold*, /italic/ etc.)
-  (org-adapt-indentation t)
+  ;; (org-adapt-indentation t)
   (org-structure-template-alist '(("a" . "export ascii")
                                   ("c" . "center")
                                   ("C" . "comment")
@@ -1573,7 +1573,10 @@ Related github issues:
 
 ** Org-modern
 
-Testing this package. Disabled =org-indent-mode= (=org-startup-indented=) and =org-bullets= as they conflict with =org-modern=.
+Testing this package. The following are disabled as they conflict with =org-modern=:
++ =org-indent-mode= (=org-startup-indented=)
++ =org-bullets=
++ =org-adapt-indentation=
 
 #+begin_src emacs-lisp
 (use-package org-modern

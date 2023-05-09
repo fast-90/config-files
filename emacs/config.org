@@ -2326,6 +2326,56 @@ Currently using in combination with =direnv= ([[https://github.com/direnv/direnv
     "n" '(numpydoc-generate :wk "Generate docstring")))
 #+end_src
 
+*** Ruff and ruff-lsp
+
+=ruff= is a Python linter written in Rust and therefore extremely fast. There is also =ruff-lsp= which can be used with =eglot=.
+
+For the moment, I can't seem to get this working together as I want (see below for issues). I need to think about what I want to do with this package (e.g. do I want to use it just as a pre-commit hook? Or also with =flymake= and/or LSP for error diagnostics?)
+
+Below are some ways to use it:
+
+**** flymake-ruff
+
+Adds the =flymake-ruff-load= command which loads the hook for current buffer to tell flymake to run checker. Seems kind of manual to invoke it this way, so don't like it as much.
+#+begin_src emacs-lisp
+;; (use-package flymake-ruff
+;;   :straight t)
+#+end_src
+
+
+**** =python-flymake-command=
+
+=python-flymake-command= can be added to =eglot-managed-mode-hook='s =flymake-diagnostic-functions=. Seems to work, but there is overlap in error diagnostics (e.g. unused imports).
+
+***** TODO Replace =ruff= with =ruff-lsp=
+
+#+begin_src emacs-lisp
+;; (add-hook 'python-base-mode-hook 'flymake-mode)
+;; (setq python-flymake-command '("ruff" "--quiet" "--stdin-filename=stdin" "-"))
+;; (add-hook 'eglot-managed-mode-hook
+;;     (lambda () (cond ((derived-mode-p 'python-base-mode)
+;;                       (add-hook 'flymake-diagnostic-functions 'python-flymake nil t))
+;;                       ;; if not adding diagnostic functions to other modes just use an if
+;;                       ;; ...
+;;                      (t nil))))
+#+end_src
+
+**** As an LSP with =ruff-lsp=
+
+Can't seem to get it working side-by-side with =pyright=, which is needed to identify imports from environments, autocompletion etc.
+
+#+begin_src emacs-lisp
+;; (with-eval-after-load 'eglot
+;;   (add-to-list 'eglot-server-programs
+;;                '(python-mode . ("ruff-lsp"))))
+
+;; (with-eval-after-load 'eglot
+;;   (add-to-list 'eglot-server-programs
+;;                `(python-mode . ,(eglot-alternatives
+;;                                '(("pyright-langserver" "--stdio")
+;;                                  ("ruff-lsp"))))))
+#+end_src
+
 *** conda
 
 Although I prefer to use poetry/pyenv to manage my Python coding projects and environments, on most of my computers I also have conda installed. There are a few use cases where this makes sense:

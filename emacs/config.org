@@ -2235,13 +2235,17 @@ Ensure =direnv= is installed via your OS package manager.
   :straight t
   :defer t
   :after consult
-  :hook (python-mode-hook . eglot-ensure)
+  :hook
+  (python-mode-hook . eglot-ensure)
+  (python-ts-mode-hook . eglot-ensure)
   :init
   (define-key evil-normal-state-map (kbd "M-.") nil)
   (define-key evil-normal-state-map (kbd "C->") 'evil-repeat-pop-next)
   (setq xref-show-xrefs-function #'consult-xref)
   (setq xref-show-definitions-function #'consult-xref)
   :config
+  (add-to-list 'eglot-server-programs
+               '(python-ts-mode . ("pyright-langserver" "--stdio")))
   (leader-keys
     "l"   '(nil                   :wk "Lsp")
     "l e" '(consult-flymake       :wk "Error diagnostics")
@@ -2260,13 +2264,23 @@ Ensure =direnv= is installed via your OS package manager.
     "l s" '(consult-eglot-symbols :wk "Search symbols")))
 #+end_src
 
+*** Treesitter
+
+#+begin_src emacs-lisp
+#+end_src
+
 ** Python
 
 #+begin_src emacs-lisp
 (use-package python
   :straight t
   :custom
-  (python-indent-guess-indent-offset-verbose nil))
+  (python-indent-guess-indent-offset-verbose nil)
+  :config 
+  (add-to-list 'major-mode-remap-alist '(python-mode . python-ts-mode)))
+
+;; (setq python-indent-guess-indent-offset-verbose nil)
+;; (add-to-list 'major-mode-remap-alist '(python-mode . python-ts-mode))
 #+end_src
 
 *** Poetry
@@ -2308,7 +2322,9 @@ Currently using in combination with =direnv= ([[https://github.com/direnv/direnv
   :custom
   (blacken-allow-py36 t)
   (blacken-skip-string-normalization t)
-  :hook (python-mode-hook . blacken-mode))
+  :hook
+  (python-mode-hook . blacken-mode)
+  (python-ts-mode-hook . blacken-mode))
 #+end_src
 
 *** Numpydoc
@@ -2323,7 +2339,7 @@ Currently using in combination with =direnv= ([[https://github.com/direnv/direnv
   :config
   (local-leader-keys
     :keymaps 'python-mode-map
-    "n" '(numpydoc-generate :wk "Generate docstring")))
+    "d" '(numpydoc-generate :wk "Generate docstring")))
 #+end_src
 
 *** Ruff and ruff-lsp
@@ -2371,7 +2387,7 @@ Can't seem to get it working side-by-side with =pyright=, which is needed to ide
 #+begin_src emacs-lisp
 ;; (with-eval-after-load 'eglot
 ;;   (add-to-list 'eglot-server-programs
-;;                '(python-mode . ("pylyzer" "--server"))))
+;;                '(python-mode . ("ruff-lsp"))))
 
 ;; (with-eval-after-load 'eglot
 ;;   (add-to-list 'eglot-server-programs

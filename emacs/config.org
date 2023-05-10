@@ -1207,6 +1207,11 @@ Enabling icons in Corfu:
   (embark-collect-mode . consult-preview-at-point-mode))
 #+end_src
 
+** TODO Completions at point extensions (CAPE)
+
+Idea: use C-p or M-p as the prefix key.
+
+
 * Windows and movement
 
 ** ace-window
@@ -1389,9 +1394,9 @@ Package to easily navigate cursor within buffers. Using this over evil-easymotio
   (with-eval-after-load 'flycheck
     (flycheck-add-mode 'proselint 'org-mode))
   ;; Change bullets to actual bullets
-  (font-lock-add-keywords 'org-mode
-                          '(("^ *\\([-]\\) "
-                             (0 (prog1 () (compose-region (match-beginning 1) (match-end 1) "•"))))))
+  ;; (font-lock-add-keywords 'org-mode
+  ;;                         '(("^ *\\([-]\\) "
+  ;;                            (0 (prog1 () (compose-region (match-beginning 1) (match-end 1) "•"))))))
   (setq org-format-latex-options (plist-put org-format-latex-options :scale 1.3))
   :custom
   (org-confirm-babel-evaluate nil)     ; Do not ask for confirmation when evaluating src blocks
@@ -1399,11 +1404,11 @@ Package to easily navigate cursor within buffers. Using this over evil-easymotio
   (org-ellipsis " ▼ ")
   (org-src-fontify-natively t)         ; Fontify code in src blocks
   (org-edit-src-content-indentation 2) ; Indentation within the src blocks
-  (org-startup-indented t)             ; Org headings are indented, as is the text within the headings
+  ;; (org-startup-indented t)             ; Org headings are indented, as is the text within the headings
   (org-hide-leading-stars nil)
   (org-src-preserve-indentation t)
   (org-hide-emphasis-markers t)        ; Hide markers around emphasised word (e.g. *bold*, /italic/ etc.)
-  (org-adapt-indentation t)
+  ;; (org-adapt-indentation t)
   (org-structure-template-alist '(("a" . "export ascii")
                                   ("c" . "center")
                                   ("C" . "comment")
@@ -1485,10 +1490,10 @@ Package to easily navigate cursor within buffers. Using this over evil-easymotio
 ** Org bullet
 
 #+begin_src emacs-lisp
-  (use-package org-bullets
-    :straight t)
+  ;; (use-package org-bullets
+  ;;   :straight t)
 
-  (add-hook 'org-mode-hook (lambda () (org-bullets-mode 1)))
+  ;; (add-hook 'org-mode-hook (lambda () (org-bullets-mode 1)))
 #+end_src
 
 ** Org appear
@@ -1503,11 +1508,26 @@ Org-appear shows the emphasis markers when your cursor is on the text, even if ~
 
 ** Org roam
 
+Note: since updating to Emacs 29 (=emacs-plus@29=), I needed to make the following adjustments to get ~org-roam~ working again:
+
+- Pull the ~emacsql~ repository, and adjust straight recipe so that =emacs-sqlite-builtin.el= is included.
+- Set ~org-roam-database-connector~ to ='sqlite-builtin=.
+- In case of =EmacSQL SQLite= not found error, rebuild the binary by running =make= in the =~/.emacs.default/straight/repos/emacsql/= folder.
+
+Related github issues:
+- https://github.com/org-roam/org-roam/issues/2308
+
+#+begin_src emacs-lisp
+(use-package emacsql
+  :straight (:host github :repo: "magit/emacsql" :files (:defaults)))
+#+end_src
+
 #+begin_src emacs-lisp
 (use-package org-roam
   :straight t
   :init
   (setq org-roam-v2-ack t)
+  (setq org-roam-database-connector 'sqlite-builtin)
   :custom
   (org-roam-directory "~/org-roam-notes")
   (org-roam-completion-everywhere t)
@@ -1549,6 +1569,22 @@ Org-appear shows the emphasis markers when your cursor is on the text, even if ~
   :config
   (leader-keys
     "n s" '(consult-org-roam-search :wk "Search in notes")))
+#+end_src
+
+** Org-modern
+
+Testing this package. The following are disabled as they conflict with =org-modern=:
++ =org-indent-mode= (=org-startup-indented=)
++ =org-bullets=
++ =org-adapt-indentation=
+
+#+begin_src emacs-lisp
+(use-package org-modern
+  :straight t
+  :hook
+  (org-mode-hook . org-modern-mode)
+  :custom
+  (org-modern-table nil))
 #+end_src
 
 ** Salv-mode
@@ -2260,7 +2296,13 @@ Currently using in combination with =direnv= ([[https://github.com/direnv/direnv
 #+begin_src emacs-lisp
 (use-package pet
   :straight t
-  :hook (python-mode))
+  :hook (python-mode-hook . duy/python-pet-hook)
+  :init
+  (defun duy/python-pet-hook ()
+    "Activate pet mode, and set the local variables to identify the correct executables."
+    (pet-mode)
+    (when-let ((black-executable (pet-executable-find "black")))
+      (setq-local python-black-command black-executable))))
 #+end_src
 
 *** Blacken
@@ -2290,6 +2332,56 @@ Currently using in combination with =direnv= ([[https://github.com/direnv/direnv
   (local-leader-keys
     :keymaps 'python-mode-map
     "d" '(numpydoc-generate :wk "Generate docstring")))
+#+end_src
+
+*** Ruff and ruff-lsp
+
+=ruff= is a Python linter written in Rust and therefore extremely fast. There is also =ruff-lsp= which can be used with =eglot=.
+
+For the moment, I can't seem to get this working together as I want (see below for issues). I need to think about what I want to do with this package (e.g. do I want to use it just as a pre-commit hook? Or also with =flymake= and/or LSP for error diagnostics?)
+
+Below are some ways to use it:
+
+**** flymake-ruff
+
+Adds the =flymake-ruff-load= command which loads the hook for current buffer to tell flymake to run checker. Seems kind of manual to invoke it this way, so don't like it as much.
+#+begin_src emacs-lisp
+;; (use-package flymake-ruff
+;;   :straight t)
+#+end_src
+
+
+**** =python-flymake-command=
+
+=python-flymake-command= can be added to =eglot-managed-mode-hook='s =flymake-diagnostic-functions=. Seems to work, but there is overlap in error diagnostics (e.g. unused imports).
+
+***** TODO Replace =ruff= with =ruff-lsp=
+
+#+begin_src emacs-lisp
+;; (add-hook 'python-base-mode-hook 'flymake-mode)
+;; (setq python-flymake-command '("ruff" "--quiet" "--stdin-filename=stdin" "-"))
+;; (add-hook 'eglot-managed-mode-hook
+;;     (lambda () (cond ((derived-mode-p 'python-base-mode)
+;;                       (add-hook 'flymake-diagnostic-functions 'python-flymake nil t))
+;;                       ;; if not adding diagnostic functions to other modes just use an if
+;;                       ;; ...
+;;                      (t nil))))
+#+end_src
+
+**** As an LSP with =ruff-lsp=
+
+Can't seem to get it working side-by-side with =pyright=, which is needed to identify imports from environments, autocompletion etc.
+
+#+begin_src emacs-lisp
+;; (with-eval-after-load 'eglot
+;;   (add-to-list 'eglot-server-programs
+;;                '(python-mode . ("ruff-lsp"))))
+
+;; (with-eval-after-load 'eglot
+;;   (add-to-list 'eglot-server-programs
+;;                `(python-mode . ,(eglot-alternatives
+;;                                '(("pyright-langserver" "--stdio")
+;;                                  ("ruff-lsp"))))))
 #+end_src
 
 *** conda
@@ -2332,7 +2424,7 @@ This has the following benefits compared to other things I tried:
 - Add venv to list of jupyter kernels by running
 
 #+begin_src bash :noeval
-dm run --venv {venv name} python -m ipykernel install --user --name "{desired kernel name}"
+pdm run --venv {venv name} python -m ipykernel install --user --name "{desired kernel name}"
 #+end_src
 
 - If kernel is still not recognised with ~jupyter-run-repl~, consider restarting emacs.
@@ -2396,16 +2488,7 @@ import pandas
     (let ((current-prefix-arg '(4))) (call-interactively 'jupyter-org-insert-src-block)))
   (local-leader-keys
     :keymaps 'org-mode-map
-    "j"     '(:ignore t                                 :wk "Jupyter")
-    "jc"    '(jupyter-org-clone-block                   :wk "Clone blocks")
-    "jm"    '(jupyter-org-merge-blocks                  :wk "Merge blocks")
-    "js"    '(jupyter-org-split-src-block               :wk "Split blocks")
-    "jM"    '(duy/jupyter-org-move-src-block-hydra/body :wk "Move block")
-    "ja"    '(jupyter-org-insert-src-block              :wk "Insert block above")
-    "jb"    '(duy/jupyter-org-insert-src-block-below    :wk "Insert block below")
-    "jd"    '(jupyter-org-kill-block-and-results        :wk "Kill block and results")
-    "je"    '(jupyter-org-execute-and-next-block        :wk "Execute and next block")
-    "jj"    '(jupyter-org-jump-to-visible-block         :wk "Jump to block"))
+    "j" '(duy/jupyter-org-hydra/body :wk "Jupyter"))
   :init
   (org-babel-do-load-languages
    'org-babel-load-languages            ; Languages allowed to run in Org Src blocks
@@ -2419,7 +2502,67 @@ import pandas
     "Move block"
     ("j" (jupyter-org-move-src-block t) "Move down")
     ("k" jupyter-org-move-src-block "Move up")
-    ("q" nil "quit")))
+    ("q" nil "quit"))
+  (defun duy/jupyter-org-hydra/body ()
+    "Custom hydra for jupyter commands.
+Inspired by jupyter-org-hydra from emacs-jupyter."
+    (interactive)
+    (unless (require 'hydra nil t)
+      (error "Package `hydra' not installed"))
+    ;; unbinding this function and define the hydra
+    (fmakunbound 'duy/jupyter-org-hydra/body)
+    (eval `(defhydra duy/jupyter-org-hydra (:color blue :hint nil)
+             "
+          Execute                     Navigate            Edit              Misc
+-------------------------------------------------------------------------------------------
+           _e_: current               _k_: previous       _C-k_: move up    _/_: inspect
+         _C-e_: current to next       _K_: previous busy  _C-j_: move down  _l_: clear result
+         _M-e_: to point              _j_: next           _x_: kill         _L_: clear all
+       _C-M-e_: subtree to point      _J_: next busy      _c_: copy         _i_: interrupt
+         _S-e_: Restart/block         _g_: visible        _o_: clone      _C-s_: scratch buffer
+       _S-C-e_: Restart/to point      _G_: any            _m_: merge
+       _S-M-e_: Restart/buffer    _<tab>_: (un)fold       _s_: split
+           _r_: Goto repl             ^ ^                 _a_: insert above
+           ^ ^                        ^ ^                 _b_: insert below
+           ^ ^                        ^ ^                 _h_: header"
+             ("e" org-ctrl-c-ctrl-c :color red)
+             ("C-e" jupyter-org-execute-and-next-block :color red)
+             ("M-e" jupyter-org-execute-to-point)
+             ("C-M-e" jupyter-org-execute-subtree)
+             ("S-e" jupyter-org-restart-kernel-execute-block)
+             ("S-C-e" jupyter-org-restart-and-execute-to-point)
+             ("S-M-e" jupyter-org-restart-kernel-execute-buffer)
+             ("r" org-babel-switch-to-session)
+
+             ("k" org-babel-previous-src-block :color red)
+             ("K" jupyter-org-previous-busy-src-block :color red)
+             ("j" org-babel-next-src-block :color red)
+             ("J" jupyter-org-next-busy-src-block :color red)
+             ("g" jupyter-org-jump-to-visible-block)
+             ("G" jupyter-org-jump-to-block)
+             ("<tab>" org-cycle :color red)
+
+             ("C-k" jupyter-org-move-src-block :color red)
+             ("C-j" (jupyter-org-move-src-block t) :color red)
+             ("x" jupyter-org-kill-block-and-results)
+             ("c" jupyter-org-copy-block-and-results)
+             ("o" (jupyter-org-clone-block t))
+             ("m" jupyter-org-merge-blocks)
+             ("s" jupyter-org-split-src-block)
+             ("a" (jupyter-org-insert-src-block nil current-prefix-arg))
+             ("b" (jupyter-org-insert-src-block t current-prefix-arg))
+             ("l" org-babel-remove-result)
+             ("L" jupyter-org-clear-all-results)
+             ("h" jupyter-org-edit-header)
+
+             ("/" jupyter-org-inspect-src-block)
+             ("i" jupyter-org-interrupt-kernel)
+             ("C-s" org-babel-jupyter-scratch-buffer)))
+    (call-interactively #'duy/jupyter-org-hydra/body))
+  (defun jupyter-ansi-color-apply-on-region (begin end)
+    "Fix to make org file decode ansi colors
+See also https://github.com/nnicandro/emacs-jupyter/issues/380"
+    (ansi-color-apply-on-region begin end t)))
 #+end_src
 
 To ensure that =pandas.DataFrame= objects are displayed as =org= tables, add the following to the Jupyter startup file (=~/.ipython/profile_default/startup/50-middle.py=):
@@ -2469,6 +2612,47 @@ Using ~ox-ipynb~ to convert =.org= files to =.ipynb= files. The built in functio
             (when (file-exists-p new-file) (delete-file new-file))))))) ; Delete the temporary file after exporting is done
   )
 #+end_src
+
+*** jupyter-notebook-minor-mode
+
+Attempted to create own minor mode to only enable Jupyter in =org= files marked as "notebook", but doesn't seem to work (yet) hence disabled. Awaiting response from Github issues.
+
+Relevant links:
++ https://github.com/noctuid/general.el/issues/548
++ https://emacs.stackexchange.com/questions/47962/invoke-minor-mode-upon-visiting-an-org-file-on-a-per-file-basis
+
+#+begin_src emacs-lisp
+;; (define-minor-mode jupyter-notebook-minor-mode
+;;   "Toggles jupyter-notebook-minor-mode."
+;;   nil
+;;   :global nil
+;;   :lighter nil
+;;   :keymap (make-sparse-keymap))
+;;   ;; (list (cons (kbd "C-c C-. t") (lambda ()
+;;   ;;                             (interactive)
+;;   ;;                             (message "dotcrafter key binding used!")))))
+
+;; (general-create-definer jupyter-leader-keys
+;;   :states '(normal visual emacs motion) ; consider adding motion for using with easymotion
+;;   :keymaps '(jupyter-notebook-minor-mode-map)
+;;   :prefix ",")
+
+;; (jupyter-leader-keys
+;;   :keymaps '(jupyter-notebook-minor-mode-map)
+;;   :states '(normal visual emacs motion) ; consider adding motion for using with easymotion
+;;   "j"     '(:ignore t                                 :wk "Jupyter")
+;;   "jc"    '(jupyter-org-clone-block                   :wk "Clone blocks")
+;;   "jm"    '(jupyter-org-merge-blocks                  :wk "Merge blocks")
+;;   "js"    '(jupyter-org-split-src-block               :wk "Split blocks")
+;;   "jM"    '(duy/jupyter-org-move-src-block-hydra/body :wk "Move block")
+;;   "ja"    '(jupyter-org-insert-src-block              :wk "Insert block above")
+;;   "jb"    '(duy/jupyter-org-insert-src-block-below    :wk "Insert block below")
+;;   "jd"    '(jupyter-org-kill-block-and-results        :wk "Kill block and results")
+;;   "je"    '(jupyter-org-execute-and-next-block        :wk "Execute and next block")
+;;   "jj"    '(jupyter-org-jump-to-visible-block         :wk "Jump to block"))
+
+#+end_src
+
 ** AutoHotKey
 
 #+begin_src emacs-lisp
@@ -2586,5 +2770,14 @@ Using ~ox-ipynb~ to convert =.org= files to =.ipynb= files. The built in functio
   :config
   (setq elfeed-feeds
         '("https://www.greaterwrong.com/tag/bayes-theorem?showPostCount=true&useTagName=true&format=rss")))
+#+end_src
+
+* ChatGPT
+
+#+begin_src emacs-lisp
+;; (use-package chatgpt-shell
+;;   :straight t
+;;   :custom
+;;   (chatgpt-shell-openai-key ""))
 #+end_src
 

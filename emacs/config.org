@@ -2310,7 +2310,13 @@ Currently using in combination with =direnv= ([[https://github.com/direnv/direnv
 #+begin_src emacs-lisp
 (use-package pet
   :straight t
-  :hook (python-mode))
+  :hook (python-mode-hook . duy/python-pet-hook)
+  :init
+  (defun duy/python-pet-hook ()
+    "Activate pet mode, and set the local variables to identify the correct executables."
+    (pet-mode)
+    (when-let ((black-executable (pet-executable-find "black")))
+      (setq-local python-black-command black-executable))))
 #+end_src
 
 *** Blacken
@@ -2336,6 +2342,8 @@ Currently using in combination with =direnv= ([[https://github.com/direnv/direnv
   :custom
   (numpydoc-insert-examples-block nil)
   (numpydoc-template-long nil)
+  :bind (:map python-mode-map
+              ("C-c C-n" . numpydoc-generate))
   :config
   (local-leader-keys
     :keymaps 'python-mode-map
@@ -2459,6 +2467,22 @@ import pandas
 
 - The above workflow can be replicated with any tool that allows the creation of environments (e.g. conda/pyenv/poetry).
   
+**** Development
+
+- Using Eglot and Pyright
+- Create =pyrightconfig.json= in the project root like below.
+- Ensure the project root folder is git version controlled
+  
+  #+begin_src js
+{
+    "exclude": [ ".venv" ],
+    "venvPath": ".",
+    "venv": ".venv",
+    "reportTypeshedErrors": false,
+    "reportMissingImports": true,
+    "reportMissingTypeStubs": false
+}
+  #+end_src
 ** Rust
 
 #+begin_src emacs-lisp

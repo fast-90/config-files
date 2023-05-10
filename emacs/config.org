@@ -2328,9 +2328,13 @@ Currently using in combination with =direnv= ([[https://github.com/direnv/direnv
 
 *** Ruff and ruff-lsp
 
-=ruff= is a Python linter written in Rust and therefore extremely fast. There is also =ruff-lsp= which can be used with =eglot=.
+=ruff= is a Python linter written in Rust and therefore extremely fast. There is also =ruff-lsp= which can be used with =eglot=. Both can be installed with =pip=.
 
 For the moment, I can't seem to get this working together as I want (see below for issues). I need to think about what I want to do with this package (e.g. do I want to use it just as a pre-commit hook? Or also with =flymake= and/or LSP for error diagnostics?)
+
+Useful resources:
++ https://github.com/charliermarsh/ruff-lsp/issues/19
++ https://github.com/joaotavora/eglot/issues/1085 (just post a question whether it is possible to run two lsp's at the same time)
 
 Below are some ways to use it:
 
@@ -2367,12 +2371,13 @@ Can't seem to get it working side-by-side with =pyright=, which is needed to ide
 #+begin_src emacs-lisp
 ;; (with-eval-after-load 'eglot
 ;;   (add-to-list 'eglot-server-programs
-;;                '(python-mode . ("ruff-lsp"))))
+;;                '(python-mode . ("pylyzer" "--server"))))
 
 ;; (with-eval-after-load 'eglot
 ;;   (add-to-list 'eglot-server-programs
 ;;                `(python-mode . ,(eglot-alternatives
-;;                                '(("pyright-langserver" "--stdio")
+;;                                '(("pylyzer" "--server")
+;;                                  ("pyright-langserver" "--stdio")
 ;;                                  ("ruff-lsp"))))))
 #+end_src
 

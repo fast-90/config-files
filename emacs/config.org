@@ -2495,9 +2495,9 @@ Inspired by jupyter-org-hydra from emacs-jupyter."
          _C-e_: current to next       _K_: previous busy  _C-j_: move down  _l_: clear result
          _M-e_: to point              _j_: next           _x_: kill         _L_: clear all
        _C-M-e_: subtree to point      _J_: next busy      _c_: copy         _i_: interrupt
-         _S-e_: Restart/block         _g_: visible        _o_: clone      _C-s_: scratch buffer
-       _S-C-e_: Restart/to point      _G_: any            _m_: merge
-       _S-M-e_: Restart/buffer    _<tab>_: (un)fold       _s_: split
+           _E_: Restart/buffer        _g_: visible        _o_: clone      _C-s_: scratch buffer
+         _C-E_: Restart/to point      _G_: any            _m_: merge
+         _M-E_: Restart/block     _<tab>_: (un)fold       _s_: split
            _r_: Goto repl             ^ ^                 _a_: insert above
            ^ ^                        ^ ^                 _b_: insert below
            ^ ^                        ^ ^                 _h_: header"
@@ -2505,9 +2505,9 @@ Inspired by jupyter-org-hydra from emacs-jupyter."
              ("C-e" jupyter-org-execute-and-next-block :color red)
              ("M-e" jupyter-org-execute-to-point)
              ("C-M-e" jupyter-org-execute-subtree)
-             ("S-e" jupyter-org-restart-kernel-execute-block)
-             ("S-C-e" jupyter-org-restart-and-execute-to-point)
-             ("S-M-e" jupyter-org-restart-kernel-execute-buffer)
+             ("E" jupyter-org-restart-kernel-execute-buffer)
+             ("C-E" jupyter-org-restart-and-execute-to-point)
+             ("M-E" jupyter-org-restart-kernel-execute-block)
              ("r" org-babel-switch-to-session)
 
              ("k" org-babel-previous-src-block :color red)

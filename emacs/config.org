@@ -1,3 +1,13 @@
+* Installing Emacs
+
+MacOS: using emac-plus
+
+WSL: building from source.
++ Git clone
++ Ensure have the Make command and other prerequisites (check guide)
++ (check guide for other steps)
++ To update: make uninstall. Update repo with git pull. Configure, make, make install.
+
 * early-init.el
 
 #+begin_src emacs-lisp :tangle (expand-file-name "early-init.el" user-emacs-directory)

@@ -2243,9 +2243,11 @@ Ensure =direnv= is installed via your OS package manager.
   (define-key evil-normal-state-map (kbd "C->") 'evil-repeat-pop-next)
   (setq xref-show-xrefs-function #'consult-xref)
   (setq xref-show-definitions-function #'consult-xref)
-  :config
   (add-to-list 'eglot-server-programs
-               '(python-ts-mode . ("pyright-langserver" "--stdio")))
+               `(python-ts-mode . ,(eglot-alternatives
+                               '(("pylsp")
+                                 ("pyright-langserver" "--stdio")))))
+  :config
   (leader-keys
     "l"   '(nil                   :wk "Lsp")
     "l e" '(consult-flymake       :wk "Error diagnostics")
@@ -2264,12 +2266,12 @@ Ensure =direnv= is installed via your OS package manager.
     "l s" '(consult-eglot-symbols :wk "Search symbols")))
 #+end_src
 
-*** Treesitter
+*** TODO Treesitter
 
-#+begin_src emacs-lisp
-#+end_src
+OS installation instructions
 
 ** Python
+
 
 #+begin_src emacs-lisp
 (use-package python
@@ -2278,10 +2280,68 @@ Ensure =direnv= is installed via your OS package manager.
   (python-indent-guess-indent-offset-verbose nil)
   :config 
   (add-to-list 'major-mode-remap-alist '(python-mode . python-ts-mode)))
-
-;; (setq python-indent-guess-indent-offset-verbose nil)
-;; (add-to-list 'major-mode-remap-alist '(python-mode . python-ts-mode))
 #+end_src
+
+*** Python language server
+
+**** TODO Python lsp server
+
+Global vs local setup
+Pros vs cons
+
+**** TODO Pyright
+
+There are two main language servers that can be used for Python at the moment: [[https://github.com/python-lsp/python-lsp-server][pylsp]] and [[https://github.com/microsoft/pyright][pyright]].
+
+pylsp:
++ Fully open source.
++ Does not need Node.js (so in a way it is lighter than pyright).
++ Integrates nicely with other existing tools (e.g. =mypy=) via plugins. 
++ There is a plugin for =ruff=.
+
+pyright:
++ Is a static type checker in itself, so does not need =mypy=. This is nice for my own individual projects, but not necessarily a benefit as usually in team projects you will need =mypy= (e.g. for pre-commit hooks).
++ Needs Node.js
++ Based on my lazy searching it seems to be preferred by more people.
+
+I am used to using pyright, but have recently switched over to pylsp at home to test how it goes. For the time being it works well without performance issues.
+
+There is also [[https://github.com/mtshiba/pylyzer][pylyzer]], but it's still in its infancy.
+
+To setup a language server for Python, install =python-lsp-server= or =pyright= globally via =pip install --user= (or check the page for latest installation instructions). In case of pylsp the plugins need to be installed globally as well.
+
+Environments should be created as per the development workflow and the relevant tools (e.g. =pdm=). Other tools for linting, static type checking, formatting etc. should be installed in the virtual environment as well.
+
+To ensure the language server is running from the correct folder, additional files are required in the project root (i.e. the folder of the relevant =git= repo). See below:
+
+Pyls - =.dir-locals.el=
+#+begin_src emacs-lisp :noeval :tangle no
+((python-ts-mode
+  . ((eglot-workspace-configuration
+      . ((:pylsp :configurationSources ["flake8"]
+                                       :plugins (:jedi
+                                                 (:environment "./.venv/"))))))))
+#+end_src
+
+Pyls - =mypy.ini=
+#+begin_src toml :tangle no
+[mypy]
+python_executable = .venv/bin/python
+#+end_src
+
+Pyright - =pyrightconfig.json=
+  #+begin_src js
+{
+    "exclude": [ ".venv" ],
+    "venvPath": ".",
+    "venv": ".venv",
+    "reportTypeshedErrors": false,
+    "reportMissingImports": true,
+    "reportMissingTypeStubs": false
+}
+  #+end_src
+
+With the above setup there is no need for Poetry or direnv, so those packages are temporarily disabled.
 
 *** Poetry
 
@@ -2290,9 +2350,9 @@ Using poetry to manage python environments for coding projects. This is importan
 Alternatives include [[https://github.com/jorgenschaefer/pyvenv][pyvenv.el]], [[https://github.com/pythonic-emacs/pyenv-mode][pyenv-mode.el]], [[https://github.com/necaris/conda.el][conda.el]] and [[https://github.com/pythonic-emacs/anaconda-mode][anaconda-mode.el]]. pyenv-mode can be used in conjunction with projectile, see also [[https://www.reddit.com/r/emacs/comments/tenq8z/help_using_lspmodeeglot_for_python_and_virtualenvs/][here]].
 
 #+begin_src emacs-lisp
-(use-package poetry
-  :straight t
-  :defer t)
+;; (use-package poetry
+;;   :straight t
+;;   :defer t)
   ;; :config
   ;; ;; Checks for the correct virtualenv. Better strategy IMO because the default
   ;; ;; one is quite slow.
@@ -2310,7 +2370,9 @@ Currently using in combination with =direnv= ([[https://github.com/direnv/direnv
 #+begin_src emacs-lisp
 (use-package pet
   :straight t
-  :hook (python-mode-hook . duy/python-pet-hook)
+  :hook
+  (python-mode-hook . duy/python-pet-hook)
+  (python-ts-mode-hook . duy/python-pet-hook)
   :init
   (defun duy/python-pet-hook ()
     "Activate pet mode, and set the local variables to identify the correct executables."
@@ -2466,23 +2528,6 @@ import pandas
   Note that =:async yes=  and =:session py= are set as default options in this config for Python blocks via the =org-babel-default-header-args:python= variable [[*Jupyter][here]].
 
 - The above workflow can be replicated with any tool that allows the creation of environments (e.g. conda/pyenv/poetry).
-  
-**** Development
-
-- Using Eglot and Pyright
-- Create =pyrightconfig.json= in the project root like below.
-- Ensure the project root folder is git version controlled
-  
-  #+begin_src js
-{
-    "exclude": [ ".venv" ],
-    "venvPath": ".",
-    "venv": ".venv",
-    "reportTypeshedErrors": false,
-    "reportMissingImports": true,
-    "reportMissingTypeStubs": false
-}
-  #+end_src
 ** Rust
 
 #+begin_src emacs-lisp

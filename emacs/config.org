@@ -2355,6 +2355,42 @@ Currently I prefer to install the LSP globally as I would like to avoid having t
 
 With the above setup there is no need for Poetry or direnv, so those packages are temporarily disabled.
 
+*** Pylsp helper functions
+
+#+begin_src emacs-lisp
+(defun create-config-files ()
+  "Create config files for the current project."
+  (interactive)
+  (let ((project-root (when-let ((project (project-current)))
+                        (project-root-directory project))))
+    (if (not project-root)
+        (message "Current file is not part of a project!")
+      (let ((mypy-file (concat project-root "mypy.ini"))
+            (dir-locals-file (concat project-root ".dir-locals.el")))
+        (cond
+         ((or (file-exists-p mypy-file)
+              (file-exists-p dir-locals-file))
+          (when (y-or-n-p "Config files found in project folder. Overwrite current files? ")
+            (delete-file mypy-file)
+            (delete-file dir-locals-file)
+            (create-mypy-file mypy-file)
+            (create-dir-locals-file dir-locals-file)))
+         (t
+          (create-mypy-file mypy-file)
+          (create-dir-locals-file dir-locals-file)))))))
+
+(defun create-mypy-file (file-path)
+  "Create a mypy.ini file at the specified FILE-PATH."
+  (with-temp-file file-path
+    (insert "[mypy]\npython_executable = /usr/bin/python\n")))
+
+(defun create-dir-locals-file (file-path)
+  "Create a .dir-locals.el file at the specified FILE-PATH."
+  (with-temp-file file-path
+    (insert "((nil . ((eval . (setq-local compile-command \"make\")))))\n")))
+
+#+end_src
+
 *** Poetry
 
 Using poetry to manage python environments for coding projects. This is important for ~eglot~ to use the correct environment for linting.

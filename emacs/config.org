@@ -2294,13 +2294,6 @@ OS installation instructions
 
 *** Python language server
 
-**** TODO Python lsp server
-
-Global vs local setup
-Pros vs cons
-
-**** TODO Pyright
-
 There are two main language servers that can be used for Python at the moment: [[https://github.com/python-lsp/python-lsp-server][pylsp]] and [[https://github.com/microsoft/pyright][pyright]].
 
 pylsp:
@@ -2308,10 +2301,12 @@ pylsp:
 + Does not need Node.js (so in a way it is lighter than pyright).
 + Integrates nicely with other existing tools (e.g. =mypy=) via plugins. 
 + There is a plugin for =ruff=.
++ Requires a bit more setup, e.g. installing tools like =mypy= and setting the configuration right for each of those tools. However, this also does mean that it is more configurable in general. Furthermore, those tools are likely needed for proper coding projects anyways (e.g. running =mypy= in a pre-commit hook), so it's not really a large downside.
 
 pyright:
 + Is a static type checker in itself, so does not need =mypy=. This is nice for my own individual projects, but not necessarily a benefit as usually in team projects you will need =mypy= (e.g. for pre-commit hooks).
-+ Needs Node.js
++ Easy to install with just a single =pip install pyright= command, which also installs Node.js in the background.
++ Needs Node.js, so probably takes up more space in total.
 + Based on my lazy searching it seems to be preferred by more people.
 
 I am used to using pyright, but have recently switched over to pylsp at home to test how it goes. For the time being it works well without performance issues.
@@ -2350,6 +2345,13 @@ Pyright - =pyrightconfig.json=
     "reportMissingTypeStubs": false
 }
   #+end_src
+
+It is also possible to install the language server in the venv:
+
+1. Install =python-lsp-server= or =pyright= and plugins and tools as a developer dependency in the venv.
+2. Run =eglot= from the venv. This can be done with the help of =pet=, see also [[https://github.com/wyuenho/emacs-pet/issues/21][this Github issue]].
+
+Currently I prefer to install the LSP globally as I would like to avoid having the LSP as a developer dependency. Other team members may not need it as they may use other IDEs. If for whatever reason this changes and everyone needs to have the LSP in the venv, then I may consider switching the approach.
 
 With the above setup there is no need for Poetry or direnv, so those packages are temporarily disabled.
 

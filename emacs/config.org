@@ -2624,11 +2624,7 @@ Inspired by jupyter-org-hydra from emacs-jupyter."
              ("/" jupyter-org-inspect-src-block)
              ("i" jupyter-org-interrupt-kernel)
              ("C-s" org-babel-jupyter-scratch-buffer)))
-    (call-interactively #'duy/jupyter-org-hydra/body))
-  (defun jupyter-ansi-color-apply-on-region (begin end)
-    "Fix to make org file decode ansi colors
-See also https://github.com/nnicandro/emacs-jupyter/issues/380"
-    (ansi-color-apply-on-region begin end t)))
+    (call-interactively #'duy/jupyter-org-hydra/body)))
 #+end_src
 
 To ensure that =pandas.DataFrame= objects are displayed as =org= tables, add the following to the Jupyter startup file (=~/.ipython/profile_default/startup/50-middle.py=):

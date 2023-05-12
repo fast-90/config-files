@@ -2253,11 +2253,11 @@ Ensure =direnv= is installed via your OS package manager.
   (define-key evil-normal-state-map (kbd "C->") 'evil-repeat-pop-next)
   (setq xref-show-xrefs-function #'consult-xref)
   (setq xref-show-definitions-function #'consult-xref)
+  :config
   (add-to-list 'eglot-server-programs
                `(python-ts-mode . ,(eglot-alternatives
                                '(("pylsp")
                                  ("pyright-langserver" "--stdio")))))
-  :config
   (leader-keys
     "l"   '(nil                   :wk "Lsp")
     "l e" '(consult-flymake       :wk "Error diagnostics")
@@ -2457,7 +2457,9 @@ I use =pyvenv= to in compination with =pet= to quickly switch to the correct env
   (defun duy/pet-pyvenv-activate ()
     "Activate the virtualenv identified by PET."
     (interactive)
-    (pyvenv-activate (pet-virtualenv-root)))
+    (let ((venv (pet-virtualenv-root)))
+      (pyvenv-activate venv)
+      (message (concat "Activated environment in " venv))))
   :config
   (local-leader-keys
     :keymaps 'python-ts-mode-map

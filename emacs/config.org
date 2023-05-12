@@ -1,12 +1,34 @@
 * Installing Emacs
 
-MacOS: using emac-plus
+** MacOS: using emac-plus
 
-WSL: building from source.
-+ Git clone
-+ Ensure have the Make command and other prerequisites (check guide)
-+ (check guide for other steps)
-+ To update: make uninstall. Update repo with git pull. Configure, make, make install.
+I use [[https://github.com/d12frosted/homebrew-emacs-plus][emacs-plus]], which can be installed via homebrew.
+
+** Ubuntu / WSL: install from source
+
+  #+begin_src sh :noeval
+git clone git://git.sv.gnu.org/emacs.git
+
+sudo apt install build-essential libgtk-3-dev libgnutls28-dev libtiff5-dev libgif-dev libjpeg-dev libpng-dev libxpm-dev libncurses-dev texinfo
+
+cd emacs
+
+# Configuration and installation of Emacs starts here
+./autogen.sh
+
+./configure --with-native-compilation -with-json --with-modules --with-harfbuzz --with-compress-install --with-threads --with-included-regex --with-x-toolkit=lucid --with-zlib --with-jpeg --with-png --with-imagemagick --with-tiff --with-xpm --with-gnutls --with-xft --with-xml2 --with-mailutils --with-tree-sitter --with-pgtk
+
+make -j $(nproc)  # Or make bootstrap j $(nproc)
+
+sudo make install
+#+end_src
+
+To update, simply run =sudo make uninstall=, pull the repo and follow the configuration and installation steps above again.
+
+Useful links for troubleshooting:
++ [[https://batsov.com/articles/2021/12/19/building-emacs-from-source-with-pgtk/][Building Emacs from Source with pgtk]]
++ [[https://www.reddit.com/r/emacs/comments/rojo7y/emacs_native_compilation_cannot_find_libgccjit/][Emacs native compilation cannot find libgccjit library]]
++ [[https://gitlab.com/mslot/src_installs/-/blob/master/emacs_install_ubuntu.sh][Alternative script to install Emacs from source]]
 
 * early-init.el
 
@@ -2280,12 +2302,18 @@ Ensure =direnv= is installed via your OS package manager.
     "l s" '(consult-eglot-symbols :wk "Search symbols")))
 #+end_src
 
-*** TODO Treesitter
+*** TODO Tree-sitter (not working for emacs built from source yet on WSL)
 
-OS installation instructions
+Tree-sitter is a super fast parser which can be used for syntax highlighting, and is much faster than the traditional =font-lock= mode from Emacs. As of Emacs 29, the tree-sitter package is builtin. Some setup on the OS is required though:
+
+1. Install =tree-sitter= via the preferred package manager (both =brew= and =cargo= should work), or install from source.
+2. Install grammar for the languages you want to have tree-sitter. There are two ways:
+   1. [[https://archive.casouri.cc/note/2023/tree-sitter-starter-guide/index.html][Via a script by user "casouri"]].
+   2. [[https://www.nathanfurnal.xyz/posts/building-tree-sitter-langs-emacs/][Using the treesit-install-language-grammar command]].
+
+If you built Emacs from source, you should check whether tree-sitter is available via the function =treesit-available-p=. If it returns =nil=, you need to rebuild Emacs from source with the =--with-tree-sitter= flag.
 
 ** Python
-
 
 #+begin_src emacs-lisp
 (use-package python

@@ -2321,7 +2321,8 @@ If you built Emacs from source, you should check whether tree-sitter is availabl
   :custom
   (python-indent-guess-indent-offset-verbose nil)
   :config 
-  (add-to-list 'major-mode-remap-alist '(python-mode . python-ts-mode)))
+  (when (and (treesit-available-p) (executable-find "tree-sitter"))
+    (add-to-list 'major-mode-remap-alist '(python-mode . python-ts-mode))))
 #+end_src
 
 *** Python language server

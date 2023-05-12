@@ -2328,7 +2328,7 @@ Pyls - =.dir-locals.el=
                                                  (:environment "./.venv/"))))))))
 #+end_src
 
-Pyls - =mypy.ini=
+Pyls - =mypy.ini= (only required if not using =pyvenv=)
 #+begin_src toml :tangle no
 [mypy]
 python_executable = .venv/bin/python
@@ -2358,36 +2358,36 @@ With the above setup there is no need for Poetry or direnv, so those packages ar
 *** Pylsp helper functions
 
 #+begin_src emacs-lisp
-(defun create-config-files ()
-  "Create config files for the current project."
-  (interactive)
-  (let ((project-root (when-let ((project (project-current)))
-                        (project-root-directory project))))
-    (if (not project-root)
-        (message "Current file is not part of a project!")
-      (let ((mypy-file (concat project-root "mypy.ini"))
-            (dir-locals-file (concat project-root ".dir-locals.el")))
-        (cond
-         ((or (file-exists-p mypy-file)
-              (file-exists-p dir-locals-file))
-          (when (y-or-n-p "Config files found in project folder. Overwrite current files? ")
-            (delete-file mypy-file)
-            (delete-file dir-locals-file)
-            (create-mypy-file mypy-file)
-            (create-dir-locals-file dir-locals-file)))
-         (t
-          (create-mypy-file mypy-file)
-          (create-dir-locals-file dir-locals-file)))))))
+;; (defun create-config-files ()
+;;   "Create config files for the current project."
+;;   (interactive)
+;;   (let ((project-root (when-let ((project (project-current)))
+;;                         (project-root-directory project))))
+;;     (if (not project-root)
+;;         (message "Current file is not part of a project!")
+;;       (let ((mypy-file (concat project-root "mypy.ini"))
+;;             (dir-locals-file (concat project-root ".dir-locals.el")))
+;;         (cond
+;;          ((or (file-exists-p mypy-file)
+;;               (file-exists-p dir-locals-file))
+;;           (when (y-or-n-p "Config files found in project folder. Overwrite current files? ")
+;;             (delete-file mypy-file)
+;;             (delete-file dir-locals-file)
+;;             (create-mypy-file mypy-file)
+;;             (create-dir-locals-file dir-locals-file)))
+;;          (t
+;;           (create-mypy-file mypy-file)
+;;           (create-dir-locals-file dir-locals-file)))))))
 
-(defun create-mypy-file (file-path)
-  "Create a mypy.ini file at the specified FILE-PATH."
-  (with-temp-file file-path
-    (insert "[mypy]\npython_executable = /usr/bin/python\n")))
+;; (defun create-mypy-file (file-path)
+;;   "Create a mypy.ini file at the specified FILE-PATH."
+;;   (with-temp-file file-path
+;;     (insert "[mypy]\npython_executable = /usr/bin/python\n")))
 
-(defun create-dir-locals-file (file-path)
-  "Create a .dir-locals.el file at the specified FILE-PATH."
-  (with-temp-file file-path
-    (insert "((nil . ((eval . (setq-local compile-command \"make\")))))\n")))
+;; (defun create-dir-locals-file (file-path)
+;;   "Create a .dir-locals.el file at the specified FILE-PATH."
+;;   (with-temp-file file-path
+;;     (insert "((nil . ((eval . (setq-local compile-command \"make\")))))\n")))
 
 #+end_src
 
@@ -2426,7 +2426,37 @@ Currently using in combination with =direnv= ([[https://github.com/direnv/direnv
     "Activate pet mode, and set the local variables to identify the correct executables."
     (pet-mode)
     (when-let ((black-executable (pet-executable-find "black")))
-      (setq-local python-black-command black-executable))))
+      (setq-local python-black-command black-executable)))
+(defun duy/pylsp-set-dir-local-variables ()
+  "Sets dir local variables for pylsp.
+Creates a .dir-locals.el file. Uses PET to indentify the venv."
+  (interactive)
+  (let* ((virtualenv-path (pet-virtualenv-root))
+         (eglot-pylsp-config '((:pylsp :configurationSources ["flake8"]
+                                    :plugins (:jedi
+                                              (:environment nil)
+                                              :ruff
+                                              (:extendSelect ["I"]))))))
+    (add-dir-local-variable 'python-ts-mode 'pyvenv-activate virtualenv-path)
+    (add-dir-local-variable 'python-ts-mode 'eglot-workspace-configuration eglot-pylsp-config))))
+#+end_src
+
+*** Pyvenv
+
+#+begin_src emacs-lisp
+(use-package pyvenv
+  :straight t
+  ;; :hook (pyvenv-post-activate-hooks . (lambda() (eglot-reconnect)))
+  :init
+  (defun duy/pet-pyvenv-activate ()
+    "Activate the virtualenv identified by PET."
+    (interactive)
+    (pyvenv-activate (pet-virtualenv-root)))
+  :config
+  (local-leader-keys
+    :keymaps 'python-ts-mode-map
+    "v" '(duy/pet-pyvenv-activate :wk "Activate venv w/PET")))
+;; (eglot-reconnect t))
 #+end_src
 
 *** Blacken

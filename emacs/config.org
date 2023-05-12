@@ -2452,7 +2452,7 @@ I use =pyvenv= to in compination with =pet= to quickly switch to the correct env
 #+begin_src emacs-lisp
 (use-package pyvenv
   :straight t
-  ;; :hook (pyvenv-post-activate-hooks . (lambda() (eglot-reconnect)))
+  :hook (pyvenv-post-activate-hooks . (lambda() (call-interactively 'eglot-reconnect)))
   :init
   (defun duy/pet-pyvenv-activate ()
     "Activate the virtualenv identified by PET."
@@ -2464,7 +2464,6 @@ I use =pyvenv= to in compination with =pet= to quickly switch to the correct env
   (local-leader-keys
     :keymaps 'python-ts-mode-map
     "v" '(duy/pet-pyvenv-activate :wk "Activate venv w/PET")))
-;; (eglot-reconnect t))
 #+end_src
 
 *** Blacken

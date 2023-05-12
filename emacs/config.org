@@ -2262,7 +2262,11 @@ Ensure =direnv= is installed via your OS package manager.
     "l"   '(nil                   :wk "Lsp")
     "l e" '(consult-flymake       :wk "Error diagnostics")
     "l d" '(xref-find-definitions :wk "Find definition")
-    "l r" '(xref-find-references  :wk "Find references")))
+    "l x" '(xref-find-references  :wk "Find references")
+    "l c" '(eglot-code-actions    :wk "Code actions")
+    "l r" '(eglot-rename          :wk "Rename")
+    "l ," '(eldoc                 :wk "Eldoc")
+    "l R" '(eglot-reconnect       :wk "Reconnect Eglot")))
 #+end_src
 
 *** consult-eglot
@@ -2411,7 +2415,7 @@ Alternatives include [[https://github.com/jorgenschaefer/pyvenv][pyvenv.el]], [[
 
 # Note: ~poetry-tracking-strategy 'switch-buffer~ makes poetry check venv even when previewing buffers, so changed it back to the default setting now.
 
-Currently using in combination with =direnv= ([[https://github.com/direnv/direnv/wiki/Python][setup instructions]]).
+# Currently using in combination with =direnv= ([[https://github.com/direnv/direnv/wiki/Python][setup instructions]]).
 
 *** Python Executable Tracker (PET)
 
@@ -2442,6 +2446,8 @@ Creates a .dir-locals.el file. Uses PET to indentify the venv."
 #+end_src
 
 *** Pyvenv
+
+I use =pyvenv= to in compination with =pet= to quickly switch to the correct environment. This assures that the LSP and all the relevant tools are running from the correct environment (=mypy= mainly comes to mind). 
 
 #+begin_src emacs-lisp
 (use-package pyvenv
@@ -2478,15 +2484,14 @@ Creates a .dir-locals.el file. Uses PET to indentify the venv."
 #+begin_src emacs-lisp
 (use-package numpydoc
   :straight t
-  :defer t
   :custom
   (numpydoc-insert-examples-block nil)
   (numpydoc-template-long nil)
-  :bind (:map python-mode-map
+  :bind (:map python-ts-mode-map
               ("C-c C-n" . numpydoc-generate))
   :config
   (local-leader-keys
-    :keymaps 'python-mode-map
+    :keymaps '(python-mode-map python-ts-mode-map)
     "d" '(numpydoc-generate :wk "Generate docstring")))
 #+end_src
 

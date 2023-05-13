@@ -1,4 +1,4 @@
-* Installing Emacs
+*  Installing Emacs
 
 ** MacOS: using emac-plus
 
@@ -81,9 +81,6 @@ Useful links for troubleshooting:
        (setq ns-use-proxy-icon nil)
        (setq frame-title-format nil)))
 
-;; Create a package-quickstart.el
-;; (setq package-quickstart t)
-
 ;; Resizing the Emacs frame can be a terribly expensive part of changing the
 ;; font. By inhibiting this, we easily halve startup times with fonts that are
 ;; larger than the system default.
@@ -111,22 +108,42 @@ The code in this section is tangled to =init.el=. Loading this file with ~org-ba
 Bootstrap code as per the instructions:
 
 #+begin_src emacs-lisp :tangle (expand-file-name "init.el" user-emacs-directory)
-(setq straight-check-for-modifications '(find-when-checking))
-
-(defvar bootstrap-version)
-(let ((bootstrap-file
-      (expand-file-name "straight/repos/straight.el/bootstrap.el" user-emacs-directory))
-      (bootstrap-version 5))
-  (unless (file-exists-p bootstrap-file)
-    (with-current-buffer
-        (url-retrieve-synchronously
-        "https://raw.githubusercontent.com/raxod502/straight.el/develop/install.el"
-        'silent 'inhibit-cookies)
-      (goto-char (point-max))
-      (eval-print-last-sexp)))
-  (load bootstrap-file nil 'nomessage))
-
-(straight-use-package 'use-package)
+(defvar elpaca-installer-version 0.4)
+(defvar elpaca-directory (expand-file-name "elpaca/" user-emacs-directory))
+(defvar elpaca-builds-directory (expand-file-name "builds/" elpaca-directory))
+(defvar elpaca-repos-directory (expand-file-name "repos/" elpaca-directory))
+(defvar elpaca-order '(elpaca :repo "https://github.com/progfolio/elpaca.git"
+                              :ref nil
+                              :files (:defaults (:exclude "extensions"))
+                              :build (:not elpaca--activate-package)))
+(let* ((repo  (expand-file-name "elpaca/" elpaca-repos-directory))
+       (build (expand-file-name "elpaca/" elpaca-builds-directory))
+       (order (cdr elpaca-order))
+       (default-directory repo))
+  (add-to-list 'load-path (if (file-exists-p build) build repo))
+  (unless (file-exists-p repo)
+    (make-directory repo t)
+    (when (< emacs-major-version 28) (require 'subr-x))
+    (condition-case-unless-debug err
+        (if-let ((buffer (pop-to-buffer-same-window "*elpaca-bootstrap*"))
+                 ((zerop (call-process "git" nil buffer t "clone"
+                                       (plist-get order :repo) repo)))
+                 ((zerop (call-process "git" nil buffer t "checkout"
+                                       (or (plist-get order :ref) "--"))))
+                 (emacs (concat invocation-directory invocation-name))
+                 ((zerop (call-process emacs nil buffer nil "-Q" "-L" "." "--batch"
+                                       "--eval" "(byte-recompile-directory \".\" 0 'force)")))
+                 ((require 'elpaca))
+                 ((elpaca-generate-autoloads "elpaca" repo)))
+            (kill-buffer buffer)
+          (error "%s" (with-current-buffer buffer (buffer-string))))
+      ((error) (warn "%s" err) (delete-directory repo 'recursive))))
+  (unless (require 'elpaca-autoloads nil t)
+    (require 'elpaca)
+    (elpaca-generate-autoloads "elpaca" repo)
+    (load "./elpaca-autoloads")))
+(add-hook 'after-init-hook #'elpaca-process-queues)
+(elpaca `(,@elpaca-order))
 #+end_src
 
 *** Setup use-package
@@ -150,12 +167,13 @@ Bootstrap code as per the instructions:
   ;; such as `describe-symbol'.
   (setq use-package-hook-name-suffix nil))
 
-(eval-when-compile
-  (require 'use-package))
+(elpaca elpaca-use-package
+  (elpaca-use-package-mode)
+  (setq elpaca-use-package-by-default t))
 
-(use-package diminish :straight t :after use-package) ;; if you use :diminish
-(use-package bind-key :straight t :after use-package) ;; if you use any :bind variant
-(use-package delight :straight t :after use-package)  ;; Use delighting for modes
+(elpaca-wait)
+
+(use-package bind-key :after use-package) ;; if you use any :bind variant
 #+end_src
 
 *** use-package-ensure-system-package
@@ -163,8 +181,7 @@ Bootstrap code as per the instructions:
 This =use-package= extension allows us to use the =:ensure-system-package= keyword to only install/load packages if a certain binary package is available.
 
 #+begin_src emacs-lisp :tangle (expand-file-name "init.el" user-emacs-directory)
-(use-package use-package-ensure-system-package
-  :straight t)
+(use-package use-package-ensure-system-package)
 #+end_src
 
 *** Load literate config with org mode
@@ -172,8 +189,9 @@ This =use-package= extension allows us to use the =:ensure-system-package= keywo
 Use latest version of ~org~ via ~straight~.
 
 #+begin_src emacs-lisp :tangle (expand-file-name "init.el" user-emacs-directory)
-(use-package org
-  :straight t)
+(use-package org)
+
+(elpaca-wait)
 
 (org-babel-load-file
  (expand-file-name
@@ -235,8 +253,6 @@ I copied this over from [[https://github.com/Nathan-Furnal/dotemacs/blob/master/
 
 #+begin_src emacs-lisp
 (use-package gcmh
-  :straight t
-  :diminish gcmh-mode
   :custom
   (gcmh-mode 1)
   (gcmh-idle-delay 5)
@@ -248,7 +264,6 @@ I copied this over from [[https://github.com/Nathan-Furnal/dotemacs/blob/master/
 
 #+begin_src emacs-lisp
 (use-package eldoc
-  :delight eldoc-mode
   :custom
   (eldoc-echo-area-use-multiline-p nil))
 #+end_src
@@ -257,8 +272,8 @@ I copied this over from [[https://github.com/Nathan-Furnal/dotemacs/blob/master/
 
 #+begin_src emacs-lisp
 (use-package autorevert
+  :elpaca nil
   :defer 2
-  :delight auto-revert-mode
   :custom
   (auto-revert-use-notify nil))
 #+end_src
@@ -267,6 +282,7 @@ I copied this over from [[https://github.com/Nathan-Furnal/dotemacs/blob/master/
 
 #+begin_src emacs-lisp
 (use-package recentf
+  :elpaca nil
   :defer 2
   :init
   (recentf-mode 1)
@@ -278,7 +294,6 @@ I copied this over from [[https://github.com/Nathan-Furnal/dotemacs/blob/master/
 
 #+begin_src emacs-lisp
 (use-package undo-tree
-  :straight t
   :init
   (setq undo-tree-auto-save-history nil)
   (global-undo-tree-mode))
@@ -288,7 +303,6 @@ I copied this over from [[https://github.com/Nathan-Furnal/dotemacs/blob/master/
 
 #+begin_src emacs-lisp
 (use-package helpful
-  :straight t
   :commands (helpful-callable helpful-variable helpful-command helpful-key)
   :bind
   ([remap describe-function] . helpful-function)
@@ -300,14 +314,14 @@ I copied this over from [[https://github.com/Nathan-Furnal/dotemacs/blob/master/
 ** Hydra
 
 #+begin_src emacs-lisp
-(use-package hydra
-  :straight t)
+(use-package hydra)
 #+end_src
 
 ** So-long
 
 #+begin_src emacs-lisp
 (use-package so-long
+  :elpaca nil
   :init
   (setq so-long-mode-line-label nil)
   (defun duy/so-long-toggle ()
@@ -399,7 +413,6 @@ The Evil package(s) enable Vim-like keybindings.
 
 #+begin_src emacs-lisp
 (use-package evil
-  :straight t
   :init      ;; tweak evil's configuration before loading it
   (setq evil-want-integration t) ;; This is optional since it's already set to t by default.
   (setq evil-want-keybinding nil)
@@ -423,7 +436,6 @@ Evil collection is a collection of Evil bindings for the parts of Emacs that Evi
 
 #+begin_src emacs-lisp
 (use-package evil-collection
-  :straight t
   :after evil
   :config
   (setq evil-collection-mode-list '(flymake
@@ -463,7 +475,6 @@ Evil nerd commenter for line comment.
 
 #+begin_src emacs-lisp
 (use-package evil-nerd-commenter
-  :straight t
   :bind (("C-'" . evilnc-comment-or-uncomment-lines)
          ("C-," . evilnc-comment-or-uncomment-lines)
   :map org-mode-map)
@@ -476,7 +487,6 @@ Evil-org adds evil bindings to org-agenda.
 
 #+begin_src emacs-lisp
 (use-package evil-org
-  :straight t
   :after org
   :hook (org-mode . (lambda () evil-org-mode))
   :config
@@ -490,7 +500,6 @@ evil-surround enables surrounding of (Vim) text objects (e.g. brackets or quotes
 
 #+begin_src emacs-lisp
 (use-package evil-surround
-  :straight t
   :config
   (global-evil-surround-mode 1))
 #+end_src
@@ -502,7 +511,6 @@ function (similar to Spacemacs/Doom/VSpaceCode).
 
 #+begin_src emacs-lisp
 (use-package general
-  :straight t
   :init
   (setq general-override-states '(insert
                                   emacs
@@ -531,6 +539,8 @@ function (similar to Spacemacs/Doom/VSpaceCode).
     "e e"   '(eval-expression    :wk "Eval elisp expression")
     "e l"   '(eval-last-sexp     :wk "Eval last sexression")
     "e r"   '(eval-region        :wk "Eval region")))
+
+(elpaca-wait)
 #+end_src
 
 * File and buffer management
@@ -539,6 +549,7 @@ function (similar to Spacemacs/Doom/VSpaceCode).
 
 #+begin_src emacs-lisp
   (use-package dired
+    :elpaca nil
     :after evil evil-collection general
     ;; :commands (dired dired-jump)
     ;; :bind (("C-x C-j" . dired-jump))
@@ -569,17 +580,14 @@ Kills buffer by default. With prefix argument, buries buffer."
       "j d" '(dired-jump :wk "dired-jump")))
 
   (use-package dired-single
-    :straight t
     :after dired)
 
   (use-package all-the-icons-dired
-    :straight t
     :after dired
     :hook (dired-mode-hook . all-the-icons-dired-mode))
 
   (use-package dired-hide-dotfiles
-    :straight t
-    :after dired
+    :after dired evil-collection
     :hook (dired-mode-hook . dired-hide-dotfiles-mode)
     :init
     (evil-collection-define-key 'normal 'dired-mode-map
@@ -716,8 +724,10 @@ Font settings for daemon mode:
 
 #+begin_src emacs-lisp
 (set-face-attribute 'tab-bar nil :font (font-spec :family "IBM Plex Mono" :size duy/default-font-size))
-(use-package all-the-icons
-  :straight t)
+
+(use-package all-the-icons)
+
+(elpaca-wait)
 #+end_src
 
 ** Theme
@@ -749,7 +759,6 @@ Other good themes:
 
 #+begin_src emacs-lisp
 (use-package modus-themes
-  :straight t
   :init
   (setq modus-themes-subtle-line-numbers t)
   (setq modus-themes-hl-line '(intense))
@@ -790,6 +799,8 @@ manual."
   (leader-keys
     "T" '(nil :wk "Toggle")
     "T T" '(duy/modus-themes-toggle :wk "Toggle modus theme")))
+
+(elpaca-wait)
 #+end_src
 
 ** Battery formatting
@@ -922,7 +933,7 @@ Currently trying =mood-line= over =doom-modeline= as the latter messes up the ba
 
 #+begin_src emacs-lisp
 (use-package mood-line
-  :straight (:host gitlab :repo "trev-dev/mood-line")
+  :elpaca (:host gitlab :repo "trev-dev/mood-line")
   :init
   ;; (setq battery-mode-line-format (concat " " (duy/battery-icon) "%b%p% "))
   (setq mode-line-misc-info (remove '(global-mode-string ("" global-mode-string)) mode-line-misc-info))
@@ -939,7 +950,7 @@ Currently trying =mood-line= over =doom-modeline= as the latter messes up the ba
 
 #+begin_src emacs-lisp
 (use-package tab-bar
-  :straight t
+  :elpaca nil
   :hook (server-after-make-frame-hook . (lambda () (tab-bar-rename-tab "main")))
   :init  
   (defun tab-bar-tab-name-format-comfortable (tab i)
@@ -968,7 +979,7 @@ Currently trying =mood-line= over =doom-modeline= as the latter messes up the ba
 
 #+begin_src emacs-lisp
 (use-package tab-bookmark
-  :straight (tab-bookmark :type git :host github :repo "minad/tab-bookmark")
+  :elpaca (tab-bookmark :type git :host github :repo "minad/tab-bookmark")
   :init
   (setq bookmark-set-fringe-mark nil))
 #+end_src
@@ -988,7 +999,6 @@ Currently trying =mood-line= over =doom-modeline= as the latter messes up the ba
 
 #+begin_src emacs-lisp
   (use-package vterm
-    :straight t
     :bind (:map vterm-mode-map
                 ("C-b" . vterm-send-C-b))
     :config
@@ -1007,7 +1017,6 @@ I also enabled directory tracking and named vterm buffer, see also here how to s
 
 #+begin_src emacs-lisp
 (use-package vterm-toggle
-  :straight t
   :custom
   (vterm-buffer-name-string "vterm: %s")
   (vterm-toggle-project-root t)
@@ -1038,7 +1047,6 @@ I also enabled directory tracking and named vterm buffer, see also here how to s
 
 #+begin_src emacs-lisp
 (use-package exec-path-from-shell
-  :straight t
   :if duy/is-macos
   :defer nil
   :config
@@ -1054,7 +1062,7 @@ I also enabled directory tracking and named vterm buffer, see also here how to s
 
 #+begin_src emacs-lisp
 (use-package vertico
-  :straight (:files (:defaults "extensions/*"))
+  :elpaca (:files (:defaults "extensions/*"))
   :bind (:map vertico-map
               ("C-j" . vertico-next)
               ("C-k" . vertico-previous)
@@ -1071,8 +1079,8 @@ I also enabled directory tracking and named vterm buffer, see also here how to s
 
 #+begin_src emacs-lisp
 (use-package vertico-directory
+  :elpaca nil
   :after vertico
-  :straight nil
   ;; More convenient directory navigation commands
   :bind (:map vertico-map
               ("RET" . vertico-directory-enter)
@@ -1084,7 +1092,6 @@ I also enabled directory tracking and named vterm buffer, see also here how to s
 
 #+begin_src emacs-lisp
 (use-package orderless
-  :straight t
   :custom
   (completion-styles '(partial-completion orderless flex))
   (completion-category-defaults nil)
@@ -1098,7 +1105,7 @@ I also enabled directory tracking and named vterm buffer, see also here how to s
 #+begin_src emacs-lisp
 ;; Persist history over Emacs restarts. Vertico sorts by history position.
 (use-package savehist
-  :straight t
+  :elpaca nil
   :defer 2
   :config
   (savehist-mode))
@@ -1108,7 +1115,6 @@ I also enabled directory tracking and named vterm buffer, see also here how to s
 
 #+begin_src emacs-lisp
 (use-package marginalia
-  :straight t
   :defer 3
   :custom (marginalia-annotators '(marginalia-annotators-light))
   :config
@@ -1119,7 +1125,6 @@ I also enabled directory tracking and named vterm buffer, see also here how to s
 
 #+begin_src emacs-lisp
 (use-package which-key
-  :straight t
   :defer 4
   :diminish which-key-mode
   :custom
@@ -1132,7 +1137,6 @@ I also enabled directory tracking and named vterm buffer, see also here how to s
 
 #+begin_src emacs-lisp
 (use-package corfu
-  :straight t
   :bind (:map corfu-map
          ("C-j" . corfu-next)
          ("C-k" . corfu-previous)
@@ -1152,7 +1156,6 @@ Enabling icons in Corfu:
 
 #+begin_src emacs-lisp
 (use-package kind-icon
-  :straight t
   :after corfu
   :custom
   (kind-icon-default-face 'corfu-default) ; to compute blended backgrounds correctly
@@ -1164,7 +1167,6 @@ Enabling icons in Corfu:
 
 #+begin_src emacs-lisp
 (use-package consult
-  :straight t
   :init
   (setq consult-locate-args "locate")
   :bind (("C-s" . consult-line)
@@ -1209,7 +1211,6 @@ Enabling icons in Corfu:
 
 #+begin_src emacs-lisp
 (use-package embark
-  :straight t
   :bind
   (("C-;" . embark-act)          ;; pick some comfortable binding
    ("C-:" . embark-dwim)         ;; good alternative: M-.
@@ -1230,7 +1231,6 @@ Enabling icons in Corfu:
 ;; (("C-." . embark-act)))) ;; alternative for `describe-bindings'
 
 (use-package embark-consult
-  :straight t
   :after (embark consult)
   :demand t ; only necessary if you have the hook below
   ;; if you want to have consult previews as you move around an
@@ -1250,7 +1250,6 @@ Idea: use C-p or M-p as the prefix key.
 
 #+begin_src emacs-lisp
 (use-package ace-window
-  :straight t
   :config
     (setq aw-keys '(?a ?s ?d ?f ?g ?h ?j ?k ?l)
           aw-dispatch-always t)
@@ -1264,7 +1263,6 @@ Package to easily navigate cursor within buffers. Using this over evil-easymotio
 
 #+begin_src emacs-lisp
 (use-package avy
-  :straight t
   :config
   (leader-keys
     "j"   '(:ignore t           :wk "Jump to")
@@ -1279,7 +1277,6 @@ Package to easily navigate cursor within buffers. Using this over evil-easymotio
 
 #+begin_src emacs-lisp
 (use-package ace-link
-  :straight t
   :config
   (evil-collection-define-key 'normal 'helpful-mode-map
    "o" 'ace-link-help)
@@ -1292,7 +1289,6 @@ Package to easily navigate cursor within buffers. Using this over evil-easymotio
 
 #+begin_src emacs-lisp
 (use-package popper
-  :straight t
   :bind (("C-`"   . popper-toggle-latest)
          ("M-`"   . popper-cycle)
          ("C-M-`" . popper-toggle-type)
@@ -1316,19 +1312,18 @@ Package to easily navigate cursor within buffers. Using this over evil-easymotio
 
 #+begin_src emacs-lisp
 (use-package flyspell
+  :elpaca nil
   :defer t)
 #+end_src
 
 #+begin_src emacs-lisp
 (use-package flyspell-correct
-  :straight t
   :after flyspell
   :bind ([remap ispell-word] . flyspell-correct-wrapper))
 #+end_src
 
 #+begin_src emacs-lisp
 (use-package consult-flyspell
-  :straight t
   :config
   (defun duy/flyspell-buffer ()
     "Flyspell buffer using consult."
@@ -1379,7 +1374,6 @@ Package to easily navigate cursor within buffers. Using this over evil-easymotio
 
 #+begin_src emacs-lisp
 (use-package magit
-  :straight t
   :config
   (leader-keys
     "g"   '(:ignore t                 :wk "Git")
@@ -1417,7 +1411,7 @@ Package to easily navigate cursor within buffers. Using this over evil-easymotio
 
 #+begin_src emacs-lisp
 (use-package org
-  :straight t
+  :elpaca nil
   :init
   (org-babel-do-load-languages
    'org-babel-load-languages
@@ -1458,9 +1452,9 @@ Package to easily navigate cursor within buffers. Using this over evil-easymotio
                                   ("t" . "theorem")))
   (org-clock-mode-line-total 'today)
   :custom-face
-  (org-headline-done ((t (:inherit 'shadow :strike-through t))))
-  (org-agenda-done ((t (:inherit 'shadow))))
-  (org-image-actual-width (/ (display-pixel-width) 2))
+  ;; (org-headline-done ((t (:inherit 'shadow :strike-through t))))
+  ;; (org-agenda-done ((t (:inherit 'shadow))))
+  ;; (org-image-actual-width (/ (display-pixel-width) 2))
   ;; (org-block-begin-line ((nil (:inherit 'fixed-pitch))))
   :hook
   (org-mode-hook . duy/org-mode-setup)
@@ -1534,7 +1528,6 @@ Org-appear shows the emphasis markers when your cursor is on the text, even if ~
 
 #+begin_src emacs-lisp
 (use-package org-appear
-  :straight t
   :hook (org-mode-hook . org-appear-mode))
 #+end_src
 
@@ -1551,12 +1544,11 @@ Related github issues:
 
 #+begin_src emacs-lisp
 (use-package emacsql
-  :straight (:host github :repo: "magit/emacsql" :files (:defaults)))
+  :elpaca (:host github :repo: "magit/emacsql" :files (:defaults)))
 #+end_src
 
 #+begin_src emacs-lisp
 (use-package org-roam
-  :straight t
   :init
   (setq org-roam-v2-ack t)
   (setq org-roam-database-connector 'sqlite-builtin)
@@ -1589,13 +1581,14 @@ Related github issues:
     "n t" '(org-roam-tag-add       :wk "Add tag")
     "n T" '(org-roam-tag-remove    :wk "Remove tag")
     "n d" '(org-roam-dailies-map   :wk "Dailies")))
+
+(elpaca-wait)
 #+end_src
 
 ** Consult for org-roam
 
 #+begin_src emacs-lisp
 (use-package consult-org-roam
-  :straight t
   :init
   (consult-org-roam-mode 1)
   :config
@@ -1612,7 +1605,6 @@ Testing this package. The following are disabled as they conflict with =org-mode
 
 #+begin_src emacs-lisp
 (use-package org-modern
-  :straight t
   :hook
   (org-mode-hook . org-modern-mode)
   :custom
@@ -1625,7 +1617,7 @@ Salv-mode provides a local minor mode to save a buffer when Emacs is idle. I onl
 
 #+begin_src emacs-lisp
 (use-package salv
-  :straight (:host github :repo "alphapapa/salv.el")
+  :elpaca (:host github :repo "alphapapa/salv.el")
   :init
   (defun duy/org-roam-salv-mode ()
     "Enable salv-mode for org-roam files"
@@ -1647,8 +1639,7 @@ This setup primarily follows the setup from d12frosted's [[https://d12frosted.io
 Vulpea is a package written by d12frosted with additional functions for org and org-roam. See also [[https://github.com/d12frosted/vulpea][here]].
 
 #+begin_src emacs-lisp
-(use-package vulpea
-  :straight t)
+(use-package vulpea)
 #+end_src
 
 *** s.el
@@ -1656,8 +1647,7 @@ Vulpea is a package written by d12frosted with additional functions for org and 
 s.el is an emacs string manipulation package.
 
 #+begin_src emacs-lisp
-(use-package s
-  :straight t)
+;; (use-package s)
 #+end_src
 
 *** Dynamic org-agenda
@@ -1792,12 +1782,15 @@ Use org-super-agenda to group TODOs in agenda view.
 
 #+begin_src emacs-lisp
 (use-package org-super-agenda
-  :straight t
   :config
   (add-hook 'org-agenda-mode-hook 'org-super-agenda-mode)
   (setq org-super-agenda-header-prefix nil)
-  (setq org-super-agenda-header-map (make-sparse-keymap)))
-
+  (setq org-super-agenda-header-map (make-sparse-keymap))
+  ;; Automatically group TODOs by title.
+  (org-super-agenda--def-auto-group title "title of org file"
+    :key-form (org-super-agenda--when-with-marker-buffer (org-super-agenda--get-marker item)
+                (org-roam-db--file-title))
+    :header-form key))
 #+end_src
 
 *** TODOs, tags etc.
@@ -1851,16 +1844,6 @@ Function to archive all done task in current org agenda/file.
      (org-archive-subtree)
      (setq org-map-continue-from (org-element-property :begin (org-element-at-point))))
    "/DONE\|CANCELLED" 'file))
-#+end_src
-
-*** Group TODOs by title
-
-Function to automatically group TODOs by title.
-#+begin_src emacs-lisp
-(org-super-agenda--def-auto-group title "title of org file"
-  :key-form (org-super-agenda--when-with-marker-buffer (org-super-agenda--get-marker item)
-              (org-roam-db--file-title))
-  :header-form key)
 #+end_src
 
 *** Layout of agenda
@@ -2023,6 +2006,7 @@ Hide the =project= tag in org-agenda, since by definition in our setup all items
 Refile targets are set to all files in the org-roam-notes folder.
 
 #+begin_src emacs-lisp
+(elpaca-wait)
 (setq myroamfiles (directory-files org-roam-directory t "org$"))
 
 ;; -------- refile settings -----
@@ -2111,7 +2095,6 @@ Function to archive all done task in current org agenda/file.
 
 #+begin_src emacs-lisp
 (use-package powerthesaurus
-  :straight t
   :config
   (leader-keys
     "s d" '(powerthesaurus-lookup-dwim :wk "Powerthesaurus")))
@@ -2121,9 +2104,7 @@ Function to archive all done task in current org agenda/file.
 
 #+begin_src emacs-lisp
 (use-package olivetti
-  :straight t
   :defer t
-  :diminish
   :custom
   (olivetti-body-width 0.67)
   (olivetti-minimum-body-width 80)
@@ -2137,7 +2118,6 @@ Function to archive all done task in current org agenda/file.
 
 #+begin_src emacs-lisp
 (use-package logos
-  :straight t
   :init
   (setq logos-outlines-are-pages t)
   (setq-default logos-olivetti t)
@@ -2156,7 +2136,6 @@ Function to archive all done task in current org agenda/file.
 
 #+begin_src emacs-lisp
 (use-package pulsar
-  :straight (:host github :repo "protesilaos/pulsar")
   :init
   (pulsar-global-mode 1)
   (setq pulsar-face 'pulsar-magenta)
@@ -2191,6 +2170,7 @@ Open URLs in qutebrowser:
 
 #+begin_src emacs-lisp
 (use-package emacs
+  :elpaca nil
   :ensure-system-package qutebrowser
   :config
   (setq browse-url-browser-function 'browse-url-generic
@@ -2205,7 +2185,7 @@ Open URLs in qutebrowser:
 
 #+begin_src emacs-lisp
 (use-package project
-  :straight t
+  :elpaca nil
   :init
   (setq project-switch-commands '((project-find-file "Find file" "f")
                                   (project-find-dir "Find dir" "d")
@@ -2253,7 +2233,6 @@ Ensure =direnv= is installed via your OS package manager.
 
 #+begin_src emacs-lisp
 (use-package envrc
-  :straight t
   :init
   (envrc-global-mode 1))
 #+end_src
@@ -2264,7 +2243,6 @@ Ensure =direnv= is installed via your OS package manager.
 
 #+begin_src emacs-lisp
 (use-package eglot
-  :straight t
   :defer t
   :after consult
   :hook
@@ -2295,7 +2273,6 @@ Ensure =direnv= is installed via your OS package manager.
 
 #+begin_src emacs-lisp
 (use-package consult-eglot
-  :straight t
   :after eglot consult
   :config
   (leader-keys
@@ -2317,7 +2294,6 @@ If you built Emacs from source, you should check whether tree-sitter is availabl
 
 #+begin_src emacs-lisp
 (use-package python
-  :straight t
   :custom
   (python-indent-guess-indent-offset-verbose nil)
   :config 
@@ -2450,10 +2426,9 @@ Alternatives include [[https://github.com/jorgenschaefer/pyvenv][pyvenv.el]], [[
 
 #+begin_src emacs-lisp
 (use-package pet
-  :straight t
   :hook
   (python-mode-hook . duy/python-pet-hook)
-  (python-ts-mode-hook . duy/python-pet-hook)
+  ;; (python-ts-mode-hook . duy/python-pet-hook)
   :init
   (defun duy/python-pet-hook ()
     "Activate pet mode, and set the local variables to identify the correct executables."
@@ -2480,7 +2455,6 @@ I use =pyvenv= to in compination with =pet= to quickly switch to the correct env
 
 #+begin_src emacs-lisp
 (use-package pyvenv
-  :straight t
   :hook (pyvenv-post-activate-hooks . (lambda() (call-interactively 'eglot-reconnect)))
   :init
   (defun duy/pet-pyvenv-activate ()
@@ -2499,7 +2473,6 @@ I use =pyvenv= to in compination with =pet= to quickly switch to the correct env
 
 #+begin_src emacs-lisp
 (use-package blacken
-  :straight t
   :defer t
   :custom
   (blacken-allow-py36 t)
@@ -2513,13 +2486,12 @@ I use =pyvenv= to in compination with =pet= to quickly switch to the correct env
 
 #+begin_src emacs-lisp
 (use-package numpydoc
-  :straight t
   :custom
   (numpydoc-insert-examples-block nil)
   (numpydoc-template-long nil)
   :bind (:map python-ts-mode-map
               ("C-c C-n" . numpydoc-generate))
-  :config
+  :init
   (local-leader-keys
     :keymaps '(python-mode-map python-ts-mode-map)
     "d" '(numpydoc-generate :wk "Generate docstring")))
@@ -2591,9 +2563,9 @@ Although I prefer to use poetry/pyenv to manage my Python coding projects and en
 Furthermore, poetry is actually set up in a way to be able to use with conda as an environment manager (see [[https://github.com/python-poetry/poetry/blob/master/src/poetry/utils/env.py#L675][here]]). See also more info on this [[https://stackoverflow.com/questions/70851048/does-it-make-sense-to-use-conda-poetry][StackOverflow post]].
 
 #+begin_src emacs-lisp
-(use-package conda
-  :straight t
-  :defer t)
+;; (use-package conda
+;;   :straight t
+;;   :defer t)
 #+end_src
 
 *** Python development workflow with Poetry
@@ -2645,7 +2617,6 @@ import pandas
 
 #+begin_src emacs-lisp
 (use-package rustic
-  :straight t
   :ensure-system-package rustup
   :config
   (setq rustic-format-on-save t)
@@ -2656,7 +2627,6 @@ import pandas
 
 #+begin_src emacs-lisp
 (use-package jupyter
-  :straight t
   :ensure-system-package jupyter
   :bind (:map jupyter-repl-mode-map 
               ("C-j" . 'jupyter-repl-forward-cell)
@@ -2767,7 +2737,7 @@ Using ~ox-ipynb~ to convert =.org= files to =.ipynb= files. The built in functio
 
 #+begin_src emacs-lisp
 (use-package ox-ipynb
-  :straight (:host github :repo "jkitchin/ox-ipynb")
+  :elpaca (:host github :repo "jkitchin/ox-ipynb")
   :after ox
   :init
   (defun my-replace-python-with-ipython (orig-fun &rest args)
@@ -2832,8 +2802,7 @@ Relevant links:
 
 #+begin_src emacs-lisp
 (when duy/is-wsl
-  (use-package ahk-mode
-    :straight t))
+  (use-package ahk-mode))
 #+end_src
 
 * PDF
@@ -2855,14 +2824,13 @@ Relevant links:
 
 #+begin_src emacs-lisp
 (use-package pdf-tools
-  :straight t
   :init
   (pdf-tools-install)
   :hook
   (pdf-view-mode-hook . evil-collection-pdf-setup))
 
 (use-package pdf-occur
-  :straight nil
+  :elpaca nil
   :after pdf-tools
   :bind (:map pdf-occur-buffer-mode-map
               ("C-<return>" . pdf-occur-view-occurrence)
@@ -2874,7 +2842,6 @@ Relevant links:
 ;; pdf-view-restore remembers last position in pdf before closing
 
 (use-package pdf-view-restore
-  :straight t
   :after pdf-tools
   :hook
   (pdf-view-mode-hook . pdf-view-restore-mode)
@@ -2887,7 +2854,6 @@ Relevant links:
 #+begin_src emacs-lisp
 (when (string= system-name "Duys-MBP.home")
   (use-package ledger-mode
-    :straight t
     :ensure-system-package ledger
     :custom
     (ledger-reports '(("Balance (EUR)" "%(binary) -f %(ledger-file) bal --exchange EUR --price-db .pricedb Assets Liabilities")
@@ -2941,7 +2907,6 @@ Relevant links:
 
 #+begin_src emacs-lisp
 (use-package elfeed
-  :straight t
   :config
   (setq elfeed-feeds
         '("https://www.greaterwrong.com/tag/bayes-theorem?showPostCount=true&useTagName=true&format=rss")))

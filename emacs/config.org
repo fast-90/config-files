@@ -103,9 +103,9 @@ The code in this section is tangled to =init.el=. Loading this file with ~org-ba
 
 ** Package management
 
-*** Set straight.el
+*** Install elpaca
 
-Bootstrap code as per the instructions:
+As per the instructions:
 
 #+begin_src emacs-lisp :tangle (expand-file-name "init.el" user-emacs-directory)
 (defvar elpaca-installer-version 0.4)

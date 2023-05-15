@@ -2326,7 +2326,7 @@ Ensure =direnv= is installed via your OS package manager.
     "l x" '(xref-find-references  :wk "Find references")
     "l c" '(eglot-code-actions    :wk "Code actions")
     "l r" '(eglot-rename          :wk "Rename")
-    "l ," '(eldoc                 :wk "Eldoc")
+    "l z" '(eldoc                 :wk "Eldoc")
     "l R" '(eglot-reconnect       :wk "Reconnect Eglot")))
 #+end_src
 

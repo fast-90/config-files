@@ -999,9 +999,9 @@ Currently trying =mood-line= over =doom-modeline= as the latter messes up the ba
   (display-time-day-and-date t)
   :config
   (setq mood-line-evil-state-alist
-        '((normal . ("[N]" . (:inherit font-lock-variable-name-face :weight bold)))
-          (insert . ("[I]" . (:inherit font-lock-string-face :weight bold)))
-          (visual . ("[V]" . (:inherit font-lock-keyword-face :weight bold)))
+        '((normal . ("[N]" . (:foreground "light steel blue" :weight bold)))
+          (insert . ("[I]" . (:foreground "goldenrod" :weight bold)))
+          (visual . ("[V]" . (:foreground "medium spring green" :weight bold)))
           (replace . ("[R]" . (:inherit font-lock-type-face :weight bold)))
           (motion . ("[M]" . (:inherit font-lock-constant-face :weight bold)))
           (operator . ("[O]" . (:inherit font-lock-function-name-face :weight bold)))

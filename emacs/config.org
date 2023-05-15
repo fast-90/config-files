@@ -105,7 +105,9 @@ The code in this section is tangled to =init.el=. Loading this file with ~org-ba
 
 *** Install elpaca
 
-As per the instructions:
+Elpaca is an elisp package manager which installs packages asynchronously. It's seems almost twice as fast as =straight= for me.
+
+Installing as per the instructions:
 
 #+begin_src emacs-lisp :tangle (expand-file-name "init.el" user-emacs-directory)
 (defvar elpaca-installer-version 0.4)

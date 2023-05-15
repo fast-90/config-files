@@ -23,12 +23,27 @@ make -j $(nproc)  # Or make bootstrap j $(nproc)
 sudo make install
 #+end_src
 
-To update, simply run =sudo make uninstall=, pull the repo and follow the configuration and installation steps above again.
+To update, simply run ~sudo make uninstall~, pull the repo and follow the configuration and installation steps above again.
+
+*** Troubleshooting Emacs installation from source
+
+1. =configure: error: The following required libraries were not found: tree-sitter=
+
+   Reinstall ~tree-sitter~ again with ~cargo uninstall tree-sitter-cli~ and then ~cargo install tree-sitter-cli~.
+
+2. =./temacs: error while loading shared libraries: libtree-sitter.so.0: cannot open shared object file: No such file or directory=
+   =*** "make bootstrap" failed with exit status 2.=
+
+   1. Follow the steps and clean the folders with ~make extraclean~ and/or ~git clean -fdx~.
+   2. Run ~sudo /sbin/ldconfig -v~.
+   3. Rebuild Emacs (if you did ~git clean -fdx~ you need to start from the =autogen.sh= script again).
 
 Useful links for troubleshooting:
 + [[https://batsov.com/articles/2021/12/19/building-emacs-from-source-with-pgtk/][Building Emacs from Source with pgtk]]
 + [[https://www.reddit.com/r/emacs/comments/rojo7y/emacs_native_compilation_cannot_find_libgccjit/][Emacs native compilation cannot find libgccjit library]]
 + [[https://gitlab.com/mslot/src_installs/-/blob/master/emacs_install_ubuntu.sh][Alternative script to install Emacs from source]]
++ [[https://itsfoss.com/solve-open-shared-object-file-quick-tip/][How to solve "cannot open shared object file" error in Ubuntu-based Linux distributions]]. Mostly happens when an application requires access to a library which was installed via Rust.
+
 
 * early-init.el
 
@@ -2340,26 +2355,38 @@ Ensure =direnv= is installed via your OS package manager.
     "l s" '(consult-eglot-symbols :wk "Search symbols")))
 #+end_src
 
-*** TODO Tree-sitter (not working for emacs built from source yet on WSL)
+*** Tree-sitter
 
 Tree-sitter is a super fast parser which can be used for syntax highlighting, and is much faster than the traditional =font-lock= mode from Emacs. As of Emacs 29, the tree-sitter package is builtin. Some setup on the OS is required though:
 
-1. Install =tree-sitter= via the preferred package manager (both =brew= and =cargo= should work), or install from source.
+1. Install =tree-sitter= via the preferred package manager (=brew= for MacOS and =cargo= for Linux/WSL).
 2. Install grammar for the languages you want to have tree-sitter. There are two ways:
    1. [[https://archive.casouri.cc/note/2023/tree-sitter-starter-guide/index.html][Via a script by user "casouri"]].
    2. [[https://www.nathanfurnal.xyz/posts/building-tree-sitter-langs-emacs/][Using the treesit-install-language-grammar command]].
 
 If you built Emacs from source, you should check whether tree-sitter is available via the function =treesit-available-p=. If it returns =nil=, you need to rebuild Emacs from source with the =--with-tree-sitter= flag.
 
+#+begin_src emacs-lisp
+(use-package treesit
+  :elpaca nil
+  :init
+  (setq treesit-language-source-alist
+        '((python . ("git@github.com:tree-sitter/tree-sitter-python.git"))))
+  :config
+  (when (and (treesit-available-p) (executable-find "tree-sitter"))
+    (treesit-install-language-grammar 'python)
+    (add-to-list 'major-mode-remap-alist '(python-mode . python-ts-mode))))
+#+end_src
+
 ** Python
 
 #+begin_src emacs-lisp
 (use-package python
   :custom
-  (python-indent-guess-indent-offset-verbose nil)
-  :config 
-  (when (and (treesit-available-p) (executable-find "tree-sitter"))
-    (add-to-list 'major-mode-remap-alist '(python-mode . python-ts-mode))))
+  (python-indent-guess-indent-offset-verbose nil))
+  ;; :config 
+  ;; (when (and (treesit-available-p) (executable-find "tree-sitter"))
+  ;;   (add-to-list 'major-mode-remap-alist '(python-mode . python-ts-mode))))
 #+end_src
 
 *** Python language server

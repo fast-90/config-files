@@ -173,6 +173,7 @@ Installing as per the instructions:
   (elpaca-use-package-mode)
   (setq elpaca-use-package-by-default t))
 
+;; Wait until use-package is loaded before installing packages with the macro
 (elpaca-wait)
 
 (use-package bind-key :after use-package) ;; if you use any :bind variant
@@ -188,11 +189,12 @@ This =use-package= extension allows us to use the =:ensure-system-package= keywo
 
 *** Load literate config with org mode
 
-Use latest version of ~org~ via ~straight~.
+Use latest version of ~org~.
 
 #+begin_src emacs-lisp :tangle (expand-file-name "init.el" user-emacs-directory)
 (use-package org)
 
+;; Wait until org is loaded before loading literate config.
 (elpaca-wait)
 
 (org-babel-load-file
@@ -542,6 +544,7 @@ function (similar to Spacemacs/Doom/VSpaceCode).
     "e l"   '(eval-last-sexp     :wk "Eval last sexression")
     "e r"   '(eval-region        :wk "Eval region")))
 
+;; Wait after general to be able to use :general use-package macro
 (elpaca-wait)
 #+end_src
 
@@ -1482,8 +1485,8 @@ Package to easily navigate cursor within buffers. Using this over evil-easymotio
    'org-babel-load-languages
    '((emacs-lisp . t)
      (python . t)))
-  (with-eval-after-load 'flycheck
-    (flycheck-add-mode 'proselint 'org-mode))
+  ;; (with-eval-after-load 'flycheck
+  ;;   (flycheck-add-mode 'proselint 'org-mode))
   ;; Change bullets to actual bullets
   ;; (font-lock-add-keywords 'org-mode
   ;;                         '(("^ *\\([-]\\) "

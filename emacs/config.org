@@ -1620,6 +1620,17 @@ Related github issues:
   :init
   (setq org-roam-v2-ack t)
   (setq org-roam-database-connector 'sqlite-builtin)
+  (defun duy/org-refile-setup ()
+    "Org refile settings with Roam."
+    (interactive)
+    (setq myroamfiles (directory-files org-roam-directory t "org$"))
+    (setq org-refile-targets '((org-agenda-files :maxlevel . 5) (myroamfiles :maxlevel . 5)))
+    (setq org-refile-use-outline-path 'file)  ;; 'file or nil
+    (setq org-outline-path-complete-in-steps nil)
+    (setq org-refile-allow-creating-parent-nodes 'confirm))
+  (defun vulpea-roam-files-update (&rest _)
+    "Update the value of `myroamfiles'."
+    (setq myroamfiles (directory-files org-roam-directory t "org$")))
   :custom
   (org-roam-directory "~/org-roam-notes")
   (org-roam-completion-everywhere t)
@@ -1636,11 +1647,7 @@ Related github issues:
               :map org-roam-dailies-map
               ("Y" . org-roam-dailies-capture-yesterday)
               ("T" . org-roam-dailies-capture-tomorrow))
-  :config
-  (require 'org-roam-dailies) ;; Ensure the keymap is available
-  (setq org-roam-node-display-template #("${title:*} ${tags:40}" 11 21
-                                         (face org-tag)))
-  (org-roam-db-autosync-mode)
+  :general
   (leader-keys
     "n"   '(:ignore t              :wk "Roam")
     "n l" '(org-roam-buffer-toggle :wk "Buffer toggle")
@@ -1648,7 +1655,14 @@ Related github issues:
     "n i" '(org-roam-node-insert   :wk "Insert")
     "n t" '(org-roam-tag-add       :wk "Add tag")
     "n T" '(org-roam-tag-remove    :wk "Remove tag")
-    "n d" '(org-roam-dailies-map   :wk "Dailies")))
+    "n d" '(org-roam-dailies-map   :wk "Dailies"))
+  :config
+  (require 'org-roam-dailies) ;; Ensure the keymap is available
+  (setq org-roam-node-display-template #("${title:*} ${tags:40}" 11 21
+                                         (face org-tag)))
+  (org-roam-db-autosync-mode)
+  (duy/org-refile-setup)
+  (advice-add 'org-agenda :before #'vulpea-roam-files-update))
 
 (elpaca-wait)
 #+end_src
@@ -2071,28 +2085,7 @@ Hide the =project= tag in org-agenda, since by definition in our setup all items
 
 *** Org refile settings
 
-Refile targets are set to all files in the org-roam-notes folder.
-
-#+begin_src emacs-lisp
-(elpaca-wait)
-(setq myroamfiles (directory-files org-roam-directory t "org$"))
-
-;; -------- refile settings -----
-(setq org-refile-targets '((org-agenda-files :maxlevel . 5) (myroamfiles :maxlevel . 5)))
-(setq org-refile-use-outline-path 'file)  ;; 'file or nil
-(setq org-outline-path-complete-in-steps nil)
-(setq org-refile-allow-creating-parent-nodes 'confirm)
-#+end_src
-
-#+begin_src emacs-lisp
-(defun vulpea-roam-files-update (&rest _)
-  "Update the value of `myroamfiles'."
-  (setq myroamfiles (directory-files org-roam-directory t "org$")))
-
-(advice-add 'org-agenda :before #'vulpea-roam-files-update)
-#+end_src
-
-Some ideas for the future:
+See ~duy/org-refile-setup~ and ~vulpea-roam-files-update~ under =org-roam=. 
 
 - Project nodes have "project" tags, which are added by myself.
 - Nodes have "task" tags based on existence of TODO items.

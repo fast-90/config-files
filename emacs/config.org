@@ -2322,13 +2322,23 @@ Ensure =direnv= is installed via your OS package manager.
   :defer t
   :after consult
   :hook
-  (python-mode-hook . eglot-ensure)
-  (python-ts-mode-hook . eglot-ensure)
+  (python-base-mode-hook . duy/pylsp-default-eglot-workspace-configuration)
+  (python-base-mode-hook . eglot-ensure)
   :init
   (define-key evil-normal-state-map (kbd "M-.") nil)
   (define-key evil-normal-state-map (kbd "C->") 'evil-repeat-pop-next)
   (setq xref-show-xrefs-function #'consult-xref)
   (setq xref-show-definitions-function #'consult-xref)
+  (defun duy/pylsp-default-eglot-workspace-configuration()
+    "Default Eglot workspace configuration for the pylsp server.
+
+These are pylsp settings that I like to have across my projects. If more
+specific variables are required, they should be set via local Directory
+Variables. See also the Eglot manual."
+    (setq-default eglot-workspace-configuration
+                  (list :pylsp
+                        (list :plugins
+                              (list :ruff (list :extendSelect ["I"]))))))
   :config
   ;; (add-to-list 'eglot-server-programs
   ;;              `(python-ts-mode . ,(eglot-alternatives
@@ -2384,9 +2394,6 @@ If you built Emacs from source, you should check whether tree-sitter is availabl
 (use-package python
   :custom
   (python-indent-guess-indent-offset-verbose nil))
-  ;; :config 
-  ;; (when (and (treesit-available-p) (executable-find "tree-sitter"))
-  ;;   (add-to-list 'major-mode-remap-alist '(python-mode . python-ts-mode))))
 #+end_src
 
 *** Python language server
@@ -2455,36 +2462,23 @@ With the above setup there is no need for Poetry or direnv, so those packages ar
 *** Pylsp helper functions
 
 #+begin_src emacs-lisp
-;; (defun create-config-files ()
-;;   "Create config files for the current project."
-;;   (interactive)
-;;   (let ((project-root (when-let ((project (project-current)))
-;;                         (project-root-directory project))))
-;;     (if (not project-root)
-;;         (message "Current file is not part of a project!")
-;;       (let ((mypy-file (concat project-root "mypy.ini"))
-;;             (dir-locals-file (concat project-root ".dir-locals.el")))
-;;         (cond
-;;          ((or (file-exists-p mypy-file)
-;;               (file-exists-p dir-locals-file))
-;;           (when (y-or-n-p "Config files found in project folder. Overwrite current files? ")
-;;             (delete-file mypy-file)
-;;             (delete-file dir-locals-file)
-;;             (create-mypy-file mypy-file)
-;;             (create-dir-locals-file dir-locals-file)))
-;;          (t
-;;           (create-mypy-file mypy-file)
-;;           (create-dir-locals-file dir-locals-file)))))))
+;; (defun duy/pylsp-set-dir-local-variables ()
+;;     "Sets dir local variables for pylsp.
+;; Creates a .dir-locals.el file. Uses PET to indentify the venv."
+;;     (interactive)
+;;     (let* ((virtualenv-path (pet-virtualenv-root))
+;;            (eglot-pylsp-config '(:pylsp (:configurationSources ["flake8"]
+;;                                          :plugins (:jedi
+;;                                                    (:environment nil)
+;;                                                    :ruff
+;;                                                    (:extendSelect ["I"]))))))
+;;       (add-dir-local-variable 'python-ts-mode 'pyvenv-activate virtualenv-path)
+;;       (add-dir-local-variable 'python-ts-mode 'eglot-workspace-configuration eglot-pylsp-config)))
 
 ;; (defun create-mypy-file (file-path)
 ;;   "Create a mypy.ini file at the specified FILE-PATH."
 ;;   (with-temp-file file-path
 ;;     (insert "[mypy]\npython_executable = /usr/bin/python\n")))
-
-;; (defun create-dir-locals-file (file-path)
-;;   "Create a .dir-locals.el file at the specified FILE-PATH."
-;;   (with-temp-file file-path
-;;     (insert "((nil . ((eval . (setq-local compile-command \"make\")))))\n")))
 
 #+end_src
 
@@ -2515,26 +2509,14 @@ Alternatives include [[https://github.com/jorgenschaefer/pyvenv][pyvenv.el]], [[
 #+begin_src emacs-lisp
 (use-package pet
   :hook
-  (python-mode-hook . duy/python-pet-hook)
-  (python-ts-mode-hook . duy/python-pet-hook)
+  (python-base-mode-hook . duy/python-pet-hook)
   :init
   (defun duy/python-pet-hook ()
     "Activate pet mode, and set the local variables to identify the correct executables."
     (pet-mode)
+    (setq-local pyvenv-activate (pet-virtualenv-root))
     (when-let ((black-executable (pet-executable-find "black")))
-      (setq-local python-black-command black-executable)))
-  (defun duy/pylsp-set-dir-local-variables ()
-    "Sets dir local variables for pylsp.
-Creates a .dir-locals.el file. Uses PET to indentify the venv."
-    (interactive)
-    (let* ((virtualenv-path (pet-virtualenv-root))
-           (eglot-pylsp-config '(:pylsp (:configurationSources ["flake8"]
-                                         :plugins (:jedi
-                                                   (:environment nil)
-                                                   :ruff
-                                                   (:extendSelect ["I"]))))))
-      (add-dir-local-variable 'python-ts-mode 'pyvenv-activate virtualenv-path)
-      (add-dir-local-variable 'python-ts-mode 'eglot-workspace-configuration eglot-pylsp-config))))
+      (setq-local python-black-command black-executable))))
 #+end_src
 
 *** Pyvenv
@@ -2543,8 +2525,12 @@ I use =pyvenv= to in compination with =pet= to quickly switch to the correct env
 
 #+begin_src emacs-lisp
 (use-package pyvenv
-  :hook (pyvenv-post-activate-hooks . (lambda() (call-interactively 'eglot-reconnect)))
+  ;; :hook
+  ;; These hooks were required when using the manual method to activate the venv. Testing it now without the hooks.
+  ;; (pyvenv-post-activate-hooks . (lambda() (call-interactively 'eglot-reconnect)))
+  ;; (pyvenv-post-deactivate-hooks . (lambda() (call-interactively 'eglot-reconnect)))
   :init
+  (pyvenv-mode t)
   (defun duy/pet-pyvenv-activate ()
     "Activate the virtualenv identified by PET."
     (interactive)

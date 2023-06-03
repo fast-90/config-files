@@ -309,8 +309,6 @@ I copied this over from [[https://github.com/Nathan-Furnal/dotemacs/blob/master/
   (add-to-list 'recentf-exclude (recentf-expand-file-name "~/.maildir/.*")))
 #+end_src
 
-** undo-tree
-
 #+begin_src emacs-lisp
 (use-package undo-tree
   :init
@@ -424,145 +422,6 @@ Don't maximise window on WSL (it doesn't work well as the X server does not reco
         (add-to-list 'default-frame-alist '(fullscreen . maximized)))
 #+end_src
 
-* Evil keybindings (general)
-
-** Evil
-
-The Evil package(s) enable Vim-like keybindings.
-
-#+begin_src emacs-lisp
-(use-package evil
-  :init      ;; tweak evil's configuration before loading it
-  (setq evil-want-integration t) ;; This is optional since it's already set to t by default.
-  (setq evil-want-keybinding nil)
-  (setq evil-want-C-u-scroll t)
-  (setq evil-vsplit-window-right t)
-  (setq evil-split-window-below t)
-  (setq evil-want-C-i-jump nil)
-  (setq evil-disable-insert-state-bindings t)  ; don't use any of these: https://github.com/noctuid/evil-guide#switching-between-evil-and-emacs
-  :config
-  (evil-mode)
-  (evil-set-undo-system 'undo-tree)
-  ;; Use visual line motions (e.g. for when a long line is wrapped)
-  (evil-global-set-key 'motion "j" 'evil-next-visual-line)
-  (evil-global-set-key 'motion "k" 'evil-previous-visual-line)
-  (global-set-key (kbd "C-M-u") 'universal-argument))
-#+end_src
-
-** Evil collection
-
-Evil collection is a collection of Evil bindings for the parts of Emacs that Evil does not cover properly by default.
-
-#+begin_src emacs-lisp
-(use-package evil-collection
-  :after evil
-  :config
-  (setq evil-collection-mode-list '(flymake
-                                    xref
-                                    vterm
-                                    dashboard
-                                    dired
-                                    ibuffer
-                                    calc
-                                    magit
-                                    pdf
-                                    elfeed
-                                    doc-view
-                                    company
-                                    embark
-                                    mu4e
-                                    helpful)) ; Modes to activate Evil keybindings for
-  (evil-collection-init))
-#+end_src
-
-** Evil-escape
-
-Bind kj in insert mode to ESC.
-
-#+begin_src emacs-lisp
-;; (use-package evil-escape
-;;   :straight t
-;;   :init
-;;   (evil-escape-mode 1)
-;;   (setq evil-escape-key-sequence "jj")
-;;   (setq evil-escape-delay 0.2))
-#+end_src
-
-** Evil nerd commenter
-
-Evil nerd commenter for line comment.
-
-#+begin_src emacs-lisp
-(use-package evil-nerd-commenter
-  :bind (("C-'" . evilnc-comment-or-uncomment-lines)
-         ("C-," . evilnc-comment-or-uncomment-lines)
-  :map org-mode-map)
-  ("C-'" . nil))
-#+end_src
-
-** Evil-org
-
-Evil-org adds evil bindings to org-agenda.
-
-#+begin_src emacs-lisp
-(use-package evil-org
-  :after org
-  :hook (org-mode . (lambda () evil-org-mode))
-  :config
-  (require 'evil-org-agenda)
-  (evil-org-agenda-set-keys))
-#+end_src
-
-** Evil surround
-
-evil-surround enables surrounding of (Vim) text objects (e.g. brackets or quotes)
-
-#+begin_src emacs-lisp
-(use-package evil-surround
-  :config
-  (global-evil-surround-mode 1))
-#+end_src
-
-** General
-
-The config in this section enable SPC as a prefix to a useful and commonly used
-function (similar to Spacemacs/Doom/VSpaceCode).
-
-#+begin_src emacs-lisp
-(use-package general
-  :init
-  (setq general-override-states '(insert
-                                  emacs
-                                  hybrid
-                                  normal
-                                  visual
-                                  motion
-                                  operator
-                                  replace))
-  :after evil
-  :config
-  (general-evil-setup t)
-  (general-create-definer leader-keys
-    :states '(normal visual emacs motion) ; consider adding motion for using with easymotion
-    :keymaps 'override 
-    :prefix "SPC")
-  (general-create-definer local-leader-keys
-    :states '(normal visual emacs motion) ; consider adding motion for using with easymotion
-    :keymaps 'override 
-    :prefix ",")
-  (leader-keys
-    "u"     '(universal-argument :wk "C-u")
-    "e"     '(:ignore t          :wk "Eval")
-    "e b"   '(eval-buffer        :wk "Eval elisp in buffer")
-    "e d"   '(eval-defun         :wk "Eval defun")
-    "e e"   '(eval-expression    :wk "Eval elisp expression")
-    "e l"   '(eval-last-sexp     :wk "Eval last sexression")
-    "e r"   '(eval-region        :wk "Eval region")))
-
-;; Wait after general to be able to use :general use-package macro
-(elpaca-wait)
-#+end_src
-
 * File and buffer management
 
 ** Dired
@@ -570,48 +429,24 @@ function (similar to Spacemacs/Doom/VSpaceCode).
 #+begin_src emacs-lisp
   (use-package dired
     :elpaca nil
-    :after evil evil-collection general
-    ;; :commands (dired dired-jump)
-    ;; :bind (("C-x C-j" . dired-jump))
-    :custom ((dired-listing-switches "-agho --group-directories-first"))
+    :custom
+    (dired-listing-switches "-agho --group-directories-first")
+    (dired-kill-when-opening-new-dired-buffer t)
     :init
-    (when (string= system-type "darwin")
+    (when duy/is-macos
       (setq dired-use-ls-dired t
-            insert-directory-program "/usr/local/bin/gls"))
-    :config
-    (defun duy/dired-single-up-directory ()
-      "Alternative for dired-single-up-directory.
-dired-single-up-directory still creates a new buffer."
-      (interactive)
-      (dired-single-buffer ".."))
-    (defun duy/quit-dired-window ()
-      "Custom quit dired window.
-Kills buffer by default. With prefix argument, buries buffer."
-      (interactive)
-      (if current-prefix-arg
-          (quit-window)
-        (kill-this-buffer)))
-    (evil-collection-define-key 'normal 'dired-mode-map
-      "q" 'duy/quit-dired-window
-      "h" 'duy/dired-single-up-directory
-      "l" 'dired-single-buffer)
-    (leader-keys
-      "d"   '(dired      :wk "dired")
-      "j d" '(dired-jump :wk "dired-jump")))
-
-  (use-package dired-single
-    :after dired)
+            insert-directory-program "/usr/local/bin/gls")))
 
   (use-package all-the-icons-dired
     :after dired
     :hook (dired-mode-hook . all-the-icons-dired-mode))
 
-  (use-package dired-hide-dotfiles
-    :after dired evil-collection
-    :hook (dired-mode-hook . dired-hide-dotfiles-mode)
-    :init
-    (evil-collection-define-key 'normal 'dired-mode-map
-      "H" 'dired-hide-dotfiles-mode))
+  ;; (use-package dired-hide-dotfiles
+  ;;   :after dired evil-collection
+  ;;   :hook (dired-mode-hook . dired-hide-dotfiles-mode)
+  ;;   :init
+  ;;   (evil-collection-define-key 'normal 'dired-mode-map
+  ;;     "H" 'dired-hide-dotfiles-mode))
 #+end_src
 
 *** MacOS specific setting for Dired
@@ -624,23 +459,8 @@ brew install coreutils
 
 ** Buffer management
 
-Add function to kill all buffers except current one.
-
 #+begin_src emacs-lisp
-(defun kill-other-buffers ()
-  "Kill all other buffers."
-  (interactive)
-  (mapc 'kill-buffer (delq (current-buffer) (buffer-list))))
-#+end_src
-
-Keybindings for buffer management.
-#+begin_src emacs-lisp
-(leader-keys
-  "b"   '(:ignore t                          :wk "Buffer")
-  "b b" '(ibuffer                            :wk "Ibuffer")
-  "b c" '(clone-indirect-buffer-other-window :wk "Clone indirect buffer other window")
-  "b k" '(kill-current-buffer                :wk "Kill current buffer")
-  "b 1" '(kill-other-buffers                 :wk "Kill other buffers"))
+(keymap-set ctl-x-map "k" 'kill-this-buffer)
 #+end_src
 
 ** File management
@@ -674,24 +494,103 @@ Keybindings for buffer management.
   (find-file "~/repos/mail-config/mail-config.org"))
 #+end_src
 
+* Meow
+
 #+begin_src emacs-lisp
-(leader-keys
- "f"     '(:ignore t            :wk "File")
- "."     '(find-file            :wk "Find file")
- "f f"   '(find-file            :wk "Find file")
- "f F"   '(consult-find         :wk "Consult find")
- "f g"   '(consult-ripgrep      :wk "Consult ripgrep")
- "f r"   '(consult-recent-file  :wk "Recent files")
- "f s"   '(save-buffer          :wk "Save file")
- "f z"   '(:ignore t            :wk "Configs")
- "f z c" '(duy/open-config      :wk "config.org")
- "f z m" '(duy/open-mail-config :wk "mail-config.org")
- "f D"   '(delete-file          :wk "Delete file")
- "f R"   '(rename-file          :wk "Rename file")
- "f S"   '(write-file           :wk "Save file as...")
- "f u"   '(duy/sudo-edit-file   :wk "Sudo edit file")
- "f U"   '(duy/sudo-find-file   :wk "Sudo find file"))
-#+End_src
+(use-package meow
+  :config
+  (defun meow-setup ()
+    (setq meow-cheatsheet-layout meow-cheatsheet-layout-qwerty)
+    (meow-motion-overwrite-define-key
+     '("j" . meow-next)
+     '("k" . meow-prev)
+     '("<escape>" . ignore))
+    (meow-leader-define-key
+     ;; SPC j/k will run the original command in MOTION state.
+     '("j" . "H-j")
+     '("k" . "H-k")
+     '("TAB" . consult-buffer)
+     ;; Use SPC (0-9) for digit arguments.
+     '("1" . meow-digit-argument)
+     '("2" . meow-digit-argument)
+     '("3" . meow-digit-argument)
+     '("4" . meow-digit-argument)
+     '("5" . meow-digit-argument)
+     '("6" . meow-digit-argument)
+     '("7" . meow-digit-argument)
+     '("8" . meow-digit-argument)
+     '("9" . meow-digit-argument)
+     '("0" . meow-digit-argument)
+     '("/" . meow-keypad-describe-key)
+     '("?" . meow-cheatsheet))
+    (meow-normal-define-key
+     '("0" . meow-expand-0)
+     '("9" . meow-expand-9)
+     '("8" . meow-expand-8)
+     '("7" . meow-expand-7)
+     '("6" . meow-expand-6)
+     '("5" . meow-expand-5)
+     '("4" . meow-expand-4)
+     '("3" . meow-expand-3)
+     '("2" . meow-expand-2)
+     '("1" . meow-expand-1)
+     '("-" . negative-argument)
+     '(";" . meow-reverse)
+     '("," . meow-inner-of-thing)
+     '("." . meow-bounds-of-thing)
+     '("[" . meow-beginning-of-thing)
+     '("]" . meow-end-of-thing)
+     '("<" . meow-page-up)
+     '(">" . meow-page-down)
+     '("a" . meow-append)
+     '("A" . meow-open-below)
+     '("b" . meow-back-word)
+     '("B" . meow-back-symbol)
+     '("c" . meow-change)
+     '("d" . meow-delete)
+     '("D" . meow-backward-delete)
+     '("e" . meow-next-word)
+     '("E" . meow-next-symbol)
+     '("f" . meow-find)
+     '("g" . meow-cancel-selection)
+     '("G" . meow-grab)
+     '("h" . meow-left)
+     '("H" . meow-left-expand)
+     '("i" . meow-insert)
+     '("I" . meow-open-above)
+     '("j" . meow-next)
+     '("J" . meow-next-expand)
+     '("k" . meow-prev)
+     '("K" . meow-prev-expand)
+     '("l" . meow-right)
+     '("L" . meow-right-expand)
+     '("m" . meow-join)
+     '("n" . meow-search)
+     '("o" . meow-block)
+     '("O" . meow-to-block)
+     '("p" . meow-yank)
+     '("q" . meow-quit)
+     '("Q" . meow-goto-line)
+     '("r" . meow-replace)
+     '("R" . undo-redo)
+     '("s" . meow-kill)
+     '("S" . meow-swap-grab)
+     '("t" . meow-till)
+     '("u" . meow-undo)
+     '("U" . meow-undo-in-selection)
+     '("v" . meow-visit)
+     '("w" . meow-mark-word)
+     '("W" . meow-mark-symbol)
+     '("x" . meow-line)
+     '("X" . meow-goto-line)
+     '("y" . meow-save)
+     '("Y" . meow-sync-grab)
+     '("z" . meow-pop-selection)
+     '("'" . repeat)
+     '("<escape>" . ignore)))
+  (meow-setup)
+  (meow-global-mode))
+#+end_src
 
 * Fonts and themes
 
@@ -869,10 +768,7 @@ Other good themes:
   :config
   (load-theme 'modus-vivendi t)
   (load-theme 'modus-operandi t t)
-  (set-face-attribute 'tab-bar nil :font (font-spec :family "IBM Plex Mono" :size duy/default-font-size))  ; Loading modus theme resets tab-bar font, so we need to set it (again)
-  (leader-keys
-    "T"   '(nil :wk "Toggle")
-    "T T" '(modus-themes-toggle :wk "Toggle modus theme")))
+  (set-face-attribute 'tab-bar nil :font (font-spec :family "IBM Plex Mono" :size duy/default-font-size)))  ; Loading modus theme resets tab-bar font, so we need to set it (again)
 
 (elpaca-wait)
 #+end_src
@@ -1016,14 +912,6 @@ Currently trying =mood-line= over =doom-modeline= as the latter messes up the ba
   (display-time-24hr-format t)
   (display-time-day-and-date t)
   :config
-  (setq mood-line-evil-state-alist
-        '((normal . ("[N]" . (:foreground "light steel blue" :weight bold)))
-          (insert . ("[I]" . (:foreground "goldenrod" :weight bold)))
-          (visual . ("[V]" . (:foreground "medium spring green" :weight bold)))
-          (replace . ("[R]" . (:inherit font-lock-type-face :weight bold)))
-          (motion . ("[M]" . (:inherit font-lock-constant-face :weight bold)))
-          (operator . ("[O]" . (:inherit font-lock-function-name-face :weight bold)))
-          (emacs . ("[E]" . (:inherit font-lock-builtin-face :weight bold)))))
   (setq mood-line-glyph-alist mood-line-glyphs-fira-code)
   (display-time-mode)
   (display-battery-mode))
@@ -1053,9 +941,7 @@ Currently trying =mood-line= over =doom-modeline= as the latter messes up the ba
   ;; (tab-bar-tab ((t (:bold t :height 1.0 :foreground "sienna"))))
   ;; (tab-bar-tab-inactive ((t (:background nil :inherit 'mode-line :height 1.0 ))))
   :config
-  (set-face-attribute 'tab-bar nil :font (font-spec :family "IBM Plex Mono" :size duy/default-font-size))
-  (leader-keys
-    "t" '(:keymap tab-prefix-map :wk "Tabs")))
+  (set-face-attribute 'tab-bar nil :font (font-spec :family "IBM Plex Mono" :size duy/default-font-size)))
 #+end_src
 
 ** Tab-bookmark
@@ -1100,6 +986,9 @@ I also enabled directory tracking and named vterm buffer, see also here how to s
 
 #+begin_src emacs-lisp
 (use-package vterm-toggle
+  :bind (("C-c v" . vterm-toggle)
+         :map vterm-mode-map
+         ("C-<return>" . vterm-toggle-insert-cd))
   :custom
   (vterm-buffer-name-string "vterm: %s")
   (vterm-toggle-project-root t)
@@ -1118,12 +1007,7 @@ I also enabled directory tracking and named vterm buffer, see also here how to s
                  ;;(direction . bottom)
                  (dedicated . t) ;dedicated is supported in emacs27
                  (reusable-frames . visible)
-                 (window-height . 0.3)))
-  (leader-keys
-    "'" '(vterm-toggle :wk "vterm"))
-  (bind-keys  ; For some reason :bind interferes with the SPC ' binding here
-   :map vterm-mode-map
-   ("C-<return>" . vterm-toggle-insert-cd)))
+                 (window-height . 0.3))))
 #+end_src
 
 ** exec-path-from-shell
@@ -1141,6 +1025,7 @@ I also enabled directory tracking and named vterm buffer, see also here how to s
 #+end_src
 
 * Completion and navigation
+
 ** Vertico
 
 #+begin_src emacs-lisp
@@ -1252,6 +1137,8 @@ Enabling icons in Corfu:
 (use-package consult
   :init
   (setq consult-locate-args "locate")
+  (setq xref-show-xrefs-function #'consult-xref)
+  (setq xref-show-definitions-function #'consult-xref)
   :bind (("C-s" . consult-line)
          :map minibuffer-local-map
          ("C-r" . consult-history))
@@ -1270,12 +1157,7 @@ Enabling icons in Corfu:
                      (lambda (x)
                        (eq (buffer-local-value 'major-mode x) 'dired-mode))
                      (buffer-list))))))
-  (add-to-list 'consult-buffer-sources 'dired-source 'append)
-  (leader-keys
-    "TAB" '(consult-buffer      :wk "Switch buffer")
-    "f l" '(consult-locate      :wk "Locate")
-    "j h" '(consult-org-heading :wk "Jump to heading")
-    "j o" '(consult-outline     :wk "Jump to outline")))
+  (add-to-list 'consult-buffer-sources 'dired-source 'append))
 #+end_src
 
 ** Embark
@@ -1333,11 +1215,10 @@ Idea: use C-p or M-p as the prefix key.
 
 #+begin_src emacs-lisp
 (use-package ace-window
+  :bind (("C-c w" . ace-window))
   :config
-    (setq aw-keys '(?a ?s ?d ?f ?g ?h ?j ?k ?l)
-          aw-dispatch-always t)
-    (leader-keys
-      "w" '(ace-window :wk "ace-window")))
+  (setq aw-keys '(?a ?s ?d ?f ?g ?h ?j ?k ?l)
+        aw-dispatch-always t))
 #+end_src
   
 ** Avy
@@ -1346,26 +1227,18 @@ Package to easily navigate cursor within buffers. Using this over evil-easymotio
 
 #+begin_src emacs-lisp
 (use-package avy
-  :config
-  (leader-keys
-    "j"   '(:ignore t           :wk "Jump to")
-    "j f" '(avy-goto-char       :wk "Find char")
-    "j s" '(avy-goto-char-2     :wk "Find char 2")
-    "j c" '(avy-goto-char-timer :wk "Find char timer")
-    "j j" '(avy-goto-char-timer :wk "Find char timer")
-    "j l" '(avy-goto-line       :wk "Jump to line")))
+  :defer t
+  :init
+  (setq meow-goto-line-function 'avy-goto-line)
+  (meow-normal-define-key
+   '(":" . (lambda () (interactive) (avy-goto-char-timer)))))
 #+end_src
 
 ** ace-link
 
 #+begin_src emacs-lisp
 (use-package ace-link
-  :config
-  (evil-collection-define-key 'normal 'helpful-mode-map
-   "o" 'ace-link-help)
-  :general
-  (local-leader-keys
-    "o" '(ace-link-org :wk "Open link")))
+  :defer t)
 #+end_src
 
 * Popper
@@ -1442,26 +1315,13 @@ Package to easily navigate cursor within buffers. Using this over evil-easymotio
            (key (cdr (assoc `,choice duy/ispell-dicts))))
       (ispell-change-dictionary key)
       (message "Switched to %s" key)))
-  (setq ispell-dictionary "en_GB")
-  (leader-keys
-    "s"   '(nil                              :wk "Spell check")
-    ;; "s D" '(ispell-change-dictionary         :wk "Change dictionary")
-    "s l" '(duy/ispell-dictionaries-complete :wk "Change language")
-    "s r" '(duy/flyspell-region              :wk "Flyspell region")
-    "s b" '(duy/flyspell-buffer              :wk "Flyspell buffer")
-    "s w" '(duy/flyspell-correct-at-point    :wk "Flyspell word and correct")
-    "s u" '(duy/flyspell-delete-all-overlays :wk "Delete spell check buffer")))
+  (setq ispell-dictionary "en_GB"))
 #+end_src
 
 * Version control
 
 #+begin_src emacs-lisp
-(use-package magit
-  :config
-  (leader-keys
-    "g"   '(:ignore t                 :wk "Git")
-    "g s" '(magit                     :wk "Magit status")
-    "g m" '(activate-smerge-mode/body :wk "Smerge")))
+(use-package magit)
 #+end_src
 
 #+begin_src emacs-lisp
@@ -1487,7 +1347,6 @@ Package to easily navigate cursor within buffers. Using this over evil-easymotio
 (defun duy/org-mode-setup ()
   (variable-pitch-mode 1)
   (visual-line-mode 1)
-  (evil-org-mode 1)
   (setq flyspell-generic-check-word-predicate 'org-mode-flyspell-verify)  ;; Don't spell check src blocks
   (setq-local corfu-auto nil))  ;; Don't auto complete in org-buffers (to avoid org-roam link inserts)
 #+end_src
@@ -1562,17 +1421,7 @@ Package to easily navigate cursor within buffers. Using this over evil-easymotio
   :config
   (advice-add 'org-refile :after (lambda (&rest _) (org-save-all-org-buffers)))
   (require 'org-habit)
-  (require 'org-tempo)
-  (leader-keys
-    "o"   '(:ignore t   :wk "Org")
-    "a"   '(org-agenda  :wk "Agenda")
-    "c"   '(org-capture :wk "Capture")
-    "C"   '(org-capture :wk "Capture"))
-  (local-leader-keys
-    :keymaps 'org-mode-map
-    "I" '(org-clock-in      :wk "Clock in")
-    "O" '(org-clock-out     :wk "Clock out")
-    "C" '(org-clock-cancel  :wk "Clock cancel")))
+  (require 'org-tempo))
 #+end_src
 
 ** Capture templates
@@ -1662,15 +1511,15 @@ Related github issues:
               :map org-roam-dailies-map
               ("Y" . org-roam-dailies-capture-yesterday)
               ("T" . org-roam-dailies-capture-tomorrow))
-  :general
-  (leader-keys
-    "n"   '(:ignore t              :wk "Roam")
-    "n l" '(org-roam-buffer-toggle :wk "Buffer toggle")
-    "n f" '(org-roam-node-find     :wk "Find")
-    "n i" '(org-roam-node-insert   :wk "Insert")
-    "n t" '(org-roam-tag-add       :wk "Add tag")
-    "n T" '(org-roam-tag-remove    :wk "Remove tag")
-    "n d" '(org-roam-dailies-map   :wk "Dailies"))
+  ;; :general
+  ;; (leader-keys
+  ;;   "n"   '(:ignore t              :wk "Roam")
+  ;;   "n l" '(org-roam-buffer-toggle :wk "Buffer toggle")
+  ;;   "n f" '(org-roam-node-find     :wk "Find")
+  ;;   "n i" '(org-roam-node-insert   :wk "Insert")
+  ;;   "n t" '(org-roam-tag-add       :wk "Add tag")
+  ;;   "n T" '(org-roam-tag-remove    :wk "Remove tag")
+  ;;   "n d" '(org-roam-dailies-map   :wk "Dailies"))
   :config
   (require 'org-roam-dailies) ;; Ensure the keymap is available
   (setq org-roam-node-display-template #("${title:*} ${tags:40}" 11 21
@@ -1687,10 +1536,7 @@ Related github issues:
 #+begin_src emacs-lisp
 (use-package consult-org-roam
   :init
-  (consult-org-roam-mode 1)
-  :config
-  (leader-keys
-    "n s" '(consult-org-roam-search :wk "Search in notes")))
+  (consult-org-roam-mode 1))
 #+end_src
 
 ** Org-modern
@@ -2129,51 +1975,13 @@ Function to archive all done task in current org agenda/file.
    "/DONE" 'file))
 #+end_src
 
-** Update org-agenda keybindings
-
-*** General agenda bindings
-
-#+begin_src emacs-lisp
-(general-define-key
- :states '(normal motion override)
- :keymaps '(org-agenda-mode-map)
- "r"   '(:ignore t                         :wk "Refile")
- "r r" '(duy/org-agenda-process-inbox-item :wk "Refile item")
- "r i" '(duy/org-process-inbox             :wk "Process inbox")
- "d a" '(duy/org-archive-done-tasks-agenda :wk "Archive all done tasks"))
-#+end_src
-
-*** org-calendar bindings
-
-#+begin_src emacs-lisp
-(defmacro my-org-in-calendar (command)
-  (let ((name (intern (format "my-org-in-calendar-%s" command))))
-    `(progn
-       (defun ,name ()
-         (interactive)
-         (org-eval-in-calendar '(call-interactively #',command)))
-       #',name)))
-
-(general-def org-read-date-minibuffer-local-map
-  "h" (my-org-in-calendar calendar-backward-day)
-  "l" (my-org-in-calendar calendar-forward-day)
-  "k" (my-org-in-calendar calendar-backward-week)
-  "j" (my-org-in-calendar calendar-forward-week)
-  "C-h" (my-org-in-calendar calendar-backward-month)
-  "C-l" (my-org-in-calendar calendar-forward-month)
-  "C-k" (my-org-in-calendar calendar-backward-year)
-  "C-j" (my-org-in-calendar calendar-forward-year))
-#+end_src
-
 * Writing
 
 ** Thesaurus
 
 #+begin_src emacs-lisp
 (use-package powerthesaurus
-  :config
-  (leader-keys
-    "s d" '(powerthesaurus-lookup-dwim :wk "Powerthesaurus")))
+  :defer t)
 #+end_src
 
 ** Olivetti
@@ -2194,6 +2002,7 @@ Function to archive all done task in current org agenda/file.
 
 #+begin_src emacs-lisp
 (use-package logos
+  :defer t
   :init
   (setq logos-outlines-are-pages t)
   (setq-default logos-olivetti t)
@@ -2201,11 +2010,7 @@ Function to archive all done task in current org agenda/file.
     (define-key map [remap narrow-to-region] #'logos-narrow-dwim)
     (define-key map [remap forward-page] #'logos-forward-page-dwim)
     (define-key map [remap backward-page] #'logos-backward-page-dwim)
-    (define-key map (kbd "<f9>") #'logos-focus-mode))
-  :config
-  (local-leader-keys
-    :map 'logos-focus-mode-map
-    "n" '(:keymap narrow-map :wk "Narrow")))
+    (define-key map (kbd "<f9>") #'logos-focus-mode)))
 #+end_src
 
 * Pulsar
@@ -2217,15 +2022,12 @@ Function to archive all done task in current org agenda/file.
   (setq pulsar-face 'pulsar-magenta)
   (add-to-list 'pulsar-pulse-functions 'ace-window)
   (add-to-list 'pulsar-pulse-functions 'tab-bar-select-tab)
-  (add-to-list 'pulsar-pulse-functions 'evil-scroll-line-to-center)
-  (add-to-list 'pulsar-pulse-functions 'evil-scroll-line-to-top)
-  (add-to-list 'pulsar-pulse-functions 'evil-scroll-line-to-bottom)
-  (add-to-list 'pulsar-pulse-functions 'evil-scroll-down)
-  (add-to-list 'pulsar-pulse-functions 'evil-scroll-up)
-  (add-to-list 'pulsar-pulse-functions 'evil-avy-goto-line)
-  (add-to-list 'pulsar-pulse-functions 'evil-avy-goto-char)
-  (add-to-list 'pulsar-pulse-functions 'evil-avy-goto-char-2)
-  (add-to-list 'pulsar-pulse-functions 'evil-avy-goto-char-timer)
+  (add-to-list 'pulsar-pulse-functions 'meow-page-up)
+  (add-to-list 'pulsar-pulse-functions 'meow-page-down)
+  (add-to-list 'pulsar-pulse-functions 'scroll-up-command)
+  (add-to-list 'pulsar-pulse-functions 'scroll-down-command)
+  (add-to-list 'pulsar-pulse-functions 'avy-goto-line)
+  (add-to-list 'pulsar-pulse-functions 'avy-goto-char-timer)
   (add-function :after after-focus-change-function (lambda () (if (frame-focus-state) (pulsar-pulse-line))))
   :hook
   (consult-after-jump-hook . pulsar-recenter-middle)
@@ -2267,17 +2069,7 @@ Open URLs in qutebrowser:
                                   (project-find-dir "Find dir" "d")
                                   (project-dired "Dired" "D")
                                   (consult-ripgrep "ripgrep" "g")
-                                  (magit-status "Magit" "m")))
-  :config
-  (leader-keys
-    "p"   '(nil                    :wk "Project")
-    "p p" '(project-switch-project :wk "Switch project")
-    "p f" '(project-find-file      :wk "Find file")
-    "p d" '(project-find-dir       :wk "Find dir")
-    "p D" '(project-dired          :wk "Dired project root")
-    "p k" '(project-kill-buffers   :wk "Kill project buffers")
-    "p b" '(consult-project-buffer :wk "Switch buffer")
-    "p g" '(consult-ripgrep        :wk "Consult ripgrep")))
+                                  (magit-status "Magit" "m"))))
 #+end_src
 
 *** Start vterm in project root
@@ -2303,16 +2095,6 @@ Current the function below is unused as we are using ~vterm-toggle~ with ~vterm-
 ;;       (vterm (generate-new-buffer-name default-project-shell-name)))))
 #+end_src
 
-** direnv and envrc for setting local virtual environment variables
-
-Ensure =direnv= is installed via your OS package manager.
-
-#+begin_src emacs-lisp
-(use-package envrc
-  :init
-  (envrc-global-mode 1))
-#+end_src
-
 ** LSP
 
 *** eglot
@@ -2325,10 +2107,6 @@ Ensure =direnv= is installed via your OS package manager.
   (python-base-mode-hook . duy/pylsp-default-eglot-workspace-configuration)
   (python-base-mode-hook . eglot-ensure)
   :init
-  (define-key evil-normal-state-map (kbd "M-.") nil)
-  (define-key evil-normal-state-map (kbd "C->") 'evil-repeat-pop-next)
-  (setq xref-show-xrefs-function #'consult-xref)
-  (setq xref-show-definitions-function #'consult-xref)
   (defun duy/pylsp-default-eglot-workspace-configuration()
     "Default Eglot workspace configuration for the pylsp server.
 
@@ -2338,31 +2116,14 @@ Variables. See also the Eglot manual."
     (setq-default eglot-workspace-configuration
                   (list :pylsp
                         (list :plugins
-                              (list :ruff (list :extendSelect ["I"]))))))
-  :config
-  ;; (add-to-list 'eglot-server-programs
-  ;;              `(python-ts-mode . ,(eglot-alternatives
-  ;;                              '(("pylsp")
-  ;;                                ("pyright-langserver" "--stdio")))))
-  (leader-keys
-    "l"   '(nil                   :wk "Lsp")
-    "l e" '(consult-flymake       :wk "Error diagnostics")
-    "l d" '(xref-find-definitions :wk "Find definition")
-    "l x" '(xref-find-references  :wk "Find references")
-    "l c" '(eglot-code-actions    :wk "Code actions")
-    "l r" '(eglot-rename          :wk "Rename")
-    "l z" '(eldoc                 :wk "Eldoc")
-    "l R" '(eglot-reconnect       :wk "Reconnect Eglot")))
+                              (list :ruff (list :extendSelect ["I"])))))))
 #+end_src
 
 *** consult-eglot
 
 #+begin_src emacs-lisp
 (use-package consult-eglot
-  :after eglot consult
-  :config
-  (leader-keys
-    "l s" '(consult-eglot-symbols :wk "Search symbols")))
+  :after eglot consult)
 #+end_src
 
 *** Tree-sitter
@@ -2384,7 +2145,7 @@ If you built Emacs from source, you should check whether tree-sitter is availabl
         '((python . ("git@github.com:tree-sitter/tree-sitter-python.git"))))
   :config
   (when (and (treesit-available-p) (executable-find "tree-sitter"))
-    (treesit-install-language-grammar 'python)
+    ;; (treesit-install-language-grammar 'python)
     (add-to-list 'major-mode-remap-alist '(python-mode . python-ts-mode))))
 #+end_src
 
@@ -2536,11 +2297,7 @@ I use =pyvenv= to in compination with =pet= to quickly switch to the correct env
     (interactive)
     (let ((venv (pet-virtualenv-root)))
       (pyvenv-activate venv)
-      (message (concat "Activated environment in " venv))))
-  :config
-  (local-leader-keys
-    :keymaps 'python-ts-mode-map
-    "v" '(duy/pet-pyvenv-activate :wk "Activate venv w/PET")))
+      (message (concat "Activated environment in " venv)))))
 #+end_src
 
 *** Blacken
@@ -2564,11 +2321,7 @@ I use =pyvenv= to in compination with =pet= to quickly switch to the correct env
   (numpydoc-insert-examples-block nil)
   (numpydoc-template-long nil)
   :bind (:map python-ts-mode-map
-              ("C-c C-n" . numpydoc-generate))
-  :init
-  (local-leader-keys
-    :keymaps '(python-mode-map python-ts-mode-map)
-    "d" '(numpydoc-generate :wk "Generate docstring")))
+              ("C-c C-n" . numpydoc-generate)))
 #+end_src
 
 *** Ruff and ruff-lsp
@@ -2704,14 +2457,9 @@ import pandas
   :ensure-system-package jupyter
   :bind (:map jupyter-repl-mode-map 
               ("C-j" . 'jupyter-repl-forward-cell)
-              ("C-k" . 'jupyter-repl-backward-cell))
-  :general
-  (defun duy/jupyter-org-insert-src-block-below ()
-    (interactive)
-    (let ((current-prefix-arg '(4))) (call-interactively 'jupyter-org-insert-src-block)))
-  (local-leader-keys
-    :keymaps 'org-mode-map
-    "j" '(duy/jupyter-org-hydra/body :wk "Jupyter"))
+              ("C-k" . 'jupyter-repl-backward-cell)
+              :map org-mode-map
+              ("C-c j" . 'duy/jupyter-org-hydra/body))
   :init
   (org-babel-do-load-languages
    'org-babel-load-languages            ; Languages allowed to run in Org Src blocks
@@ -2721,6 +2469,9 @@ import pandas
                                                        (:kernel . "python3")))
   (add-hook 'org-babel-after-execute-hook 'org-display-inline-images 'append)
   (org-babel-jupyter-override-src-block "python")
+  (defun duy/jupyter-org-insert-src-block-below ()
+    (interactive)
+    (let ((current-prefix-arg '(4))) (call-interactively 'jupyter-org-insert-src-block)))
   (defhydra duy/jupyter-org-move-src-block-hydra ()
     "Move block"
     ("j" (jupyter-org-move-src-block t) "Move down")
@@ -2882,34 +2633,15 @@ Relevant links:
 * PDF
 
 #+begin_src emacs-lisp
-(defun duy/pdf-occur-view-next ()
-  "View next pdf-occur match from pdf-occur-buffer"
-  (interactive)
-  (evil-next-visual-line)
-  (pdf-occur-view-occurrence))
-
-
-(defun duy/pdf-occur-view-prev ()
-  "View previous pdf-occur match from pdf-occur-buffer"
-  (interactive)
-  (evil-previous-visual-line)
-  (pdf-occur-view-occurrence))
-#+end_src
-
-#+begin_src emacs-lisp
 (use-package pdf-tools
   :init
-  (pdf-tools-install)
-  :hook
-  (pdf-view-mode-hook . evil-collection-pdf-setup))
+  (pdf-tools-install))
 
 (use-package pdf-occur
   :elpaca nil
   :after pdf-tools
   :bind (:map pdf-occur-buffer-mode-map
               ("C-<return>" . pdf-occur-view-occurrence)
-              ("C-j" . duy/pdf-occur-view-next)
-              ("C-k" . duy/pdf-occur-view-prev)
               :map pdf-view-mode-map
               ("C-s" . pdf-occur)))
 
@@ -2943,32 +2675,9 @@ Relevant links:
     ;; (advice-add 'ledger-report-edit-report :before #'so-long-revert)
     ;; (advice-add 'ledger-report-edit-report :after #'so-long-minor-mode)
     :hook
-    (ledger-mode-hook . ledger-flymake-enable)
+    (ledger-mode-hook . ledger-flymake-enable)))
     ;; (ledger-report-mode-hook . so-long-minor-mode)
-    ;; (ledger-report-after-report-hook . so-long-minor-mode)
-    :config
-    (local-leader-keys
-      :keymaps '(ledger-mode-map ledger-report-mode-map)
-      "a" '(ledger-add-transaction    :wk "Add transaction")
-      "e" '(ledger-report-edit-report :wk "Edit report")
-      "g" '(ledger-report-goto        :wk "Go to report")
-      "s" '(ledger-report-save        :wk "Save report")
-      "r" '(ledger-report             :wk "Report"))
-    (general-define-key
-     :states  '(normal motion override)
-     :keymaps '(ledger-report-mode-map)
-     "q"  'ledger-report-quit
-     "e"  'ledger-report-edit-report
-     "r"  'ledger-report-redo
-     "s"  'duy/so-long-toggle)
-    (general-define-key
-     :states  '(normal motion override)
-     :keymaps '(ledger-reconcile-mode-map)
-     "TAB"  'ledger-reconcile-toggle)
-    (general-define-key
-     :states  '(normal motion override)
-     :keymaps '(ledger-reconcile-mode-map)
-     "q"  'ledger-reconcile-quit)))
+    ;; (ledger-report-after-report-hook . so-long-minor-mode)))
 #+end_src
 
 * Email
@@ -2985,6 +2694,8 @@ Relevant links:
   (setq elfeed-feeds
         '("https://www.greaterwrong.com/tag/bayes-theorem?showPostCount=true&useTagName=true&format=rss")))
 #+end_src
+
+#+RESULTS:
 
 * ChatGPT
 

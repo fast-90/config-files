@@ -309,13 +309,6 @@ I copied this over from [[https://github.com/Nathan-Furnal/dotemacs/blob/master/
   (add-to-list 'recentf-exclude (recentf-expand-file-name "~/.maildir/.*")))
 #+end_src
 
-#+begin_src emacs-lisp
-(use-package undo-tree
-  :init
-  (setq undo-tree-auto-save-history nil)
-  (global-undo-tree-mode))
-#+end_src
-
 ** Helpful
 
 #+begin_src emacs-lisp
@@ -509,7 +502,6 @@ brew install coreutils
      ;; SPC j/k will run the original command in MOTION state.
      '("j" . "H-j")
      '("k" . "H-k")
-     '("TAB" . consult-buffer)
      ;; Use SPC (0-9) for digit arguments.
      '("1" . meow-digit-argument)
      '("2" . meow-digit-argument)
@@ -588,6 +580,7 @@ brew install coreutils
      '("z" . meow-pop-selection)
      '("'" . repeat)
      '("<escape>" . ignore)))
+  (setq meow-use-clipboard t)
   (meow-setup)
   (meow-global-mode))
 #+end_src
@@ -967,17 +960,51 @@ Currently trying =mood-line= over =doom-modeline= as the latter messes up the ba
 ** vterm
 
 #+begin_src emacs-lisp
-  (use-package vterm
-    :bind (:map vterm-mode-map
-                ("C-b" . vterm-send-C-b))
-    :config
-    (dolist (mode '(term-mode-hook
-                    shell-mode-hook
-                    vterm-mode-hook
-                    eshell-mode-hook))
-      (add-hook mode (lambda () (display-line-numbers-mode 0)))
-      (add-hook mode (lambda () (setq-local global-hl-line-mode nil)))
-      (add-hook mode 'set-no-process-query-on-exit)))
+(use-package vterm
+  :bind (:map vterm-mode-map
+              ("C-b" . vterm-send-C-b))
+  :init
+  (defun run-in-vterm-kill (process event)
+    "A process sentinel. Kills PROCESS's buffer if it is live."
+    (let ((b (process-buffer process)))
+      (and (buffer-live-p b)
+           (kill-buffer b))))
+  (defun run-in-vterm (command)
+    "Execute string COMMAND in a new vterm.
+
+Interactively, prompt for COMMAND with the current buffer's file
+name supplied. When called from Dired, supply the name of the
+file at point.
+
+Like `async-shell-command`, but run in a vterm for full terminal features.
+
+The new vterm buffer is named in the form `*foo bar.baz*`, the
+command and its arguments in earmuffs.
+
+When the command terminates, the shell remains open, but when the
+shell exits, the buffer is killed."
+    (interactive
+     (list
+      (let* ((f (cond (buffer-file-name)
+                      ((eq major-mode 'dired-mode)
+                       (dired-get-filename nil t))))
+             (filename (concat " " (shell-quote-argument (and f (file-relative-name f))))))
+        (read-shell-command "Terminal command: "
+                            (cons filename 0)
+                            (cons 'shell-command-history 1)
+                            (list filename)))))
+    (with-current-buffer (vterm (concat "*" command "*"))
+      (set-process-sentinel vterm--process #'run-in-vterm-kill)
+      (vterm-send-string command)
+      (vterm-send-return)))
+  :config
+  (dolist (mode '(term-mode-hook
+                  shell-mode-hook
+                  vterm-mode-hook
+                  eshell-mode-hook))
+    (add-hook mode (lambda () (display-line-numbers-mode 0)))
+    (add-hook mode (lambda () (setq-local global-hl-line-mode nil)))
+    (add-hook mode 'set-no-process-query-on-exit)))
 #+end_src
 
 I also enabled directory tracking and named vterm buffer, see also here how to setup: https://github.com/akermu/emacs-libvterm
@@ -1139,7 +1166,16 @@ Enabling icons in Corfu:
   (setq consult-locate-args "locate")
   (setq xref-show-xrefs-function #'consult-xref)
   (setq xref-show-definitions-function #'consult-xref)
+  (defun duy/consult-outline ()
+    "Use consult-org-heading if in org-mode, otherwise use consult-outline."
+    (interactive)
+    (if (equal major-mode 'org-mode)
+        (consult-org-heading)
+      (consult-outline)))
   :bind (("C-s" . consult-line)
+         ("C-c o" . duy/consult-outline)
+         ("C-c e" . consult-flymake)
+         ("C-c TAB" . consult-buffer)
          :map minibuffer-local-map
          ("C-r" . consult-history))
   :config
@@ -1354,6 +1390,8 @@ Package to easily navigate cursor within buffers. Using this over evil-easymotio
 #+begin_src emacs-lisp
 (use-package org
   :elpaca nil
+  :bind
+  (("C-c a" . org-agenda))
   :init
   (org-babel-do-load-languages
    'org-babel-load-languages
@@ -1569,6 +1607,19 @@ Salv-mode provides a local minor mode to save a buffer when Emacs is idle. I onl
       (salv-mode 1)))
   :hook
   (org-mode-hook . duy/org-roam-salv-mode))
+#+end_src
+
+** My org-mode keymaps
+
+#+begin_src emacs-lisp
+(defvar duy/org-roam-mode-map (make-sparse-keymap)
+  "My custom keymap for org-roam.")
+
+(define-prefix-command 'duy/org-roam-mode-map)
+(keymap-global-set "C-c n" '("org-roam" . duy/org-roam-mode-map))
+
+(keymap-set duy/org-roam-mode-map "f" 'org-roam-node-find)
+(keymap-set duy/org-roam-mode-map "d" 'org-roam-dailies-map)
 #+end_src
 
 * Org agenda (using org-roam)
@@ -2103,10 +2154,18 @@ Current the function below is unused as we are using ~vterm-toggle~ with ~vterm-
 (use-package eglot
   :defer t
   :after consult
+  :bind
+  (:map duy/prog-map
+        ("d" . xref-find-definitions)
+        ("r" . xref-find-references)
+        ("c" . eglot-code-actions)
+        ("r" . eglot-rename))
   :hook
   (python-base-mode-hook . duy/pylsp-default-eglot-workspace-configuration)
   (python-base-mode-hook . eglot-ensure)
   :init
+  (define-prefix-command 'duy/prog-map)
+  (keymap-global-set "C-c l" '("prog" . duy/prog-map))
   (defun duy/pylsp-default-eglot-workspace-configuration()
     "Default Eglot workspace configuration for the pylsp server.
 
@@ -2121,9 +2180,11 @@ Variables. See also the Eglot manual."
 
 *** consult-eglot
 
+Provides the ~consult-eglot-symbols~ command. Only works with =pyright=, not with =pylsp=.
+
 #+begin_src emacs-lisp
-(use-package consult-eglot
-  :after eglot consult)
+;; (use-package consult-eglot
+;;   :after eglot consult)
 #+end_src
 
 *** Tree-sitter
@@ -2621,6 +2682,32 @@ Relevant links:
 ;;   "je"    '(jupyter-org-execute-and-next-block        :wk "Execute and next block")
 ;;   "jj"    '(jupyter-org-jump-to-visible-block         :wk "Jump to block"))
 
+#+end_src
+
+** Quarto
+
+#+begin_src emacs-lisp
+(use-package quarto-mode
+  :init
+  (defun dn/quarto-preview ()
+    "Run quarto preview via vterm."
+    (interactive)
+    (run-in-vterm (concat "quarto preview " buffer-file-name)))
+  (defun poly-python-eval-region (beg end msg)
+    (python-shell-send-region beg end nil msg t))
+  (defun poly-python-mode-setup ()
+    (setq-local polymode-eval-region-function #'poly-python-eval-region))
+  (defun dn/quarto-insert-python-code-blocks (count)
+    "Inserts `count` number of Python code blocks starting from the line below the cursor."
+    (interactive "nEnter the number of Python code blocks to insert: ")
+    (save-excursion
+      (forward-line)  ; Move to the line below the cursor
+      (dotimes (_ count)
+        (insert "```{python}\n\n```\n\n")
+        (forward-line 3)))
+    (forward-line))
+  :hook
+  (python-base-mode-hook . poly-python-mode-setup))
 #+end_src
 
 ** AutoHotKey

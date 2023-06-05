@@ -682,7 +682,7 @@ Other good themes:
         modus-themes-completions '((t . (extrabold)))
         modus-themes-prompts nil
         modus-themes-headings
-        '((1 . (regular 1.5))
+        '((1 . (regular 1.4))
           (2 . (regular 1.3))
           (agenda-structure . (variable-pitch light 2.2))
           (agenda-date . (variable-pitch regular 1.3))

@@ -503,6 +503,12 @@ brew install coreutils
   (find-file "~/repos/mail-config/mail-config.org"))
 #+end_src
 
+** wgrep
+
+#+begin_src emacs-lisp
+(use-package wgrep)
+#+end_src
+
 * Meow
 
 #+begin_src emacs-lisp
@@ -2794,11 +2800,15 @@ Relevant links:
 #+begin_src emacs-lisp
 (use-package elfeed
   :config
-  (setq elfeed-feeds
-        '("https://www.greaterwrong.com/tag/bayes-theorem?showPostCount=true&useTagName=true&format=rss")))
+  (setq elfeed-db-directory (expand-file-name "elfeed" user-emacs-directory)))
 #+end_src
 
-#+RESULTS:
+#+begin_src emacs-lisp
+(use-package elfeed-org
+  :config
+  (elfeed-org)
+  (setq rmh-elfeed-org-files (list "elfeed.org")))
+#+end_src
 
 * ChatGPT
 

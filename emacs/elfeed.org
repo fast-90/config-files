@@ -1,0 +1,8 @@
+* Blogs                                                              :elfeed:
+** Emacs                                                               :emacs:
+*** [[https://sachachua.com/blog/category/emacs-news/feed/][Sacha Chua's blog]]
+*** [[http://www.reddit.com/r/emacs/.rss][/r/emacs]]
+*** [[https://planet.emacslife.com/][Planet Emacs]]
+*** [[https://protesilaos.com/codelog.xml][Prot's coding blog]]
+** Rationality                                             :rationality:stats:
+*** [[https://www.greaterwrong.com/tag/bayes-theorem?showPostCount=true&useTagName=true&format=rss][LessWrong - Bayes articles]]

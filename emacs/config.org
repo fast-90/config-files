@@ -555,6 +555,7 @@ brew install coreutils
      '("b" . meow-back-word)
      '("B" . meow-back-symbol)
      '("c" . meow-change)
+     '("C" . meow-comment)
      '("d" . meow-delete)
      '("D" . meow-backward-delete)
      '("e" . meow-next-word)
@@ -578,7 +579,7 @@ brew install coreutils
      '("O" . meow-to-block)
      '("p" . meow-yank)
      '("q" . meow-quit)
-     '("Q" . meow-goto-line)
+     '("Q" . meow-indent)
      '("r" . meow-replace)
      '("R" . undo-redo)
      '("s" . meow-kill)
@@ -597,6 +598,16 @@ brew install coreutils
      '("'" . repeat)
      '("<escape>" . ignore)))
   (setq meow-use-clipboard t)
+  (setq meow-use-dynamic-face-color nil)
+  (setq meow-use-cursor-position-hack t)
+  (meow-thing-register 'quote
+                       '(regexp "\"" "\"")
+                       '(regexp "\"" "\""))
+  (meow-thing-register 'angled
+                       '(regexp "<" ">")
+                       '(regexp "<" ">"))
+  (add-to-list 'meow-char-thing-table '(?q . quote))
+  (add-to-list 'meow-char-thing-table '(?a . angled))
   (meow-setup)
   (meow-global-mode))
 #+end_src
@@ -644,8 +655,8 @@ Font settings for daemon mode:
     (set-face-attribute 'fixed-pitch nil :font (font-spec :family dn/default-font :size dn/default-font-size))
     (set-face-attribute 'variable-pitch nil :font (font-spec :family dn/variable-font :size dn/variable-font-size))))
 
-  (add-hook 'after-init-hook 'dn/setup-font-faces-daemon)
-  (add-hook 'server-after-make-frame-hook 'dn/setup-font-faces-daemon)
+(add-hook 'after-init-hook 'dn/setup-font-faces-daemon)
+(add-hook 'server-after-make-frame-hook 'dn/setup-font-faces-daemon)
 #+end_src
 
 ** all-the-icons
@@ -705,22 +716,22 @@ Other good themes:
           (t . (regular 1.15))))
   :config
   (setq modus-themes-common-palette-overrides
-      `(
-        (cursor magenta-cooler)
-        ;; Make the fringe invisible.
-        (fringe unspecified)
-        ;; Make line numbers less intense and add a shade of cyan
-        ;; for the current line number.
-        (fg-line-number-inactive "gray50")
-        (fg-line-number-active blue-cooler)
-        (bg-line-number-inactive unspecified)
-        (bg-line-number-active unspecified)
-        (bg-heading-1 unspecified)
-        (bg-heading-2 unspecified)
-        (bg-heading-3 unspecified)
-        (bg-heading-4 unspecified)
-        (bg-heading-5 unspecified)
-      ,@modus-themes-preset-overrides-intense))
+        `(
+          (cursor magenta-cooler)
+          ;; Make the fringe invisible.
+          (fringe unspecified)
+          ;; Make line numbers less intense and add a shade of cyan
+          ;; for the current line number.
+          (fg-line-number-inactive "gray50")
+          (fg-line-number-active blue-cooler)
+          (bg-line-number-inactive unspecified)
+          (bg-line-number-active unspecified)
+          (bg-heading-1 unspecified)
+          (bg-heading-2 unspecified)
+          (bg-heading-3 unspecified)
+          (bg-heading-4 unspecified)
+          (bg-heading-5 unspecified)
+          ,@modus-themes-preset-overrides-intense))
   (load-theme 'modus-vivendi t)
   (load-theme 'modus-operandi t t)
   (set-face-attribute 'tab-bar nil :font (font-spec :family "IBM Plex Mono" :size dn/default-font-size)))  ; Loading modus theme resets tab-bar font, so we need to set it (again)

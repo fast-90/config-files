@@ -256,7 +256,7 @@ Adjust emacs default settings like UI, indentation, bell sound, back up location
 (setq read-process-output-max (* 1024 1024))          ; Increase the amount of data which Emacs reads from the process
 (global-hl-line-mode 1)                               ; Highlight the current line to make it more visible
 (add-hook 'prog-mode-hook 'display-line-numbers-mode) ; Enable line numbers for programming modes
-(setq display-line-numbers-type 'relative)            ; Set relative line numbers
+(setq display-line-numbers-type t)                    ; Set line numbers
 (setq create-lockfiles nil)                           ; lock files kill `npm start'
 (setq-default fill-column 79)                         ; Set fill column to 80 rather than 70, in all cases.
 (pixel-scroll-precision-mode 1)                       ; Precision scrolling
@@ -1053,7 +1053,8 @@ I also enabled directory tracking and named vterm buffer, see also here how to s
   (completion-category-defaults nil)
   (read-file-name-completion-ignore-case t)
   (completion-category-overrides '((file (styles partial-completion))
-                                   (minibuffer (initials orderless)))))
+                                   (minibuffer (initials orderless))
+                                   (eglot (styles orderless)))))
 #+end_src
 
 ** Savehist
@@ -2340,6 +2341,12 @@ I use =pyvenv= to in compination with =pet= to quickly switch to the correct env
     (let ((venv (pet-virtualenv-root)))
       (pyvenv-activate venv)
       (message (concat "Activated environment in " venv)))))
+#+end_src
+
+*** Pytest
+
+#+begin_src emacs-lisp
+(use-package python-pytest)
 #+end_src
 
 *** Blacken

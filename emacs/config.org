@@ -95,16 +95,18 @@ Useful links for troubleshooting:
 (set-fringe-mode 10)
 
 ;;; Change appearance of titlebar
-(setq duy/is-macos
-      (string= system-type "darwin"))
+(defvar dn/is-macos
+  (string= system-type "darwin")
+  "Whether current machine is running MacOS.")
 
-(setq duy/is-wsl
-      (and (eq system-type 'gnu/linux)
-           (string-match "WSL" operating-system-release)))
+(defvar dn/is-wsl
+  (and (eq system-type 'gnu/linux)
+       (string-match "WSL" operating-system-release))
+  "Whether current machine is running Linux.")
 
-(cond (duy/is-wsl
+(cond (dn/is-wsl
        (add-to-list 'default-frame-alist '(undecorated . t)))
-      (duy/is-macos
+      (dn/is-macos
        (add-to-list 'default-frame-alist '(ns-transparent-titlebar . t))
        (add-to-list 'default-frame-alist '(ns-appearance . dark))
        (setq ns-use-proxy-icon nil)
@@ -348,7 +350,7 @@ I copied this over from [[https://github.com/Nathan-Furnal/dotemacs/blob/master/
   :elpaca nil
   :init
   (setq so-long-mode-line-label nil)
-  (defun duy/so-long-toggle ()
+  (defun dn/so-long-toggle ()
     "Toggle so-long-minor mode in current buffer"
     (interactive)
     (if (bound-and-true-p so-long-minor-mode)
@@ -371,10 +373,10 @@ Add folder with custom libraries to load-path. Currently only used for =mail-con
 ** Define booleans for OS
 
 #+begin_src emacs-lisp
-(setq duy/is-macos
+(setq dn/is-macos
       (string= system-type "darwin"))
 
-(setq duy/is-wsl
+(setq dn/is-wsl
       (and (eq system-type 'gnu/linux)
            (string-match "WSL" operating-system-release)))
 #+end_src
@@ -384,7 +386,7 @@ Add folder with custom libraries to load-path. Currently only used for =mail-con
 Set cmd as meta-key (to align with Windows/Linux location), and set option as super-key.
 
 #+begin_src emacs-lisp
-(when duy/is-macos
+(when dn/is-macos
   (setq mac-command-modifier 'meta
         mac-option-modifier 'super))
 #+end_src
@@ -394,7 +396,7 @@ Set cmd as meta-key (to align with Windows/Linux location), and set option as su
 *** Browse URL with Microsoft Edge
 
 #+begin_src emacs-lisp
-(when duy/is-wsl  
+(when dn/is-wsl  
   (defun browse-url-edge (url &optional _new-window)
     "Browse url with Microsoft Edge."
     (interactive (browse-url-interactive-arg "URL: "))
@@ -406,8 +408,8 @@ Set cmd as meta-key (to align with Windows/Linux location), and set option as su
 *** Open file with native Windows app
 
 #+begin_src emacs-lisp
-(when duy/is-wsl  
-(defun duy/open-file-with-wsl (file &optional _new-window)
+(when dn/is-wsl  
+(defun dn/open-file-with-wsl (file &optional _new-window)
   "Open file with native Windows app."
   (interactive "fOpen with Windows app: ")
   (shell-command
@@ -425,7 +427,7 @@ Note: after a restart of my WSL computer, =C-M-/= seems to work again.
 Don't maximise window on WSL (it doesn't work well as the X server does not recognize correct size of monitor).
 
 #+begin_src emacs-lisp
-(unless duy/is-wsl
+(unless dn/is-wsl
         (add-to-list 'default-frame-alist '(fullscreen . maximized)))
 #+end_src
 
@@ -440,7 +442,7 @@ Don't maximise window on WSL (it doesn't work well as the X server does not reco
     (dired-listing-switches "-agho --group-directories-first")
     (dired-kill-when-opening-new-dired-buffer t)
     :init
-    (when duy/is-macos
+    (when dn/is-macos
       (setq dired-use-ls-dired t
             insert-directory-program "/usr/local/bin/gls")))
 
@@ -473,7 +475,7 @@ brew install coreutils
 ** File management
 
 #+begin_src emacs-lisp
-(defun duy/sudo-find-file (file)
+(defun dn/sudo-find-file (file)
   "Open FILE as root."
   (interactive "FOpen file as root: ")
   (when (file-writable-p file)
@@ -485,17 +487,17 @@ brew install coreutils
                          (file-remote-p file 'host) ":" (file-remote-p file 'localname))
                (concat "/sudo:root@localhost:" file))))
 
-(defun duy/sudo-edit-file ()
+(defun dn/sudo-edit-file ()
   "Edit current file as root."
   (interactive)
-  (duy/sudo-find-file (buffer-file-name)))
+  (dn/sudo-find-file (buffer-file-name)))
 
-(defun duy/open-config ()
+(defun dn/open-config ()
   "Open main config file."
   (interactive)
   (find-file "~/repos/config-files/emacs/config.org"))
 
-(defun duy/open-mail-config ()
+(defun dn/open-mail-config ()
   "Open config file for mail."
   (interactive)
   (find-file "~/repos/mail-config/mail-config.org"))
@@ -607,27 +609,27 @@ The used fonts have different names on different computers:
 
 #+begin_src emacs-lisp
 (if (string= system-name "Duys-MBP.home")
-    (setq duy/default-font "FiraMono Nerd Font Mono"
-          duy/variable-font "IBM Plex Sans"
-          duy/default-font-size 13.0
-          duy/variable-font-size 14.0)
+    (setq dn/default-font "FiraMono Nerd Font Mono"
+          dn/variable-font "IBM Plex Sans"
+          dn/default-font-size 13.0
+          dn/variable-font-size 14.0)
   (if (string= system-name "NL5CG1462QH6")
-      (setq duy/default-font "FiraMono Nerd Font Mono"
-            duy/variable-font "IBM Plex Sans"
-            duy/default-font-size 10.5
-            duy/variable-font-size 12.0)
-    (setq duy/default-font nil
-          duy/variable-font nil
-          duy/default-font-size nil
-          duy/variable-font-size nil)))
+      (setq dn/default-font "FiraMono Nerd Font Mono"
+            dn/variable-font "IBM Plex Sans"
+            dn/default-font-size 10.5
+            dn/variable-font-size 12.0)
+    (setq dn/default-font nil
+          dn/variable-font nil
+          dn/default-font-size nil
+          dn/variable-font-size nil)))
 #+end_src
 
 Set fonts:
 
 #+begin_src emacs-lisp
-  (set-face-attribute 'default nil :font (font-spec :family duy/default-font :size duy/default-font-size))
-  (set-face-attribute 'fixed-pitch nil :font (font-spec :family duy/default-font :size duy/default-font-size))
-  (set-face-attribute 'variable-pitch nil :font (font-spec :family duy/variable-font :size duy/variable-font-size))
+  (set-face-attribute 'default nil :font (font-spec :family dn/default-font :size dn/default-font-size))
+  (set-face-attribute 'fixed-pitch nil :font (font-spec :family dn/default-font :size dn/default-font-size))
+  (set-face-attribute 'variable-pitch nil :font (font-spec :family dn/variable-font :size dn/variable-font-size))
 #+end_src
 
 ** Font settings for daemon mode
@@ -635,21 +637,21 @@ Set fonts:
 Font settings for daemon mode:
 
 #+begin_src emacs-lisp
-(defun duy/setup-font-faces-daemon()
+(defun dn/setup-font-faces-daemon()
   (when (daemonp)
-    (set-face-attribute 'tab-bar nil :font (font-spec :family "IBM Plex Mono" :size duy/default-font-size))
-    (set-face-attribute 'default nil :font (font-spec :family duy/default-font :size duy/default-font-size))
-    (set-face-attribute 'fixed-pitch nil :font (font-spec :family duy/default-font :size duy/default-font-size))
-    (set-face-attribute 'variable-pitch nil :font (font-spec :family duy/variable-font :size duy/variable-font-size))))
+    (set-face-attribute 'tab-bar nil :font (font-spec :family "IBM Plex Mono" :size dn/default-font-size))
+    (set-face-attribute 'default nil :font (font-spec :family dn/default-font :size dn/default-font-size))
+    (set-face-attribute 'fixed-pitch nil :font (font-spec :family dn/default-font :size dn/default-font-size))
+    (set-face-attribute 'variable-pitch nil :font (font-spec :family dn/variable-font :size dn/variable-font-size))))
 
-  (add-hook 'after-init-hook 'duy/setup-font-faces-daemon)
-  (add-hook 'server-after-make-frame-hook 'duy/setup-font-faces-daemon)
+  (add-hook 'after-init-hook 'dn/setup-font-faces-daemon)
+  (add-hook 'server-after-make-frame-hook 'dn/setup-font-faces-daemon)
 #+end_src
 
 ** all-the-icons
 
 #+begin_src emacs-lisp
-(set-face-attribute 'tab-bar nil :font (font-spec :family "IBM Plex Mono" :size duy/default-font-size))
+(set-face-attribute 'tab-bar nil :font (font-spec :family "IBM Plex Mono" :size dn/default-font-size))
 
 (use-package all-the-icons)
 
@@ -721,7 +723,7 @@ Other good themes:
       ,@modus-themes-preset-overrides-intense))
   (load-theme 'modus-vivendi t)
   (load-theme 'modus-operandi t t)
-  (set-face-attribute 'tab-bar nil :font (font-spec :family "IBM Plex Mono" :size duy/default-font-size)))  ; Loading modus theme resets tab-bar font, so we need to set it (again)
+  (set-face-attribute 'tab-bar nil :font (font-spec :family "IBM Plex Mono" :size dn/default-font-size)))  ; Loading modus theme resets tab-bar font, so we need to set it (again)
 
 (elpaca-wait)
 #+end_src
@@ -733,24 +735,24 @@ This section contains my custom setup to format =battery-mode-line-string=, whic
 *** Battery functions
 
 #+begin_src emacs-lisp
-(defun duy/charging-wsl ()
+(defun dn/charging-wsl ()
   "Check whether WSL computer is charging"
   (let ((result (funcall battery-status-function)))
     (let ((charging (cdr (assoc 66 result))))
       (if (not (string= charging "Discharging")) t nil))))
 
-(defun duy/charging-macos ()
+(defun dn/charging-macos ()
   "Check whether MacOS computer is charging"
   (let ((result (funcall battery-status-function)))
     (let ((charging (cdr (assoc 76 result))))
       (if (string= charging "AC") t nil))))
 
-(defun duy/charging ()
+(defun dn/charging ()
   "Check whether computer is charging"
-  (if duy/is-wsl (duy/charging-wsl)
-    (if duy/is-macos (duy/charging-macos) nil)))
+  (if dn/is-wsl (dn/charging-wsl)
+    (if dn/is-macos (dn/charging-macos) nil)))
 
-(defun duy/battery-percentage nil
+(defun dn/battery-percentage nil
   "Get battery percentage (100% = 1000000)"
   (let
       ((result
@@ -764,48 +766,48 @@ This section contains my custom setup to format =battery-mode-line-string=, whic
             (string-to-number percentage-string)))
         percentage))))
 
-(defun duy/battery-icon ()
+(defun dn/battery-icon ()
   "Set battery icon based on battery charge status and percentage"
-  (if (duy/charging) (all-the-icons-faicon "plug" :v-adjust 0.04)
-    (if (> (duy/battery-percentage) 95.0) (all-the-icons-faicon "battery-full" :v-adjust -0.05)
-      (if (> (duy/battery-percentage) 70.0) (all-the-icons-faicon "battery-three-quarters" :v-adjust -0.05)
-        (if (> (duy/battery-percentage) 40.0) (all-the-icons-faicon "battery-half" :v-adjust -0.05)
-          (if (> (duy/battery-percentage) battery-load-critical) (all-the-icons-faicon "battery-quarter" :v-adjust -0.05) (all-the-icons-faicon "battery-empty" :v-adjust -0.05)))))))
+  (if (dn/charging) (all-the-icons-faicon "plug" :v-adjust 0.04)
+    (if (> (dn/battery-percentage) 95.0) (all-the-icons-faicon "battery-full" :v-adjust -0.05)
+      (if (> (dn/battery-percentage) 70.0) (all-the-icons-faicon "battery-three-quarters" :v-adjust -0.05)
+        (if (> (dn/battery-percentage) 40.0) (all-the-icons-faicon "battery-half" :v-adjust -0.05)
+          (if (> (dn/battery-percentage) battery-load-critical) (all-the-icons-faicon "battery-quarter" :v-adjust -0.05) (all-the-icons-faicon "battery-empty" :v-adjust -0.05)))))))
 
-(defface duy/battery-charging
+(defface dn/battery-charging
   '((t :foreground "ForestGreen" :weight normal)) "")
 
-(defface duy/battery-discharging
+(defface dn/battery-discharging
   '((t :inherit warning :weight normal)) "")
 
-(defun duy/set-battery-font ()
-  "Set `duy/battery' face depending on battery state."
-  (if (duy/charging)
-      (copy-face 'duy/battery-charging 'duy/battery)
-    (copy-face 'duy/battery-discharging 'duy/battery)))
+(defun dn/set-battery-font ()
+  "Set `dn/battery' face depending on battery state."
+  (if (dn/charging)
+      (copy-face 'dn/battery-charging 'dn/battery)
+    (copy-face 'dn/battery-discharging 'dn/battery)))
 
-(defadvice battery-update (before duy/set-battery-font activate)
+(defadvice battery-update (before dn/set-battery-font activate)
   "Fontify the battery display."
-  (duy/set-battery-font)
-  (if duy/is-macos
-      (setq battery-mode-line-format (concat " " (duy/battery-icon) " [%b%p%] "))
-      (setq battery-mode-line-format (concat " " (duy/battery-icon) "[%b%p%] "))))
+  (dn/set-battery-font)
+  (if dn/is-macos
+      (setq battery-mode-line-format (concat " " (dn/battery-icon) " [%b%p%] "))
+      (setq battery-mode-line-format (concat " " (dn/battery-icon) "[%b%p%] "))))
 
-(defun duy/battery-formatting ()
+(defun dn/battery-formatting ()
   "Apply battery formatting when updating battery status"
   (eval-after-load 'battery
-    '(defadvice battery-update (after duy/after-battery-update-advice () activate)
+    '(defadvice battery-update (after dn/after-battery-update-advice () activate)
        "Change battery color and icon."
        (when battery-mode-line-string
          (setq battery-mode-line-string
                (propertize battery-mode-line-string
-                           'face 'duy/battery))))))
+                           'face 'dn/battery))))))
 #+end_src
 
 *** Set battery string format
 
 #+begin_src emacs-lisp
-(duy/battery-formatting)
+(dn/battery-formatting)
 (display-battery-mode)
 (add-hook 'server-after-make-frame-hook 'battery-update)
 #+end_src
@@ -858,7 +860,7 @@ Currently trying =mood-line= over =doom-modeline= as the latter messes up the ba
 (use-package mood-line
   :elpaca (:host gitlab :repo "trev-dev/mood-line")
   :init
-  ;; (setq battery-mode-line-format (concat " " (duy/battery-icon) "%b%p% "))
+  ;; (setq battery-mode-line-format (concat " " (dn/battery-icon) "%b%p% "))
   (setq mode-line-misc-info (remove '(global-mode-string ("" global-mode-string)) mode-line-misc-info))
   (mood-line-mode)
   :custom
@@ -890,11 +892,11 @@ Currently trying =mood-line= over =doom-modeline= as the latter messes up the ba
   (tab-bar-tab-name-format-function #'tab-bar-tab-name-format-comfortable)
   (tab-bar-select-tab-modifiers '(meta))
   ;; :custom-face
-  ;; (tab-bar ((t (:font "IBM Plex Mono" :size duy/tab-bar-font-height))))
+  ;; (tab-bar ((t (:font "IBM Plex Mono" :size dn/tab-bar-font-height))))
   ;; (tab-bar-tab ((t (:bold t :height 1.0 :foreground "sienna"))))
   ;; (tab-bar-tab-inactive ((t (:background nil :inherit 'mode-line :height 1.0 ))))
   :config
-  (set-face-attribute 'tab-bar nil :font (font-spec :family "IBM Plex Mono" :size duy/default-font-size)))
+  (set-face-attribute 'tab-bar nil :font (font-spec :family "IBM Plex Mono" :size dn/default-font-size)))
 #+end_src
 
 ** Tab-bookmark
@@ -1002,7 +1004,7 @@ I also enabled directory tracking and named vterm buffer, see also here how to s
 
 #+begin_src emacs-lisp
 (use-package exec-path-from-shell
-  :if duy/is-macos
+  :if dn/is-macos
   :defer nil
   :config
   (exec-path-from-shell-copy-env "PATH")
@@ -1128,14 +1130,14 @@ Enabling icons in Corfu:
   (setq consult-locate-args "locate")
   (setq xref-show-xrefs-function #'consult-xref)
   (setq xref-show-definitions-function #'consult-xref)
-  (defun duy/consult-outline ()
+  (defun dn/consult-outline ()
     "Use consult-org-heading if in org-mode, otherwise use consult-outline."
     (interactive)
     (if (equal major-mode 'org-mode)
         (consult-org-heading)
       (consult-outline)))
   :bind (("C-s" . consult-line)
-         ("C-c o" . duy/consult-outline)
+         ("C-c o" . dn/consult-outline)
          ("C-c e" . consult-flymake)
          ("C-c TAB" . consult-buffer)
          :map minibuffer-local-map
@@ -1182,14 +1184,14 @@ Enabling icons in Corfu:
   (define-key embark-file-map     (kbd "o") (my/embark-ace-action find-file))
   (define-key embark-buffer-map   (kbd "o") (my/embark-ace-action switch-to-buffer))
   (define-key embark-bookmark-map (kbd "o") (my/embark-ace-action bookmark-jump))
-  (define-key embark-file-map (kbd "S") 'duy/sudo-find-file)
+  (define-key embark-file-map (kbd "S") 'dn/sudo-find-file)
   (when (and (eq system-type 'gnu/linux)
              (string-match "WSL" operating-system-release))
     (bind-keys
      :map embark-url-map
      ("e" . browse-url-edge)
      :map embark-file-map
-     ("<C-return>" . duy/open-file-with-wsl))))
+     ("<C-return>" . dn/open-file-with-wsl))))
 ;; :map minibuffer-local-map
 ;; (("C-." . embark-act)))) ;; alternative for `describe-bindings'
 
@@ -1279,38 +1281,38 @@ Package to easily navigate cursor within buffers. Using this over evil-easymotio
 #+begin_src emacs-lisp
 (use-package consult-flyspell
   :config
-  (defun duy/flyspell-buffer ()
+  (defun dn/flyspell-buffer ()
     "Flyspell buffer using consult."
     (interactive)
     (flyspell-buffer) (consult-flyspell))
-  (defun duy/flyspell-region ()
+  (defun dn/flyspell-region ()
     "Flyspell region using consult."
     (interactive)
     (call-interactively 'flyspell-region)
     (call-interactively 'consult-flyspell))
-  (defun duy/flyspell-correct-all ()
+  (defun dn/flyspell-correct-all ()
     "Correct all words, one by one"
     (flyspell-correct-at-point) (consult-flyspell))
-  (setq consult-flyspell-select-function 'duy/flyspell-correct-all)
-  (defun duy/flyspell-delete-all-overlays ()
+  (setq consult-flyspell-select-function 'dn/flyspell-correct-all)
+  (defun dn/flyspell-delete-all-overlays ()
     "Delete all flyspell checks in buffer."
     (interactive)
     (flyspell-delete-all-overlays))
-  (defun duy/flyspell-correct-at-point ()
+  (defun dn/flyspell-correct-at-point ()
     "Correct word at point."
     (interactive)
     (progn (flyspell-word) (flyspell-correct-at-point)))
-  (defvar duy/ispell-dicts
+  (defvar dn/ispell-dicts
     '(("English (US)" . "en_US")
       ("English (GB)" . "en_GB")
       ("Dutch" . "nl"))
     "Alist of languages dictionaries")
-  (defun duy/ispell-dictionaries-complete ()
-    "Select an item from `duy/ispell-dicts'."
+  (defun dn/ispell-dictionaries-complete ()
+    "Select an item from `dn/ispell-dicts'."
     (interactive)
-    (let* ((dicts (mapcar #'car duy/ispell-dicts))
+    (let* ((dicts (mapcar #'car dn/ispell-dicts))
            (choice (completing-read "Select dictionary: " dicts nil t))
-           (key (cdr (assoc `,choice duy/ispell-dicts))))
+           (key (cdr (assoc `,choice dn/ispell-dicts))))
       (ispell-change-dictionary key)
       (message "Switched to %s" key)))
   (setq ispell-dictionary "en_GB"))
@@ -1342,7 +1344,7 @@ Package to easily navigate cursor within buffers. Using this over evil-easymotio
 ** Basic setup
 
 #+begin_src emacs-lisp
-(defun duy/org-mode-setup ()
+(defun dn/org-mode-setup ()
   (variable-pitch-mode 1)
   (visual-line-mode 1)
   (setq flyspell-generic-check-word-predicate 'org-mode-flyspell-verify)  ;; Don't spell check src blocks
@@ -1399,7 +1401,7 @@ Package to easily navigate cursor within buffers. Using this over evil-easymotio
   ;; (org-image-actual-width (/ (display-pixel-width) 2))
   ;; (org-block-begin-line ((nil (:inherit 'fixed-pitch))))
   :hook
-  (org-mode-hook . duy/org-mode-setup)
+  (org-mode-hook . dn/org-mode-setup)
   ;; Prepend org-mode-line-string to global-mode-string when clocking in
   (org-clock-in-hook . (lambda ()
                          (delq 'org-mode-line-string global-mode-string)  ; Delete first as org-clock-in appends it automatically
@@ -1484,7 +1486,7 @@ Related github issues:
   :init
   (setq org-roam-v2-ack t)
   (setq org-roam-database-connector 'sqlite-builtin)
-  (defun duy/org-refile-setup ()
+  (defun dn/org-refile-setup ()
     "Org refile settings with Roam."
     (interactive)
     (setq myroamfiles (directory-files org-roam-directory t "org$"))
@@ -1525,7 +1527,7 @@ Related github issues:
   (setq org-roam-node-display-template #("${title:*} ${tags:40}" 11 21
                                          (face org-tag)))
   (org-roam-db-autosync-mode)
-  (duy/org-refile-setup)
+  (dn/org-refile-setup)
   (advice-add 'org-agenda :before #'vulpea-roam-files-update))
 
 (elpaca-wait)
@@ -1562,26 +1564,26 @@ Salv-mode provides a local minor mode to save a buffer when Emacs is idle. I onl
 (use-package salv
   :elpaca (:host github :repo "alphapapa/salv.el")
   :init
-  (defun duy/org-roam-salv-mode ()
+  (defun dn/org-roam-salv-mode ()
     "Enable salv-mode for org-roam files"
     (when (and (buffer-file-name)
                (file-in-directory-p (buffer-file-name) org-roam-directory))
       (salv-mode 1)))
   :hook
-  (org-mode-hook . duy/org-roam-salv-mode))
+  (org-mode-hook . dn/org-roam-salv-mode))
 #+end_src
 
 ** My org-mode keymaps
 
 #+begin_src emacs-lisp
-(defvar duy/org-roam-mode-map (make-sparse-keymap)
+(defvar dn/org-roam-mode-map (make-sparse-keymap)
   "My custom keymap for org-roam.")
 
-(define-prefix-command 'duy/org-roam-mode-map)
-(keymap-global-set "C-c n" '("org-roam" . duy/org-roam-mode-map))
+(define-prefix-command 'dn/org-roam-mode-map)
+(keymap-global-set "C-c n" '("org-roam" . dn/org-roam-mode-map))
 
-(keymap-set duy/org-roam-mode-map "f" 'org-roam-node-find)
-(keymap-set duy/org-roam-mode-map "d" 'org-roam-dailies-map)
+(keymap-set dn/org-roam-mode-map "f" 'org-roam-node-find)
+(keymap-set dn/org-roam-mode-map "d" 'org-roam-dailies-map)
 #+end_src
 
 * Org agenda (using org-roam)
@@ -1785,7 +1787,7 @@ Set todo keywords, tags etc.
 Function to archive all done task in current org agenda/file.
 
 #+begin_src emacs-lisp
-(defun duy/org-archive-done-tasks-agenda ()
+(defun dn/org-archive-done-tasks-agenda ()
   (interactive)
   (org-map-entries
    (lambda ()
@@ -1793,7 +1795,7 @@ Function to archive all done task in current org agenda/file.
      (setq org-map-continue-from (org-element-property :begin (org-element-at-point))))
    "/DONE" 'agenda))
 
-(defun duy/org-archive-done-tasks-file ()
+(defun dn/org-archive-done-tasks-file ()
   (interactive)
   (org-map-entries
    (lambda ()
@@ -1805,7 +1807,7 @@ Function to archive all done task in current org agenda/file.
 *** Layout of agenda
 
 #+begin_src emacs-lisp
-(setq duy/agenda-group-main
+(setq dn/agenda-group-main
       '((:discard (:scheduled today))
         (:discard (:scheduled past))
         (:name "Important tasks\n"
@@ -1818,7 +1820,7 @@ Function to archive all done task in current org agenda/file.
                :todo "WAITING")
         (:discard (:anything t))))
 
-(setq duy/agenda-group-today
+(setq dn/agenda-group-today
       '((:name "Today"
                :time-grid t
                :date today
@@ -1826,17 +1828,17 @@ Function to archive all done task in current org agenda/file.
         (:name "Upcoming deadlines"
                :deadline future)))
 
-(setq duy/agenda-group-backlog
+(setq dn/agenda-group-backlog
       '((:discard (:tag "refile"))
         (:auto-title t)))  ;; defined with org-super-agenda--def-auto-group
 
-(setq duy/agenda-group-backlog-unscheduled
+(setq dn/agenda-group-backlog-unscheduled
       '((:discard (:tag "refile"))
         (:discard (:scheduled t))
         (:discard (:deadline today))
         (:auto-title t))) ;; defined with org-super-agenda--def-auto-group
 
-(setq duy/agenda-group-inbox
+(setq dn/agenda-group-inbox
       '((:name none
                :tag "refile")
         (:discard (:anything t))))
@@ -1845,7 +1847,7 @@ Function to archive all done task in current org agenda/file.
       `((" " "Agenda"
          ((todo "" ((org-agenda-overriding-header "Task list")
                     (org-agenda-block-separator nil)
-                    (org-super-agenda-groups duy/agenda-group-main)))
+                    (org-super-agenda-groups dn/agenda-group-main)))
           (agenda "" ((org-agenda-span 1)
                       (org-deadline-warning-days 0)
                       (org-agenda-block-separator nil)
@@ -1876,14 +1878,14 @@ Function to archive all done task in current org agenda/file.
                       (org-agenda-skip-function '(org-agenda-skip-entry-if 'todo 'done))
                       (org-agenda-overriding-header "\nUpcoming deadlines (+14d)\n")))
           (todo "" ((org-agenda-overriding-header "Inbox\n")
-                    (org-super-agenda-groups duy/agenda-group-inbox)
+                    (org-super-agenda-groups dn/agenda-group-inbox)
                     (org-agenda-block-separator ?-)))
           (todo "TODO" ((org-agenda-overriding-header "Backlog")
-                        (org-super-agenda-groups duy/agenda-group-backlog-unscheduled)
+                        (org-super-agenda-groups dn/agenda-group-backlog-unscheduled)
                         (org-agenda-block-separator "")))))
         ("b" "Backlog"
          ((todo "TODO" ((org-agenda-overriding-header "Backlog")
-                        (org-super-agenda-groups duy/agenda-group-backlog)))))))
+                        (org-super-agenda-groups dn/agenda-group-backlog)))))))
 #+end_src
 
 *** org-agenda tags display settings
@@ -1891,12 +1893,12 @@ Function to archive all done task in current org agenda/file.
 Align all tags at the right border of the agenda window:
 
 #+begin_src emacs-lisp
-  (defun duy/realign-agenda-tags ()
+  (defun dn/realign-agenda-tags ()
     "Put the agenda tags at the right border of the agenda window."
     (setq org-agenda-tags-column (- 5 (window-width)))
     (org-agenda-align-tags))
 
-  (add-hook 'org-agenda-finalize-hook 'duy/realign-agenda-tags)
+  (add-hook 'org-agenda-finalize-hook 'dn/realign-agenda-tags)
 #+end_src
 
 Hide the =project= tag in org-agenda, since by definition in our setup all items will have the tag:
@@ -1910,7 +1912,7 @@ Hide the =project= tag in org-agenda, since by definition in our setup all items
 *** Function to process inbox item
 
 #+begin_src emacs-lisp
-(defun duy/org-agenda-process-inbox-item ()
+(defun dn/org-agenda-process-inbox-item ()
   "Process a single item in the org-agenda."
   (interactive)
   (org-with-wide-buffer
@@ -1922,7 +1924,7 @@ Hide the =project= tag in org-agenda, since by definition in our setup all items
 *** Functions to process inbox
 
 #+begin_src emacs-lisp
-(defun duy/bulk-process-entries ()
+(defun dn/bulk-process-entries ()
   (if (not (null org-agenda-bulk-marked-entries))
       (let ((entries (reverse org-agenda-bulk-marked-entries))
             (processed 0)
@@ -1933,7 +1935,7 @@ Hide the =project= tag in org-agenda, since by definition in our setup all items
                 (progn (message "Skipping removed entry at %s" e)
                        (cl-incf skipped))
               (goto-char pos)
-              (let (org-loop-over-headlines-in-active-region) (funcall 'duy/org-agenda-process-inbox-item))
+              (let (org-loop-over-headlines-in-active-region) (funcall 'dn/org-agenda-process-inbox-item))
               ;; `post-command-hook' is not run yet.  We make sure any
               ;; pending log note is processed.
               (when (or (memq 'org-add-log-note (default-value 'post-command-hook))
@@ -1950,16 +1952,16 @@ Hide the =project= tag in org-agenda, since by definition in our setup all items
                            skipped))
                  (if (not org-agenda-persistent-marks) "" " (kept marked)")))))
 
-(defun duy/org-process-inbox ()
+(defun dn/org-process-inbox ()
   "Called in org-agenda-mode, processes all inbox items."
   (interactive)
   (org-agenda-bulk-mark-regexp "refile:")
-  (duy/bulk-process-entries))
+  (dn/bulk-process-entries))
 #+end_src
 
 *** Org refile settings
 
-See ~duy/org-refile-setup~ and ~vulpea-roam-files-update~ under =org-roam=. 
+See ~dn/org-refile-setup~ and ~vulpea-roam-files-update~ under =org-roam=. 
 
 - Project nodes have "project" tags, which are added by myself.
 - Nodes have "task" tags based on existence of TODO items.
@@ -1971,7 +1973,7 @@ See ~duy/org-refile-setup~ and ~vulpea-roam-files-update~ under =org-roam=.
 Function to archive all done task in current org agenda/file.
 
 #+begin_src emacs-lisp
-(defun duy/org-archive-done-tasks-agenda ()
+(defun dn/org-archive-done-tasks-agenda ()
   (interactive)
   (org-map-entries
    (lambda ()
@@ -1979,7 +1981,7 @@ Function to archive all done task in current org agenda/file.
      (setq org-map-continue-from (org-element-property :begin (org-element-at-point))))
    "/DONE" 'agenda))
 
-(defun duy/org-archive-done-tasks-file ()
+(defun dn/org-archive-done-tasks-file ()
   (interactive)
   (org-map-entries
    (lambda ()
@@ -2090,7 +2092,7 @@ Open URLs in qutebrowser:
 Current the function below is unused as we are using ~vterm-toggle~ with ~vterm-toggle-project-root~ and ~vterm-toggle-scope~.
 
 #+begin_src emacs-lisp
-;; (defun duy/project-vterm ()
+;; (defun dn/project-vterm ()
 ;;   "Start an inferior shell in the current project's root directory.
 ;; If a buffer already exists for running a shell in the project's root,
 ;; switch to it.  Otherwise, create a new shell buffer.
@@ -2117,18 +2119,18 @@ Current the function below is unused as we are using ~vterm-toggle~ with ~vterm-
   :defer t
   :after consult
   :bind
-  (:map duy/prog-map
+  (:map dn/prog-map
         ("d" . xref-find-definitions)
         ("r" . xref-find-references)
         ("c" . eglot-code-actions)
         ("r" . eglot-rename))
   :hook
-  (python-base-mode-hook . duy/pylsp-default-eglot-workspace-configuration)
+  (python-base-mode-hook . dn/pylsp-default-eglot-workspace-configuration)
   (python-base-mode-hook . eglot-ensure)
   :init
-  (define-prefix-command 'duy/prog-map)
-  (keymap-global-set "C-c l" '("prog" . duy/prog-map))
-  (defun duy/pylsp-default-eglot-workspace-configuration()
+  (define-prefix-command 'dn/prog-map)
+  (keymap-global-set "C-c l" '("prog" . dn/prog-map))
+  (defun dn/pylsp-default-eglot-workspace-configuration()
     "Default Eglot workspace configuration for the pylsp server.
 
 These are pylsp settings that I like to have across my projects. If more
@@ -2264,7 +2266,7 @@ With the above setup there is no need for Poetry or direnv, so those packages ar
 *** Pylsp helper functions
 
 #+begin_src emacs-lisp
-;; (defun duy/pylsp-set-dir-local-variables ()
+;; (defun dn/pylsp-set-dir-local-variables ()
 ;;     "Sets dir local variables for pylsp.
 ;; Creates a .dir-locals.el file. Uses PET to indentify the venv."
 ;;     (interactive)
@@ -2311,9 +2313,9 @@ Alternatives include [[https://github.com/jorgenschaefer/pyvenv][pyvenv.el]], [[
 #+begin_src emacs-lisp
 (use-package pet
   :hook
-  (python-base-mode-hook . duy/python-pet-hook)
+  (python-base-mode-hook . dn/python-pet-hook)
   :init
-  (defun duy/python-pet-hook ()
+  (defun dn/python-pet-hook ()
     "Activate pet mode, and set the local variables to identify the correct executables."
     (pet-mode)
     (setq-local pyvenv-activate (pet-virtualenv-root))
@@ -2335,7 +2337,7 @@ I use =pyvenv= to in compination with =pet= to quickly switch to the correct env
   ;; (pyvenv-post-deactivate-hooks . (lambda() (call-interactively 'eglot-reconnect)))
   :init
   (pyvenv-mode t)
-  (defun duy/pet-pyvenv-activate ()
+  (defun dn/pet-pyvenv-activate ()
     "Activate the virtualenv identified by PET."
     (interactive)
     (let ((venv (pet-virtualenv-root)))
@@ -2508,7 +2510,7 @@ import pandas
               ("C-j" . 'jupyter-repl-forward-cell)
               ("C-k" . 'jupyter-repl-backward-cell)
               :map org-mode-map
-              ("C-c j" . 'duy/jupyter-org-hydra/body))
+              ("C-c j" . 'dn/jupyter-org-hydra/body))
   :init
   (org-babel-do-load-languages
    'org-babel-load-languages            ; Languages allowed to run in Org Src blocks
@@ -2518,23 +2520,23 @@ import pandas
                                                        (:kernel . "python3")))
   (add-hook 'org-babel-after-execute-hook 'org-display-inline-images 'append)
   (org-babel-jupyter-override-src-block "python")
-  (defun duy/jupyter-org-insert-src-block-below ()
+  (defun dn/jupyter-org-insert-src-block-below ()
     (interactive)
     (let ((current-prefix-arg '(4))) (call-interactively 'jupyter-org-insert-src-block)))
-  (defhydra duy/jupyter-org-move-src-block-hydra ()
+  (defhydra dn/jupyter-org-move-src-block-hydra ()
     "Move block"
     ("j" (jupyter-org-move-src-block t) "Move down")
     ("k" jupyter-org-move-src-block "Move up")
     ("q" nil "quit"))
-  (defun duy/jupyter-org-hydra/body ()
+  (defun dn/jupyter-org-hydra/body ()
     "Custom hydra for jupyter commands.
 Inspired by jupyter-org-hydra from emacs-jupyter."
     (interactive)
     (unless (require 'hydra nil t)
       (error "Package `hydra' not installed"))
     ;; unbinding this function and define the hydra
-    (fmakunbound 'duy/jupyter-org-hydra/body)
-    (eval `(defhydra duy/jupyter-org-hydra (:color blue :hint nil)
+    (fmakunbound 'dn/jupyter-org-hydra/body)
+    (eval `(defhydra dn/jupyter-org-hydra (:color blue :hint nil)
              "
           Execute                     Navigate            Edit              Misc
 -------------------------------------------------------------------------------------------
@@ -2581,7 +2583,7 @@ Inspired by jupyter-org-hydra from emacs-jupyter."
              ("/" jupyter-org-inspect-src-block)
              ("i" jupyter-org-interrupt-kernel)
              ("C-s" org-babel-jupyter-scratch-buffer)))
-    (call-interactively #'duy/jupyter-org-hydra/body)))
+    (call-interactively #'dn/jupyter-org-hydra/body)))
 #+end_src
 
 To ensure that =pandas.DataFrame= objects are displayed as =org= tables, add the following to the Jupyter startup file (=~/.ipython/profile_default/startup/50-middle.py=):
@@ -2663,9 +2665,9 @@ Relevant links:
 ;;   "jc"    '(jupyter-org-clone-block                   :wk "Clone blocks")
 ;;   "jm"    '(jupyter-org-merge-blocks                  :wk "Merge blocks")
 ;;   "js"    '(jupyter-org-split-src-block               :wk "Split blocks")
-;;   "jM"    '(duy/jupyter-org-move-src-block-hydra/body :wk "Move block")
+;;   "jM"    '(dn/jupyter-org-move-src-block-hydra/body :wk "Move block")
 ;;   "ja"    '(jupyter-org-insert-src-block              :wk "Insert block above")
-;;   "jb"    '(duy/jupyter-org-insert-src-block-below    :wk "Insert block below")
+;;   "jb"    '(dn/jupyter-org-insert-src-block-below    :wk "Insert block below")
 ;;   "jd"    '(jupyter-org-kill-block-and-results        :wk "Kill block and results")
 ;;   "je"    '(jupyter-org-execute-and-next-block        :wk "Execute and next block")
 ;;   "jj"    '(jupyter-org-jump-to-visible-block         :wk "Jump to block"))
@@ -2716,7 +2718,7 @@ Relevant links:
 ** AutoHotKey
 
 #+begin_src emacs-lisp
-(when duy/is-wsl
+(when dn/is-wsl
   (use-package ahk-mode))
 #+end_src
 

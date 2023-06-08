@@ -95,11 +95,11 @@ Useful links for troubleshooting:
 (set-fringe-mode 10)
 
 ;;; Change appearance of titlebar
-(defvar dn/is-macos
+(defconst dn/is-macos
   (string= system-type "darwin")
   "Whether current machine is running MacOS.")
 
-(defvar dn/is-wsl
+(defconst dn/is-wsl
   (and (eq system-type 'gnu/linux)
        (string-match "WSL" operating-system-release))
   "Whether current machine is running Linux.")
@@ -626,7 +626,9 @@ This package is required to enable expected behaviour with Meow keybindings in n
 
 #+begin_src emacs-lisp
 (use-package meow-vterm
+  :after vterm
   :elpaca (meow-vterm :type git :host github :repo "accelbread/meow-vterm")
+  :config
   (meow-vterm-enable))
 #+end_src
 
@@ -1345,6 +1347,14 @@ Package to easily navigate cursor within buffers. Using this over evil-easymotio
       (ispell-change-dictionary key)
       (message "Switched to %s" key)))
   (setq ispell-dictionary "en_GB"))
+#+end_src
+
+** Jinx
+
+#+begin_src emacs-lisp
+(use-package jinx
+  :hook
+  (text-mode-hook . jinx-mode))
 #+end_src
 
 * Version control
@@ -2088,15 +2098,10 @@ Function to archive all done task in current org agenda/file.
 
 * Web browsing
 
-Open URLs in qutebrowser:
+Open URLs in Chrome:
 
 #+begin_src emacs-lisp
-(use-package emacs
-  :elpaca nil
-  :ensure-system-package qutebrowser
-  :config
-  (setq browse-url-browser-function 'browse-url-generic
-        browse-url-generic-program "qutebrowser"))
+  (setq browse-url-browser-function 'browse-url-chromium)
 #+end_src
 
 * Pandoc
@@ -2819,7 +2824,7 @@ Relevant links:
 (use-package elfeed-org
   :config
   (elfeed-org)
-  (setq rmh-elfeed-org-files (list "elfeed.org")))
+  (setq rmh-elfeed-org-files (list "~/repos/config-files/emacs/elfeed.org")))
 #+end_src
 
 * ChatGPT

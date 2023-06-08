@@ -536,6 +536,7 @@ brew install coreutils
      '("9" . meow-digit-argument)
      '("0" . meow-digit-argument)
      '("/" . meow-keypad-describe-key)
+     '("u" . "C-u")
      '("?" . meow-cheatsheet))
     (meow-normal-define-key
      '("0" . meow-expand-0)
@@ -567,6 +568,7 @@ brew install coreutils
      '("e" . meow-next-word)
      '("E" . meow-next-symbol)
      '("f" . meow-find)
+     '("F" . avy-goto-char-timer)
      '("g" . meow-cancel-selection)
      '("G" . meow-grab)
      '("h" . meow-left)
@@ -616,6 +618,16 @@ brew install coreutils
   (add-to-list 'meow-char-thing-table '(?a . angled))
   (meow-setup)
   (meow-global-mode))
+#+end_src
+
+** Meow vterm
+
+This package is required to enable expected behaviour with Meow keybindings in normal mode (see also [[https://github.com/meow-edit/meow/issues/467][here]]).
+
+#+begin_src emacs-lisp
+(use-package meow-vterm
+  :elpaca (meow-vterm :type git :host github :repo "accelbread/meow-vterm")
+  (meow-vterm-enable))
 #+end_src
 
 * Fonts and themes

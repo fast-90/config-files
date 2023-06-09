@@ -1353,8 +1353,14 @@ Package to easily navigate cursor within buffers. Using this over evil-easymotio
 
 #+begin_src emacs-lisp
 (use-package jinx
+  :bind
+  (("C-c s n" . jinx-next)
+   ("C-c s p" . jinx-previous)
+   ("C-c s l" . jinx-languages))
   :hook
-  (text-mode-hook . jinx-mode))
+  (text-mode-hook . jinx-mode)
+  :config
+  (setq jinx-languages "en_GB"))
 #+end_src
 
 * Version control

@@ -537,6 +537,7 @@ brew install coreutils
      '("0" . meow-digit-argument)
      '("/" . meow-keypad-describe-key)
      '("u" . "C-u")
+     '("q" . "C-c q")
      '("?" . meow-cheatsheet))
     (meow-normal-define-key
      '("0" . meow-expand-0)
@@ -606,7 +607,7 @@ brew install coreutils
      '("'" . repeat)
      '("<escape>" . ignore)))
   (setq meow-use-clipboard t)
-  (setq meow-use-dynamic-face-color nil)
+  (setq meow-use-dynamic-face-color t)
   (setq meow-use-cursor-position-hack t)
   (meow-thing-register 'quote
                        '(regexp "\"" "\"")
@@ -2191,7 +2192,7 @@ Provides the ~consult-eglot-symbols~ command. Only works with =pyright=, not wit
 ;;   :after eglot consult)
 #+end_src
 
-*** Tree-sitter
+** Tree-sitter
 
 Tree-sitter is a super fast parser which can be used for syntax highlighting, and is much faster than the traditional =font-lock= mode from Emacs. As of Emacs 29, the tree-sitter package is builtin. Some setup on the OS is required though:
 
@@ -2212,6 +2213,41 @@ If you built Emacs from source, you should check whether tree-sitter is availabl
   (when (and (treesit-available-p) (executable-find "tree-sitter"))
     ;; (treesit-install-language-grammar 'python)
     (add-to-list 'major-mode-remap-alist '(python-mode . python-ts-mode))))
+#+end_src
+
+** Combobulate
+
+#+begin_src emacs-lisp
+(use-package combobulate
+  :elpaca (combobulate :type git :host github :repo "mickeynp/combobulate")
+  :hook
+  ((python-base-mode-hook . combobulate-mode))
+  :init
+  (setq combobulate-key-prefix "C-c q"))
+#+end_src
+
+** Templates with TempEL
+
+#+begin_src emacs-lisp
+(use-package tempel
+  :init
+  ;; Setup completion at point
+  (defun tempel-setup-capf ()
+    ;; Add the Tempel Capf to `completion-at-point-functions'.
+    ;; `tempel-expand' only triggers on exact matches. Alternatively use
+    ;; `tempel-complete' if you want to see all matches, but then you
+    ;; should also configure `tempel-trigger-prefix', such that Tempel
+    ;; does not trigger too often when you don't expect it. NOTE: We add
+    ;; `tempel-expand' *before* the main programming mode Capf, such
+    ;; that it will be tried first.
+    (setq-local completion-at-point-functions
+                (cons #'tempel-complete
+                      completion-at-point-functions)))
+  (add-hook 'conf-mode-hook 'tempel-setup-capf)
+  (add-hook 'prog-mode-hook 'tempel-setup-capf)
+  (add-hook 'text-mode-hook 'tempel-setup-capf)
+  (add-hook 'eglot-managed-mode-hook 'tempel-setup-capf)
+  (setq tempel-trigger-prefix "<"))
 #+end_src
 
 ** Python

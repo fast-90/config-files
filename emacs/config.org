@@ -641,7 +641,7 @@ The used fonts have different names on different computers:
 
 #+begin_src emacs-lisp
 (if (string= system-name "Duys-MBP.home")
-    (setq dn/default-font "FiraMono Nerd Font Mono"
+    (setq dn/default-font "Input Mono"
           dn/variable-font "IBM Plex Sans"
           dn/default-font-size 13.0
           dn/variable-font-size 14.0)
@@ -928,7 +928,7 @@ Currently trying =mood-line= over =doom-modeline= as the latter messes up the ba
   ;; (tab-bar-tab ((t (:bold t :height 1.0 :foreground "sienna"))))
   ;; (tab-bar-tab-inactive ((t (:background nil :inherit 'mode-line :height 1.0 ))))
   :config
-  (set-face-attribute 'tab-bar nil :font (font-spec :family "IBM Plex Mono" :size dn/default-font-size)))
+  (set-face-attribute 'tab-bar nil :font (font-spec :family "Input Mono" :size dn/default-font-size)))
 #+end_src
 
 ** Tab-bookmark
@@ -1530,6 +1530,7 @@ Related github issues:
 #+begin_src emacs-lisp
 (use-package org-roam
   :init
+  (setq org-roam-directory "~/org-roam-notes")
   (setq org-roam-v2-ack t)
   (setq org-roam-database-connector 'sqlite-builtin)
   (defun dn/org-refile-setup ()
@@ -1544,7 +1545,6 @@ Related github issues:
     "Update the value of `myroamfiles'."
     (setq myroamfiles (directory-files org-roam-directory t "org$")))
   :custom
-  (org-roam-directory "~/org-roam-notes")
   (org-roam-completion-everywhere t)
   (org-roam-capture-templates
    '(("d" "default" plain
@@ -2223,7 +2223,24 @@ If you built Emacs from source, you should check whether tree-sitter is availabl
   :hook
   ((python-base-mode-hook . combobulate-mode))
   :init
-  (setq combobulate-key-prefix "C-c q"))
+  (setq combobulate-key-prefix "C-c q")
+
+  (defvar combobulate-repeat-map
+    (let ((map (make-sparse-keymap)))
+      (define-key map "u" 'combobulate-navigate-up-list-maybe)
+      (define-key map "d" 'combobulate-navigate-down-list-maybe)
+      (define-key map "n" 'combobulate-navigate-next)
+      (define-key map "p" 'combobulate-navigate-previous)
+      (define-key map "a" 'combobulate-navigate-beginning-of-defun)
+      (define-key map "e" 'combobulate-navigate-end-of-defun)
+      map)
+    "Repeating map for Combobulate.")
+  (put 'combobulate-navigate-up-list-maybe 'repeat-map 'combobulate-repeat-map)
+  (put 'combobulate-navigate-down-list-maybe 'repeat-map 'combobulate-repeat-map)
+  (put 'combobulate-navigate-next 'repeat-map 'combobulate-repeat-map)
+  (put 'combobulate-navigate-previous 'repeat-map 'combobulate-repeat-map)
+  (put 'combobulate-navigate-beginning-of-defun 'repeat-map 'combobulate-repeat-map)
+  (put 'combobulate-navigate-end-of-defun 'repeat-map 'combobulate-repeat-map))
 #+end_src
 
 ** Templates with TempEL
@@ -2395,8 +2412,8 @@ Alternatives include [[https://github.com/jorgenschaefer/pyvenv][pyvenv.el]], [[
     "Activate pet mode, and set the local variables to identify the correct executables."
     (pet-mode)
     (setq-local pyvenv-activate (pet-virtualenv-root))
-    (setq-local python-shell-interpreter (pet-executable-find "ipython"))
-    (setq-local python-shell-interpreter-args "-i --simple-prompt")
+    (setq-local python-shell-interpreter (pet-executable-find "python"))
+    (setq-local python-shell-interpreter-args "-i")
     (when-let ((black-executable (pet-executable-find "black")))
       (setq-local python-black-command black-executable))))
 #+end_src
@@ -2449,6 +2466,14 @@ I use =pyvenv= to in compination with =pet= to quickly switch to the correct env
   (numpydoc-template-long nil)
   :bind (:map python-ts-mode-map
               ("C-c C-n" . numpydoc-generate)))
+#+end_src
+
+*** Elpy
+
+#+begin_src emacs-lisp
+(use-package elpy
+  :defer t
+  :commands (elpy-shell-send-region-or-buffer-and-step))
 #+end_src
 
 *** Ruff and ruff-lsp
@@ -2755,29 +2780,48 @@ Relevant links:
 #+begin_src emacs-lisp
 (use-package quarto-mode
   :init
-  (defvar dn/quarto-preview-port nil
-    "Port which was last used for `dn/quarto-preview'.")
+  ;; (defvar dn/quarto-preview-port nil
+  ;;   "Port which was last used for `dn/quarto-preview'.")
+
+  ;; (defun dn/quarto-get-port ()
+  ;;   "Get the port most recently used to succesfully start a Quarto preview server."
+  ;;   (with-current-buffer (process-buffer (get-process "quarto-preview"))
+  ;;     (goto-char (point-max))
+  ;;     (search-backward-regexp "\\(Browse at.*\\)\\(localhost:\\)\\([0-9]\\{4\\}\\)" nil nil)
+  ;;     (setq dn/quarto-preview-port (match-string 3))))
+  
   (defun dn/quarto-preview ()
     "Start quarto preview process via shell command."
     (interactive)
-    (setq dn/quarto-preview-port (number-to-string (+ 3000 (random 5000))))
+    ;; (setq dn/quarto-preview-port (number-to-string (+ 3000 (random 5000))))
     (let ((shell-command-switch "-ic"))
       (start-process-shell-command
        "quarto-preview"
        "*quarto-preview*"
-       (concat "quarto preview " buffer-file-name " --no-browser --port " dn/quarto-preview-port)))
+       (concat "quarto preview " buffer-file-name " --no-browser"))
+      )
     (with-current-buffer (process-buffer (get-process "quarto-preview"))
       (display-buffer (current-buffer))))
+  
   (defun dn/quarto-preview-xwidget ()
     "Open the preview file with xwidget-webkit."
     (interactive)
-    (let ((previous-buffer (buffer-name)))
-      (xwidget-webkit-browse-url (concat "http://localhost:" dn/quarto-preview-port))
-      (switch-to-buffer-other-window previous-buffer)))
+    (if (get-process "quarto-preview")
+        (let ((previous-buffer (buffer-name))
+              (port (with-current-buffer (process-buffer (get-process "quarto-preview"))
+                      (goto-char (point-max))
+                      (search-backward-regexp "\\(Browse at.*\\)\\(localhost:\\)\\([0-9]\\{4\\}\\)" nil nil)
+                      (match-string 3))))
+          (xwidget-webkit-browse-url (concat "http://localhost:" port))
+          (switch-to-buffer-other-window previous-buffer))
+      (message "No preview server running! Run M-x dn/quarto-preview first.")))
+  
   (defun poly-python-eval-region (beg end msg)
     (python-shell-send-region beg end nil msg t))
+  
   (defun poly-python-mode-setup ()
     (setq-local polymode-eval-region-function #'poly-python-eval-region))
+  
   (defun dn/quarto-insert-python-code-blocks (count)
     "Inserts `count` number of Python code blocks starting from the line below the cursor."
     (interactive "nEnter the number of Python code blocks to insert: ")
@@ -2787,8 +2831,53 @@ Relevant links:
         (insert "```{python}\n\n```\n\n")
         (forward-line 3)))
     (forward-line))
+  
+  (defun dn/quarto-next-block ()
+    "Move the cursor to the beginning of the line under the next code block."
+    (interactive)
+    (search-forward-regexp "^```{.*}$" nil t)
+    (forward-line))
+
+  (defun dn/quarto-previous-block ()
+    "Move the cursor to the beginning of the line under the next code block."
+    (interactive)
+    (search-backward-regexp "^```$" nil t)
+    (previous-line)
+    (search-backward "```{" nil t)
+    (forward-line))
+
+  (defun dn/quarto-eval-block ()
+    "Evaluate current code block.
+
+If cursor is not in a code block, evaluate the previous code block."
+    (interactive)
+    (let* ((current (save-excursion (point)))
+           (beg (save-excursion
+                  (search-backward-regexp "^```{.*}" nil t)
+                  (forward-line)
+                  (point)))
+           (end (save-excursion
+                  (goto-char beg)
+                  (search-forward-regexp "```$" nil t)
+                  (previous-line)(end-of-line)
+                  (point))))
+      (push-mark beg)
+      (goto-char end)
+      (activate-mark)
+      (elpy-shell-send-region-or-buffer-and-step)
+      (deactivate-mark)
+      (goto-char current)))
+  
+  (defhydra dn/quarto-block-hydra ()
+    "Code blocks"
+    ("n" dn/quarto-next-block "Next block")
+    ("p" dn/quarto-previous-block "Previous block")
+    ("e" dn/quarto-eval-block "Evaluate block")
+    ("E" (lambda() (interactive) (dn/quarto-eval-block) (dn/quarto-next-block)) "Eval and next"))
   :hook
-  (python-base-mode-hook . poly-python-mode-setup))
+  (python-base-mode-hook . poly-python-mode-setup)
+  :bind (:map dn/prog-map
+              ("o" . dn/quarto-block-hydra/body)))
 #+end_src
 
 ** AutoHotKey
@@ -2851,7 +2940,7 @@ Relevant links:
 * Email
 
 #+begin_src emacs-lisp
-;; (require 'mail-config)
+(when dn/is-macos (require 'mail-config))
 #+end_src
 
 * Elfeed

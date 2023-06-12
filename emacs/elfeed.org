@@ -1,7 +1,6 @@
 * Blogs                                                              :elfeed:
 ** Emacs                                                               :emacs:
 *** [[https://sachachua.com/blog/category/emacs-news/feed/][Sacha Chua's blog]]
-*** [[http://www.reddit.com/r/emacs/.rss][/r/emacs]]                                                           :reddit:
 *** [[https://planet.emacslife.com/][Planet Emacs]]
 *** [[https://protesilaos.com/codelog.xml][Prot's coding blog]]
 ** Rationality                                             :rationality:stats:

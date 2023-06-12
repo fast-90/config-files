@@ -438,6 +438,8 @@ Don't maximise window on WSL (it doesn't work well as the X server does not reco
 #+begin_src emacs-lisp
   (use-package dired
     :elpaca nil
+    :hook
+    (dired-mode-hook . dired-omit-mode)
     :custom
     (dired-listing-switches "-agho --group-directories-first")
     (dired-kill-when-opening-new-dired-buffer t)

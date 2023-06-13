@@ -650,7 +650,7 @@ The used fonts have different names on different computers:
           dn/default-font-size 13.0
           dn/variable-font-size 14.0)
   (if (string= system-name "NL5CG1462QH6")
-      (setq dn/default-font "FiraMono Nerd Font Mono"
+      (setq dn/default-font "Input Mono"
             dn/variable-font "IBM Plex Sans"
             dn/default-font-size 10.5
             dn/variable-font-size 12.0)

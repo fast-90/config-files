@@ -516,6 +516,10 @@ brew install coreutils
 
 #+begin_src emacs-lisp
 (use-package meow
+  :init
+  (setq meow-use-clipboard t)
+  (setq meow-use-dynamic-face-color t)
+  (setq meow-use-cursor-position-hack t)
   :config
   (defun meow-setup ()
     (setq meow-cheatsheet-layout meow-cheatsheet-layout-qwerty)
@@ -609,9 +613,6 @@ brew install coreutils
      '("z" . meow-pop-selection)
      '("'" . repeat)
      '("<escape>" . ignore)))
-  (setq meow-use-clipboard t)
-  (setq meow-use-dynamic-face-color t)
-  (setq meow-use-cursor-position-hack t)
   (meow-thing-register 'quote
                        '(regexp "\"" "\"")
                        '(regexp "\"" "\""))

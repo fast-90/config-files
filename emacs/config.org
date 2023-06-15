@@ -1626,14 +1626,15 @@ Salv-mode provides a local minor mode to save a buffer when Emacs is idle. I onl
 ** My org-mode keymaps
 
 #+begin_src emacs-lisp
-(defvar dn/org-roam-mode-map (make-sparse-keymap)
-  "My custom keymap for org-roam.")
+(defvar-keymap dn/org-roam-map
+  :full nil
+  :name "org-roam"
+  :doc "My custom keymap for Org Roam."
+  "f" #'org-roam-node-find
+  "d" #'org-roam-dailies-map)
 
-(define-prefix-command 'dn/org-roam-mode-map)
-(keymap-global-set "C-c n" '("org-roam" . dn/org-roam-mode-map))
+(keymap-global-set "C-c n" '("org-roam" . dn/org-roam-map))
 
-(keymap-set dn/org-roam-mode-map "f" 'org-roam-node-find)
-(keymap-set dn/org-roam-mode-map "d" 'org-roam-dailies-map)
 #+end_src
 
 * Org agenda (using org-roam)
@@ -2168,7 +2169,7 @@ Current the function below is unused as we are using ~vterm-toggle~ with ~vterm-
         ("d" . xref-find-definitions)
         ("r" . xref-find-references)
         ("c" . eglot-code-actions)
-        ("r" . eglot-rename))
+        ("R" . eglot-rename))
   :hook
   (python-base-mode-hook . dn/pylsp-default-eglot-workspace-configuration)
   (python-base-mode-hook . eglot-ensure)
@@ -2228,23 +2229,14 @@ If you built Emacs from source, you should check whether tree-sitter is availabl
   ((python-base-mode-hook . combobulate-mode))
   :init
   (setq combobulate-key-prefix "C-c q")
-
-  (defvar combobulate-repeat-map
-    (let ((map (make-sparse-keymap)))
-      (define-key map "u" 'combobulate-navigate-up-list-maybe)
-      (define-key map "d" 'combobulate-navigate-down-list-maybe)
-      (define-key map "n" 'combobulate-navigate-next)
-      (define-key map "p" 'combobulate-navigate-previous)
-      (define-key map "a" 'combobulate-navigate-beginning-of-defun)
-      (define-key map "e" 'combobulate-navigate-end-of-defun)
-      map)
-    "Repeating map for Combobulate.")
-  (put 'combobulate-navigate-up-list-maybe 'repeat-map 'combobulate-repeat-map)
-  (put 'combobulate-navigate-down-list-maybe 'repeat-map 'combobulate-repeat-map)
-  (put 'combobulate-navigate-next 'repeat-map 'combobulate-repeat-map)
-  (put 'combobulate-navigate-previous 'repeat-map 'combobulate-repeat-map)
-  (put 'combobulate-navigate-beginning-of-defun 'repeat-map 'combobulate-repeat-map)
-  (put 'combobulate-navigate-end-of-defun 'repeat-map 'combobulate-repeat-map))
+  (defvar-keymap combobulate-repeat-map
+    :repeat t
+    "u" #'combobulate-navigate-up-list-maybe
+    "d" #'combobulate-navigate-down-list-maybe
+    "n" #'combobulate-navigate-next
+    "p" #'combobulate-navigate-previous
+    "a" #'combobulate-navigate-beginning-of-defun
+    "e" #'combobulate-navigate-end-of-defun))
 #+end_src
 
 ** Templates with TempEL

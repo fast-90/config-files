@@ -526,6 +526,7 @@ brew install coreutils
     (meow-motion-overwrite-define-key
      '("j" . meow-next)
      '("k" . meow-prev)
+     '("C-SPC" . "H-SPC")
      '("<escape>" . ignore))
     (meow-leader-define-key
      ;; SPC j/k will run the original command in MOTION state.
@@ -1633,6 +1634,7 @@ Salv-mode provides a local minor mode to save a buffer when Emacs is idle. I onl
   "f" #'org-roam-node-find
   "d" #'org-roam-dailies-map)
 
+(fset 'dn/org-roam-map dn/org-roam-map)
 (keymap-global-set "C-c n" '("org-roam" . dn/org-roam-map))
 
 #+end_src
@@ -2041,6 +2043,19 @@ Function to archive all done task in current org agenda/file.
    "/DONE" 'file))
 #+end_src
 
+* Reading
+
+** org-noter
+
+#+begin_src emacs-lisp
+(use-package org-noter
+  :init
+  (setq org-noter-doc-split-fraction '(0.6 . 0.4))
+  (setq org-noter-always-create-frame nil)
+  (setq org-noter-kill-frame-at-session-end nil))
+#+end_src
+
+
 * Writing
 
 ** Thesaurus
@@ -2110,10 +2125,19 @@ Function to archive all done task in current org agenda/file.
 
 * Web browsing
 
-Open URLs in Chrome:
+On WSL, ensure you have the following in your =.bashrc=:
+
+#+begin_src sh :noeval
+export BROWSER='eval "/mnt/c/Program Files/Google/Chrome/Application/chrome.exe"'
+# Or whatever the browser path is
+#+end_src
 
 #+begin_src emacs-lisp
-  (setq browse-url-browser-function 'browse-url-chromium)
+(cond (dn/is-wsl
+       (setq browse-url-generic-program (getenv "BROWSER"))
+       (setq browse-url-browser-function 'browse-url-generic))
+      (dn/is-macos
+       (setq browse-url-browser-function 'browse-url-chrome)))
 #+end_src
 
 * Pandoc
@@ -2986,3 +3010,12 @@ If cursor is not in a code block, evaluate the previous code block."
 ;;   (chatgpt-shell-openai-key ""))
 #+end_src
 
+* LaTeX
+
+Although not necessarily Emacs configuration, LaTeX needs to be installed in the OS in order to render LaTeX properly in org-mode. On WSL, I have:
+
+1. LaTeX via [[https://yihui.org/tinytex/][TinyTex]] (need to run =tlmgr path remove= in order for it to work properly).
+2. =sudo apt-get install dvipng=
+3. =sudo apt-get install texlive-plain-generic=
+
+I suspect step 1 is not needed, though this needs to be tested later.

@@ -2839,6 +2839,7 @@ Relevant links:
   (defun dn/quarto-next-block ()
     "Move the cursor to the beginning of the line under the next code block."
     (interactive)
+    (goto-char (line-beginning-position))
     (search-forward-regexp "^```{.*}$" nil t)
     (forward-line))
 
@@ -2865,11 +2866,31 @@ If cursor is not in a code block, evaluate the previous code block."
                   (search-forward-regexp "```$" nil t)
                   (previous-line)(end-of-line)
                   (point))))
-      (push-mark beg)
-      (goto-char end)
-      (activate-mark)
-      (elpy-shell-send-region-or-buffer-and-step)
-      (deactivate-mark)
+      ;; Don't send to Python shell if the block is empty.
+      (unless (eq beg end)
+        (push-mark beg)
+        (goto-char end)
+        (activate-mark)
+        (elpy-shell-send-region-or-buffer-and-step)
+        (deactivate-mark)
+        (goto-char current))))
+
+  (defun dn/quarto-eval-blocks-below ()
+    "Evaluate all blocks below point."
+    (interactive)
+    (let ((current (save-excursion (point))))
+      (while (progn
+               (dn/quarto-next-block)
+               (dn/quarto-eval-block)
+               (search-forward-regexp "^```{.*?}$" nil t)))
+      (goto-char current)))
+
+  (defun dn/quarto-eval-all-blocks ()
+    "Evaluate all blocks in notebook."
+    (interactive)
+    (let ((current (save-excursion (point))))
+      (goto-char (point-min))
+      (dn/quarto-eval-blocks-below)
       (goto-char current)))
   
   (defhydra dn/quarto-block-hydra ()
@@ -2877,7 +2898,9 @@ If cursor is not in a code block, evaluate the previous code block."
     ("n" dn/quarto-next-block "Next block")
     ("p" dn/quarto-previous-block "Previous block")
     ("e" dn/quarto-eval-block "Evaluate block")
-    ("E" (lambda() (interactive) (dn/quarto-eval-block) (dn/quarto-next-block)) "Eval and next"))
+    ("E" (lambda() (interactive) (dn/quarto-eval-block) (dn/quarto-next-block)) "Eval and next")
+    ("a" dn/quarto-eval-blocks-below "Eval blocks below")
+    ("A" dn/quarto-eval-all-blocks "Eval notebook"))
   :hook
   (python-base-mode-hook . poly-python-mode-setup)
   :bind (:map dn/prog-map

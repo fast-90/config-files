@@ -1255,7 +1255,7 @@ Idea: use C-p or M-p as the prefix key.
   :bind (("C-c w" . ace-window))
   :config
   (setq aw-keys '(?a ?s ?d ?f ?g ?h ?j ?k ?l)
-        aw-dispatch-always t))
+        aw-dispatch-always nil))
 #+end_src
   
 ** Avy
@@ -2800,8 +2800,8 @@ Relevant links:
 #+begin_src emacs-lisp
 (use-package quarto-mode
   :init
-  ;; (defvar dn/quarto-preview-port nil
-  ;;   "Port which was last used for `dn/quarto-preview'.")
+  (defvar dn/quarto-preview-url nil
+    "URL of the quarto preview server.")
 
   ;; (defun dn/quarto-get-port ()
   ;;   "Get the port most recently used to succesfully start a Quarto preview server."
@@ -2810,31 +2810,86 @@ Relevant links:
   ;;     (search-backward-regexp "\\(Browse at.*\\)\\(localhost:\\)\\([0-9]\\{4\\}\\)" nil nil)
   ;;     (setq dn/quarto-preview-port (match-string 3))))
   
+  ;; (defun dn/quarto-preview ()
+  ;;   "Start quarto preview process via shell command."
+  ;;   (interactive)
+  ;;   ;; (setq dn/quarto-preview-port (number-to-string (+ 3000 (random 5000))))
+  ;;   (let ((shell-command-switch "-ic"))
+  ;;     (start-process-shell-command
+  ;;      "quarto-preview"
+  ;;      "*quarto-preview*"
+  ;;      (concat "quarto preview " buffer-file-name " --no-browser"))
+  ;;     )
+  ;;   (with-current-buffer (process-buffer (get-process "quarto-preview"))
+  ;;     (display-buffer (current-buffer))))
+
   (defun dn/quarto-preview ()
-    "Start quarto preview process via shell command."
+    "Start a quarto preview server."
     (interactive)
-    ;; (setq dn/quarto-preview-port (number-to-string (+ 3000 (random 5000))))
-    (let ((shell-command-switch "-ic"))
-      (start-process-shell-command
-       "quarto-preview"
-       "*quarto-preview*"
-       (concat "quarto preview " buffer-file-name " --no-browser"))
-      )
-    (with-current-buffer (process-buffer (get-process "quarto-preview"))
-      (display-buffer (current-buffer))))
+    (let* ((shell-command-switch "-ic")
+           (process (dn/quarto-preview--start-process)))
+      (set-process-filter process #'dn/quarto--output-filter)
+      (set-process-sentinel process #'dn/quarto--process-sentinel)))
+
+  (defun dn/quarto-preview--start-process ()
+    "Start the quarto preview process."
+    (message "Starting quarto preview server...")
+    (start-process-shell-command
+     "quarto-preview"
+     "*quarto-preview*"
+     (concat "quarto preview " buffer-file-name " --no-browser")))
+
+  (defun dn/quarto-preview--check-output (output)
+    "Check whether the preview server is ready via Regex."
+    (string-match "\\(Browse at.*\\)\\(https?://.+:[0-9]\\{4\\}\\)" output))
   
+  (defun dn/quarto--output-filter (process output)
+    "Process filter to check whether the quarto preview server is ready.
+
+Saves the port used for the server in `dn/quarto-preview-port'."
+    (with-current-buffer (process-buffer process)
+      (save-excursion
+        (goto-char (point-max))
+        (insert output))
+      (when (dn/quarto-preview--check-output output)
+        (setq dn/quarto-preview-url (match-string 2 output))
+        (message "Quarto preview server ready!")
+        ;; Remove the xwidget filter if it was added in different functions.
+        (advice-remove 'dn/quarto--output-filter #'dn/quarto--open-preview-xwidget-filter))))
+  
+  (defun dn/quarto--process-sentinel (process event)
+    "Process sentinel to handle Quarto server events.
+
+Unsets `dn/quarto-preview-url'."
+    (when (memq (process-status process) '(exit signal))
+      (setq dn/quarto-preview-url nil)
+      (message "Quarto preview process killed.")))
+  
+  (defun dn/quarto--open-preview-xwidget-filter (process output)
+    "Process filter to open the preview file in xwidget if the server is ready."
+    (when (dn/quarto-preview--check-output output)
+      (let ((previous-buffer (buffer-name)))
+        (xwidget-webkit-browse-url dn/quarto-preview-url)
+        (switch-to-buffer-other-window previous-buffer))))
+
   (defun dn/quarto-preview-xwidget ()
     "Open the preview file with xwidget-webkit."
     (interactive)
-    (if (get-process "quarto-preview")
-        (let ((previous-buffer (buffer-name))
-              (port (with-current-buffer (process-buffer (get-process "quarto-preview"))
-                      (goto-char (point-max))
-                      (search-backward-regexp "\\(Browse at.*\\)\\(localhost:\\)\\([0-9]\\{4\\}\\)" nil nil)
-                      (match-string 3))))
-          (xwidget-webkit-browse-url (concat "http://localhost:" port))
-          (switch-to-buffer-other-window previous-buffer))
-      (message "No preview server running! Run M-x dn/quarto-preview first.")))
+    (advice-add 'dn/quarto--output-filter :after #'dn/quarto--open-preview-xwidget-filter)
+    (dn/quarto-preview))
+  
+  ;; (defun dn/quarto-preview-xwidget ()
+  ;;   "Open the preview file with xwidget-webkit."
+  ;;   (interactive)
+  ;;   (if (get-process "quarto-preview")
+  ;;       (let ((previous-buffer (buffer-name))
+  ;;             (port (with-current-buffer (process-buffer (get-process "quarto-preview"))
+  ;;                     (goto-char (point-max))
+  ;;                     (search-backward-regexp "\\(Browse at.*\\)\\(localhost:\\)\\([0-9]\\{4\\}\\)" nil nil)
+  ;;                     (match-string 3))))
+  ;;         (xwidget-webkit-browse-url (concat "http://localhost:" dn/quarto-preview-port))
+  ;;         (switch-to-buffer-other-window previous-buffer))
+  ;;     (message "No preview server running! Run M-x dn/quarto-preview first.")))
   
   (defun poly-python-eval-region (beg end msg)
     (python-shell-send-region beg end nil msg t))

@@ -956,6 +956,13 @@ Currently trying =mood-line= over =doom-modeline= as the latter messes up the ba
       (set-process-query-on-exit-flag proc nil))))
 #+end_src
 
+** comint
+
+#+begin_src emacs-lisp
+;; Always scroll to bottom on comint buffers in case buffer is growing
+(setq comint-scroll-to-bottom-on-output t)
+#+end_src
+
 ** vterm
 
 #+begin_src emacs-lisp
@@ -1143,6 +1150,7 @@ I also enabled directory tracking and named vterm buffer, see also here how to s
   :custom
   (corfu-cycle t)
   (corfu-auto t)
+  (corfu-on-exact-match nil)
   :init
   (global-corfu-mode)
   (global-set-key (kbd "M-i") #'completion-at-point))
@@ -1251,13 +1259,29 @@ Idea: use C-p or M-p as the prefix key.
 ** ace-window
 
 #+begin_src emacs-lisp
-(use-package ace-window
-  :bind (("C-c w" . ace-window))
-  :config
-  (setq aw-keys '(?a ?s ?d ?f ?g ?h ?j ?k ?l)
-        aw-dispatch-always nil))
+;; (use-package ace-window
+;;   :bind
+;;   (;("C-c w" . ace-window)
+;;    ("C-c o" . other-window))
+;;   :config
+;;   (setq aw-keys '(?a ?s ?d ?f ?g ?h ?j ?k ?l)
+;;         aw-dispatch-always t))
 #+end_src
   
+** My window config
+
+#+begin_src emacs-lisp
+(defvar-keymap dn/other-window-repeat-map
+  :repeat t
+  "w" #'other-window
+  "W" (lambda ()
+        (interactive)
+        (setq repeat-map 'other-window-repeat-map)
+        (other-window -1)))
+
+(keymap-global-set "C-c w" #'other-window)
+#+end_src
+
 ** Avy
 
 Package to easily navigate cursor within buffers. Using this over evil-easymotion because Avy does not distinguish between forward and backward and allows jumping across visible buffers.
@@ -2292,22 +2316,45 @@ If you built Emacs from source, you should check whether tree-sitter is availabl
 #+begin_src emacs-lisp
 (use-package python
   :init
-  (defun python-comint-filter (output)
-    "Filter out '__PYTHON_EL_' when sending region to inferior Python shell.
+  ;; (defun python-comint-filter (output)
+  ;;     "Filter out '__PYTHON_EL_' when sending region to inferior Python shell.
 
-See also: https://stackoverflow.com/questions/75103221/emacs-remove-python-el-eval-message"
-  (let* ((regexp "^.*__PYTHON_EL_\\(.*\\)\\(.*\\)[[:space:]]*$")
-         (lines (split-string output "\n"))
-         (filtered-lines (cl-remove-if (lambda (line)
-                                      (or (string-match-p regexp line)
-                                          (string-match-p "^\\s-*$" line))) 
-                                    lines)))
+  ;; See also: https://stackoverflow.com/questions/75103221/emacs-remove-python-el-eval-message"
+  ;;     (let* ((regexp "^.*__PYTHON_EL_\\(.*\\)\\(.*\\)[[:space:]]*$")
+  ;;            (lines (split-string output "\n"))
+  ;;            (filtered-lines (cl-remove-if (lambda (line)
+  ;;                                            (or (string-match-p regexp line)
+  ;;                                                (string-match-p "^\\s-*$" line))) 
+  ;;                                          lines)))
 
-    (if (equal (length lines) (length filtered-lines))
-        output
-      (mapconcat 'identity filtered-lines "\n"))))
+  ;;       (if (equal (length lines) (length filtered-lines))
+  ;;           output
+  ;;         (mapconcat 'identity filtered-lines "\n"))))
+  ;; (defun my-comint-filter (output)
+  ;;   (let ((regexp "#.*[\\]n\\(\\w+.*\\)\","))
+  ;;     (when (string-match regexp output)
+  ;;       (message (match-string 1 output)))))
+  
+  (defun dn/python-comint-filter (output)
+      "Filter out '__PYTHON_EL_' when sending region to inferior Python shell.
+
+Alternative regex string for simpler replacement: '__PYTHON_EL_eval(\".*?[\\]n\\(\\w+.*\\)\"\,.*" "\\1\n'"
+    (let ((clean-output (replace-regexp-in-string "__PYTHON_EL_eval(\".*?[\\]n\\(\\w+.*\\)\"\,.*" "In:\n\\1\nOut:" output)))
+      (replace-regexp-in-string "\\\\." #'dn/python-comint-replace-escape clean-output)))
+
+  (defun dn/python-comint-replace-escape (match)
+    (let ((char (substring match 1)))
+      (pcase char
+        ("n" "\n")
+        ("r" "\r")
+        ("t" "\t")
+        ("b" "\b")
+        ("f" "\f")
+        ("\"" "\"")
+        ("'" "'")
+        ("\\" "\\"))))
   :hook
-  (comint-preoutput-filter-functions . python-comint-filter)
+  (comint-preoutput-filter-functions . dn/python-comint-filter)
   :custom
   (python-indent-guess-indent-offset-verbose nil)
   (python-shell-completion-native-enable nil))
@@ -2486,14 +2533,6 @@ I use =pyvenv= to in compination with =pet= to quickly switch to the correct env
   (numpydoc-template-long nil)
   :bind (:map python-ts-mode-map
               ("C-c C-n" . numpydoc-generate)))
-#+end_src
-
-*** Elpy
-
-#+begin_src emacs-lisp
-(use-package elpy
-  :defer t
-  :commands (elpy-shell-send-region-or-buffer-and-step))
 #+end_src
 
 *** Ruff and ruff-lsp
@@ -2798,184 +2837,256 @@ Relevant links:
 ** Quarto
 
 #+begin_src emacs-lisp
-(use-package quarto-mode
+(use-package quarto
+  :elpaca (:local-repo "~/repos/quarto-el/")
+  ;; :defer t
+  :bind
+  (:map dn/prog-map
+        ("o" . quarto-code-block-hydra/body))
   :init
-  (defvar dn/quarto-preview-url nil
-    "URL of the quarto preview server.")
+  ;;   (defun quarto-eval-block ()
+  ;;     "Evaluate current code block.
 
-  ;; (defun dn/quarto-get-port ()
-  ;;   "Get the port most recently used to succesfully start a Quarto preview server."
-  ;;   (with-current-buffer (process-buffer (get-process "quarto-preview"))
-  ;;     (goto-char (point-max))
-  ;;     (search-backward-regexp "\\(Browse at.*\\)\\(localhost:\\)\\([0-9]\\{4\\}\\)" nil nil)
-  ;;     (setq dn/quarto-preview-port (match-string 3))))
-  
-  ;; (defun dn/quarto-preview ()
-  ;;   "Start quarto preview process via shell command."
-  ;;   (interactive)
-  ;;   ;; (setq dn/quarto-preview-port (number-to-string (+ 3000 (random 5000))))
-  ;;   (let ((shell-command-switch "-ic"))
-  ;;     (start-process-shell-command
-  ;;      "quarto-preview"
-  ;;      "*quarto-preview*"
-  ;;      (concat "quarto preview " buffer-file-name " --no-browser"))
-  ;;     )
-  ;;   (with-current-buffer (process-buffer (get-process "quarto-preview"))
-  ;;     (display-buffer (current-buffer))))
+  ;; If cursor is not in a code block, evaluate the previous code block."
+  ;;     (interactive)
+  ;;     (let* ((current (save-excursion (point)))
+  ;;            (beg (save-excursion
+  ;;                   (search-backward-regexp "^```{.*}" nil t)
+  ;;                   (forward-line)
+  ;;                   (point)))
+  ;;            (end (save-excursion
+  ;;                   (goto-char beg)
+  ;;                   (search-forward-regexp "```$" nil t)
+  ;;                   (previous-line)(end-of-line)
+  ;;                   (point))))
+  ;;       ;; Don't send to Python shell if the block is empty.
+  ;;       (unless (eq beg end)
+  ;;         (push-mark beg)
+  ;;         (goto-char end)
+  ;;         (activate-mark)
+  ;;         (elpy-shell-send-region-or-buffer-and-step)
+  ;;         (deactivate-mark)
+  ;;         (goto-char current))))
 
-  (defun dn/quarto-preview ()
-    "Start a quarto preview server."
+  (defun quarto-eval-blocks-below ()
+    "Evaluate all blocks below point."
     (interactive)
-    (let* ((shell-command-switch "-ic")
-           (process (dn/quarto-preview--start-process)))
-      (set-process-filter process #'dn/quarto--output-filter)
-      (set-process-sentinel process #'dn/quarto--process-sentinel)))
+    (let ((current (save-excursion (point))))
+      (while (progn
+               (quarto-next-code-block)
+               (quarto-eval-block)
+               (search-forward-regexp "^```{.*?}$" nil t)))
+      (goto-char current)))
 
-  (defun dn/quarto-preview--start-process ()
-    "Start the quarto preview process."
-    (message "Starting quarto preview server...")
-    (start-process-shell-command
-     "quarto-preview"
-     "*quarto-preview*"
-     (concat "quarto preview " buffer-file-name " --no-browser")))
-
-  (defun dn/quarto-preview--check-output (output)
-    "Check whether the preview server is ready via Regex."
-    (string-match "\\(Browse at.*\\)\\(https?://.+:[0-9]\\{4\\}\\)" output))
-  
-  (defun dn/quarto--output-filter (process output)
-    "Process filter to check whether the quarto preview server is ready.
-
-Saves the port used for the server in `dn/quarto-preview-port'."
-    (with-current-buffer (process-buffer process)
-      (save-excursion
-        (goto-char (point-max))
-        (insert output))
-      (when (dn/quarto-preview--check-output output)
-        (setq dn/quarto-preview-url (match-string 2 output))
-        (message "Quarto preview server ready!")
-        ;; Remove the xwidget filter if it was added in different functions.
-        (advice-remove 'dn/quarto--output-filter #'dn/quarto--open-preview-xwidget-filter))))
-  
-  (defun dn/quarto--process-sentinel (process event)
-    "Process sentinel to handle Quarto server events.
-
-Unsets `dn/quarto-preview-url'."
-    (when (memq (process-status process) '(exit signal))
-      (setq dn/quarto-preview-url nil)
-      (message "Quarto preview process killed.")))
-  
-  (defun dn/quarto--open-preview-xwidget-filter (process output)
-    "Process filter to open the preview file in xwidget if the server is ready."
-    (when (dn/quarto-preview--check-output output)
-      (let ((previous-buffer (buffer-name)))
-        (xwidget-webkit-browse-url dn/quarto-preview-url)
-        (switch-to-buffer-other-window previous-buffer))))
-
-  (defun dn/quarto-preview-xwidget ()
-    "Open the preview file with xwidget-webkit."
+  (defun quarto-eval-all-blocks ()
+    "Evaluate all blocks in notebook."
     (interactive)
-    (advice-add 'dn/quarto--output-filter :after #'dn/quarto--open-preview-xwidget-filter)
-    (dn/quarto-preview))
+    (let ((current (save-excursion (point))))
+      (goto-char (point-min))
+      (quarto-eval-blocks-below)
+      (goto-char current)))
   
-  ;; (defun dn/quarto-preview-xwidget ()
-  ;;   "Open the preview file with xwidget-webkit."
-  ;;   (interactive)
-  ;;   (if (get-process "quarto-preview")
-  ;;       (let ((previous-buffer (buffer-name))
-  ;;             (port (with-current-buffer (process-buffer (get-process "quarto-preview"))
-  ;;                     (goto-char (point-max))
-  ;;                     (search-backward-regexp "\\(Browse at.*\\)\\(localhost:\\)\\([0-9]\\{4\\}\\)" nil nil)
-  ;;                     (match-string 3))))
-  ;;         (xwidget-webkit-browse-url (concat "http://localhost:" dn/quarto-preview-port))
-  ;;         (switch-to-buffer-other-window previous-buffer))
-  ;;     (message "No preview server running! Run M-x dn/quarto-preview first.")))
+  (defhydra quarto-code-block-hydra ()
+    "Code blocks"
+    ("n" quarto-next-code-block "Next block")
+    ("p" quarto-previous-code-block "Previous block")
+    ("e" polymode-eval-chunk "Evaluate block")
+    ("E" (lambda() (interactive) (quarto-eval-block) (quarto-next-code-block)) "Eval and next")
+    ("a" quarto-eval-blocks-below "Eval blocks below")
+    ("A" quarto-eval-all-blocks "Eval notebook"))
   
   (defun poly-python-eval-region (beg end msg)
     (python-shell-send-region beg end nil msg t))
   
   (defun poly-python-mode-setup ()
     (setq-local polymode-eval-region-function #'poly-python-eval-region))
-  
-  (defun dn/quarto-insert-python-code-blocks (count)
-    "Inserts `count` number of Python code blocks starting from the line below the cursor."
-    (interactive "nEnter the number of Python code blocks to insert: ")
-    (save-excursion
-      (forward-line)  ; Move to the line below the cursor
-      (dotimes (_ count)
-        (insert "```{python}\n\n```\n\n")
-        (forward-line 3)))
-    (forward-line))
-  
-  (defun dn/quarto-next-block ()
-    "Move the cursor to the beginning of the line under the next code block."
-    (interactive)
-    (goto-char (line-beginning-position))
-    (search-forward-regexp "^```{.*}$" nil t)
-    (forward-line))
-
-  (defun dn/quarto-previous-block ()
-    "Move the cursor to the beginning of the line under the next code block."
-    (interactive)
-    (search-backward-regexp "^```$" nil t)
-    (previous-line)
-    (search-backward "```{" nil t)
-    (forward-line))
-
-  (defun dn/quarto-eval-block ()
-    "Evaluate current code block.
-
-If cursor is not in a code block, evaluate the previous code block."
-    (interactive)
-    (let* ((current (save-excursion (point)))
-           (beg (save-excursion
-                  (search-backward-regexp "^```{.*}" nil t)
-                  (forward-line)
-                  (point)))
-           (end (save-excursion
-                  (goto-char beg)
-                  (search-forward-regexp "```$" nil t)
-                  (previous-line)(end-of-line)
-                  (point))))
-      ;; Don't send to Python shell if the block is empty.
-      (unless (eq beg end)
-        (push-mark beg)
-        (goto-char end)
-        (activate-mark)
-        (elpy-shell-send-region-or-buffer-and-step)
-        (deactivate-mark)
-        (goto-char current))))
-
-  (defun dn/quarto-eval-blocks-below ()
-    "Evaluate all blocks below point."
-    (interactive)
-    (let ((current (save-excursion (point))))
-      (while (progn
-               (dn/quarto-next-block)
-               (dn/quarto-eval-block)
-               (search-forward-regexp "^```{.*?}$" nil t)))
-      (goto-char current)))
-
-  (defun dn/quarto-eval-all-blocks ()
-    "Evaluate all blocks in notebook."
-    (interactive)
-    (let ((current (save-excursion (point))))
-      (goto-char (point-min))
-      (dn/quarto-eval-blocks-below)
-      (goto-char current)))
-  
-  (defhydra dn/quarto-block-hydra ()
-    "Code blocks"
-    ("n" dn/quarto-next-block "Next block")
-    ("p" dn/quarto-previous-block "Previous block")
-    ("e" dn/quarto-eval-block "Evaluate block")
-    ("E" (lambda() (interactive) (dn/quarto-eval-block) (dn/quarto-next-block)) "Eval and next")
-    ("a" dn/quarto-eval-blocks-below "Eval blocks below")
-    ("A" dn/quarto-eval-all-blocks "Eval notebook"))
+  :config
+  ;; Needed to make lsp work after adding additional code cells
+  (add-to-list 'polymode-run-these-after-change-functions-in-other-buffers 'eglot--after-change)
+  (add-to-list 'polymode-run-these-before-change-functions-in-other-buffers 'eglot--before-change)
   :hook
-  (python-base-mode-hook . poly-python-mode-setup)
-  :bind (:map dn/prog-map
-              ("o" . dn/quarto-block-hydra/body)))
+  (python-base-mode-hook . poly-python-mode-setup))
+#+end_src
+
+#+begin_src emacs-lisp
+;; (use-package quarto-mode
+;;   :init
+;;   (defvar dn/quarto-preview-url nil
+;;     "URL of the quarto preview server.")
+
+;;   ;; (defun dn/quarto-get-port ()
+;;   ;;   "Get the port most recently used to succesfully start a Quarto preview server."
+;;   ;;   (with-current-buffer (process-buffer (get-process "quarto-preview"))
+;;   ;;     (goto-char (point-max))
+;;   ;;     (search-backward-regexp "\\(Browse at.*\\)\\(localhost:\\)\\([0-9]\\{4\\}\\)" nil nil)
+;;   ;;     (setq dn/quarto-preview-port (match-string 3))))
+  
+;;   ;; (defun dn/quarto-preview ()
+;;   ;;   "Start quarto preview process via shell command."
+;;   ;;   (interactive)
+;;   ;;   ;; (setq dn/quarto-preview-port (number-to-string (+ 3000 (random 5000))))
+;;   ;;   (let ((shell-command-switch "-ic"))
+;;   ;;     (start-process-shell-command
+;;   ;;      "quarto-preview"
+;;   ;;      "*quarto-preview*"
+;;   ;;      (concat "quarto preview " buffer-file-name " --no-browser"))
+;;   ;;     )
+;;   ;;   (with-current-buffer (process-buffer (get-process "quarto-preview"))
+;;   ;;     (display-buffer (current-buffer))))
+
+;;   (defun dn/quarto-preview ()
+;;     "Start a quarto preview server."
+;;     (interactive)
+;;     (let* ((shell-command-switch "-ic")
+;;            (process (dn/quarto-preview--start-process)))
+;;       (set-process-filter process #'dn/quarto--output-filter)
+;;       (set-process-sentinel process #'dn/quarto--process-sentinel)))
+
+;;   (defun dn/quarto-preview--start-process ()
+;;     "Start the quarto preview process."
+;;     (message "Starting quarto preview server...")
+;;     (start-process-shell-command
+;;      "quarto-preview"
+;;      "*quarto-preview*"
+;;      (concat "quarto preview " buffer-file-name " --no-browser")))
+
+;;   (defun dn/quarto-preview--check-output (output)
+;;     "Check whether the preview server is ready via Regex."
+;;     (string-match "\\(Browse at.*\\)\\(https?://.+:[0-9]\\{4\\}\\)" output))
+  
+;;   (defun dn/quarto--output-filter (process output)
+;;     "Process filter to check whether the quarto preview server is ready.
+
+;; Saves the port used for the server in `dn/quarto-preview-port'."
+;;     (with-current-buffer (process-buffer process)
+;;       (save-excursion
+;;         (goto-char (point-max))
+;;         (insert output))
+;;       (when (dn/quarto-preview--check-output output)
+;;         (setq dn/quarto-preview-url (match-string 2 output))
+;;         (message "Quarto preview server ready!")
+;;         ;; Remove the xwidget filter if it was added in different functions.
+;;         (advice-remove 'dn/quarto--output-filter #'dn/quarto--open-preview-xwidget-filter))))
+  
+;;   (defun dn/quarto--process-sentinel (process event)
+;;     "Process sentinel to handle Quarto server events.
+
+;; Unsets `dn/quarto-preview-url'."
+;;     (when (memq (process-status process) '(exit signal))
+;;       (setq dn/quarto-preview-url nil)
+;;       (message "Quarto preview process killed.")))
+  
+;;   (defun dn/quarto--open-preview-xwidget-filter (process output)
+;;     "Process filter to open the preview file in xwidget if the server is ready."
+;;     (when (dn/quarto-preview--check-output output)
+;;       (let ((previous-buffer (buffer-name)))
+;;         (xwidget-webkit-browse-url dn/quarto-preview-url)
+;;         (switch-to-buffer-other-window previous-buffer))))
+
+;;   (defun dn/quarto-preview-xwidget ()
+;;     "Open the preview file with xwidget-webkit."
+;;     (interactive)
+;;     (advice-add 'dn/quarto--output-filter :after #'dn/quarto--open-preview-xwidget-filter)
+;;     (dn/quarto-preview))
+  
+;;   ;; (defun dn/quarto-preview-xwidget ()
+;;   ;;   "Open the preview file with xwidget-webkit."
+;;   ;;   (interactive)
+;;   ;;   (if (get-process "quarto-preview")
+;;   ;;       (let ((previous-buffer (buffer-name))
+;;   ;;             (port (with-current-buffer (process-buffer (get-process "quarto-preview"))
+;;   ;;                     (goto-char (point-max))
+;;   ;;                     (search-backward-regexp "\\(Browse at.*\\)\\(localhost:\\)\\([0-9]\\{4\\}\\)" nil nil)
+;;   ;;                     (match-string 3))))
+;;   ;;         (xwidget-webkit-browse-url (concat "http://localhost:" dn/quarto-preview-port))
+;;   ;;         (switch-to-buffer-other-window previous-buffer))
+;;   ;;     (message "No preview server running! Run M-x dn/quarto-preview first.")))
+  
+;;   (defun poly-python-eval-region (beg end msg)
+;;     (python-shell-send-region beg end nil msg t))
+  
+;;   (defun poly-python-mode-setup ()
+;;     (setq-local polymode-eval-region-function #'poly-python-eval-region))
+  
+;;   (defun dn/quarto-insert-python-code-blocks (count)
+;;     "Inserts `count` number of Python code blocks starting from the line below the cursor."
+;;     (interactive "nEnter the number of Python code blocks to insert: ")
+;;     (save-excursion
+;;       (forward-line)  ; Move to the line below the cursor
+;;       (dotimes (_ count)
+;;         (insert "```{python}\n\n```\n\n")
+;;         (forward-line 3)))
+;;     (forward-line))
+  
+;;   (defun dn/quarto-next-block ()
+;;     "Move the cursor to the beginning of the line under the next code block."
+;;     (interactive)
+;;     (goto-char (line-beginning-position))
+;;     (search-forward-regexp "^```{.*}$" nil t)
+;;     (forward-line))
+
+;;   (defun dn/quarto-previous-block ()
+;;     "Move the cursor to the beginning of the line under the next code block."
+;;     (interactive)
+;;     (search-backward-regexp "^```$" nil t)
+;;     (previous-line)
+;;     (search-backward "```{" nil t)
+;;     (forward-line))
+
+;;   (defun dn/quarto-eval-block ()
+;;     "Evaluate current code block.
+
+;; If cursor is not in a code block, evaluate the previous code block."
+;;     (interactive)
+;;     (let* ((current (save-excursion (point)))
+;;            (beg (save-excursion
+;;                   (search-backward-regexp "^```{.*}" nil t)
+;;                   (forward-line)
+;;                   (point)))
+;;            (end (save-excursion
+;;                   (goto-char beg)
+;;                   (search-forward-regexp "```$" nil t)
+;;                   (previous-line)(end-of-line)
+;;                   (point))))
+;;       ;; Don't send to Python shell if the block is empty.
+;;       (unless (eq beg end)
+;;         (push-mark beg)
+;;         (goto-char end)
+;;         (activate-mark)
+;;         (elpy-shell-send-region-or-buffer-and-step)
+;;         (deactivate-mark)
+;;         (goto-char current))))
+
+;;   (defun dn/quarto-eval-blocks-below ()
+;;     "Evaluate all blocks below point."
+;;     (interactive)
+;;     (let ((current (save-excursion (point))))
+;;       (while (progn
+;;                (dn/quarto-next-block)
+;;                (dn/quarto-eval-block)
+;;                (search-forward-regexp "^```{.*?}$" nil t)))
+;;       (goto-char current)))
+
+;;   (defun dn/quarto-eval-all-blocks ()
+;;     "Evaluate all blocks in notebook."
+;;     (interactive)
+;;     (let ((current (save-excursion (point))))
+;;       (goto-char (point-min))
+;;       (dn/quarto-eval-blocks-below)
+;;       (goto-char current)))
+  
+;;   (defhydra dn/quarto-block-hydra ()
+;;     "Code blocks"
+;;     ("n" dn/quarto-next-block "Next block")
+;;     ("p" dn/quarto-previous-block "Previous block")
+;;     ("e" dn/quarto-eval-block "Evaluate block")
+;;     ("E" (lambda() (interactive) (dn/quarto-eval-block) (dn/quarto-next-block)) "Eval and next")
+;;     ("a" dn/quarto-eval-blocks-below "Eval blocks below")
+;;     ("A" dn/quarto-eval-all-blocks "Eval notebook"))
+;;   :hook
+;;   (python-base-mode-hook . poly-python-mode-setup)
+;;   :bind (:map dn/prog-map
+;;               ("o" . dn/quarto-block-hydra/body)))
 #+end_src
 
 ** AutoHotKey

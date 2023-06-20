@@ -2838,8 +2838,8 @@ Relevant links:
 
 #+begin_src emacs-lisp
 (use-package quarto
-  :elpaca (:local-repo "~/repos/quarto-el/")
-  ;; :defer t
+  :elpaca (:host github :repo "fast-90/quarto.el")
+  :defer t
   :bind
   (:map dn/prog-map
         ("o" . quarto-code-block-hydra/body))

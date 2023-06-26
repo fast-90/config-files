@@ -2305,6 +2305,19 @@ If you built Emacs from source, you should check whether tree-sitter is availabl
   (setq tempel-trigger-prefix "<"))
 #+end_src
 
+*** TemPEL templates
+
+#+begin_src emacs-lisp :tangle (expand-file-name "templates" user-emacs-directory)
+python-base-mode
+
+(ign "# type: ignore" q)
+(br "breakpoint()" q)
+
+markdown-mode
+
+(py "```{python}" n q n "```")
+#+end_src
+
 ** Python
 
 #+begin_src emacs-lisp

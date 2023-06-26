@@ -597,7 +597,7 @@ brew install coreutils
      '("O" . meow-to-block)
      '("p" . meow-yank)
      '("q" . meow-quit)
-     '("Q" . meow-indent)
+     '("Q" . meow-goto-line)
      '("r" . meow-replace)
      '("R" . undo-redo)
      '("s" . meow-kill)
@@ -609,11 +609,12 @@ brew install coreutils
      '("w" . meow-mark-word)
      '("W" . meow-mark-symbol)
      '("x" . meow-line)
-     '("X" . meow-goto-line)
+     '("X" . avy-goto-line)
      '("y" . meow-save)
      '("Y" . meow-sync-grab)
      '("z" . meow-pop-selection)
      '("'" . repeat)
+     '("=" . meow-indent)
      '("<escape>" . ignore)))
   (meow-thing-register 'quote
                        '(regexp "\"" "\"")
@@ -1176,6 +1177,7 @@ Enabling icons in Corfu:
   (setq consult-locate-args "locate")
   (setq xref-show-xrefs-function #'consult-xref)
   (setq xref-show-definitions-function #'consult-xref)
+  (setq meow-goto-line-function 'consult-goto-line)
   (defun dn/consult-outline ()
     "Use consult-org-heading if in org-mode, otherwise use consult-outline."
     (interactive)
@@ -1291,7 +1293,6 @@ Package to easily navigate cursor within buffers. Using this over evil-easymotio
 (use-package avy
   :defer t
   :init
-  (setq meow-goto-line-function 'avy-goto-line)
   (meow-normal-define-key
    '(":" . (lambda () (interactive) (avy-goto-char-timer)))))
 #+end_src
@@ -2212,6 +2213,7 @@ Current the function below is unused as we are using ~vterm-toggle~ with ~vterm-
         ("d" . xref-find-definitions)
         ("r" . xref-find-references)
         ("c" . eglot-code-actions)
+        ("i" . eglot-code-action-organize-imports)
         ("R" . eglot-rename))
   :hook
   (python-base-mode-hook . dn/pylsp-default-eglot-workspace-configuration)

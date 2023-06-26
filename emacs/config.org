@@ -2259,11 +2259,14 @@ If you built Emacs from source, you should check whether tree-sitter is availabl
   :elpaca nil
   :init
   (setq treesit-language-source-alist
-        '((python . ("git@github.com:tree-sitter/tree-sitter-python.git"))))
+        '((python . ("git@github.com:tree-sitter/tree-sitter-python.git"))
+          (yaml .("git@github.com:ikatyang/tree-sitter-yaml.git"))))
   :config
   (when (and (treesit-available-p) (executable-find "tree-sitter"))
     ;; (treesit-install-language-grammar 'python)
-    (add-to-list 'major-mode-remap-alist '(python-mode . python-ts-mode))))
+    ;; (treesit-install-language-grammar 'yaml)
+    (add-to-list 'major-mode-remap-alist '(python-mode . python-ts-mode))
+    (add-to-list 'major-mode-remap-alist '(yaml-mode . yaml-ts-mode))))
 #+end_src
 
 ** Combobulate
@@ -2838,6 +2841,12 @@ Using ~ox-ipynb~ to convert =.org= files to =.ipynb= files. The built in functio
   (add-to-list 'polymode-run-these-before-change-functions-in-other-buffers 'eglot--before-change)
   :hook
   (python-base-mode-hook . poly-python-mode-setup))
+#+end_src
+
+** YAML mode
+
+#+begin_src emacs-lisp
+(use-package yaml-mode)
 #+end_src
 
 ** AutoHotKey

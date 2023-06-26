@@ -763,6 +763,9 @@ Other good themes:
           ,@modus-themes-preset-overrides-intense))
   (load-theme 'modus-vivendi t)
   (load-theme 'modus-operandi t t)
+  (modus-themes-with-colors
+      (custom-set-faces
+       `(fill-column-indicator ((,c :background ,bg-dim)))))
   (set-face-attribute 'tab-bar nil :font (font-spec :family "IBM Plex Mono" :size dn/default-font-size)))  ; Loading modus theme resets tab-bar font, so we need to set it (again)
 
 (elpaca-wait)
@@ -2367,8 +2370,13 @@ Alternative regex string for simpler replacement: '__PYTHON_EL_eval(\".*?[\\]n\\
         ("\"" "\"")
         ("'" "'")
         ("\\" "\\"))))
+
+  (defun dn/python-hook ()
+    (setq-local fill-column 79)
+    (display-fill-column-indicator-mode))
   :hook
   (comint-preoutput-filter-functions . dn/python-comint-filter)
+  (python-base-mode-hook . dn/python-hook)
   :custom
   (python-indent-guess-indent-offset-verbose nil)
   (python-shell-completion-native-enable nil))

@@ -445,6 +445,7 @@ Don't maximise window on WSL (it doesn't work well as the X server does not reco
     (dired-kill-when-opening-new-dired-buffer t)
     :init
     (setq dired-omit-files "^[.#].+[^.\n]$")
+    (setq dired-dwim-target t)
     (when dn/is-macos
       (setq dired-use-ls-dired t
             insert-directory-program "/usr/local/bin/gls")))

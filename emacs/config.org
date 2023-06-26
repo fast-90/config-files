@@ -2471,12 +2471,11 @@ Alternatives include [[https://github.com/jorgenschaefer/pyvenv][pyvenv.el]], [[
   :init
   (defun dn/python-pet-hook ()
     "Activate pet mode, and set the local variables to identify the correct executables."
-    (pet-mode)
     (setq-local pyvenv-activate (pet-virtualenv-root))
     (setq-local python-shell-interpreter (pet-executable-find "python"))
     (setq-local python-shell-interpreter-args "-i")
     (when-let ((black-executable (pet-executable-find "black")))
-      (setq-local python-black-command black-executable))))
+      (setq-local blacken-executable black-executable))))
 #+end_src
 
 *** Pyvenv

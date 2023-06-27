@@ -2950,7 +2950,11 @@ Using ~ox-ipynb~ to convert =.org= files to =.ipynb= files. The built in functio
   (setq erc-kill-buffer-on-part t)
   (setq erc-autojoin-timing 'ident)
   (setq erc-fill-function 'erc-fill-static)
-  (setq erc-fill-static-center 20))
+  (setq erc-fill-static-center 20)
+  (setq erc-fill-column 100)
+  (setq erc-track-shorten-start 10)
+  (add-to-list 'global-mode-string '("  " erc-modified-channels-object nil))
+  (setq erc-track-exclude-server-buffer t))
 #+end_src
 
 #+begin_src emacs-lisp

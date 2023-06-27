@@ -507,6 +507,24 @@ brew install coreutils
   (find-file "~/repos/mail-config/mail-config.org"))
 #+end_src
 
+#+begin_src emacs-lisp
+(when dn/is-wsl
+  (defun dn/move-to-onedrive (directory)
+    "Move file to a specified OneDrive folder."
+    (interactive (list (read-directory-name "Select destination:"
+                                            "~/onedrive/Documents/wsl-transfer/")))
+    (let* ((old-path (if (eq major-mode 'dired-mode)
+                         (dired-get-filename)
+                       buffer-file-name))
+           (new-path (expand-file-name (file-name-nondirectory old-path) directory)))
+      (if (file-exists-p new-path)
+          (when (yes-or-no-p "Overwrite existing file?")
+            (rename-file old-path new-path t))
+        (rename-file old-path new-path)))
+    (if (eq major-mode 'dired-mode)
+        (revert-buffer)
+      (kill-this-buffer))))
+#+end_src
 ** wgrep
 
 #+begin_src emacs-lisp

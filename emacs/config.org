@@ -2178,7 +2178,7 @@ export BROWSER='eval "/mnt/c/Program Files/Google/Chrome/Application/chrome.exe"
                                   (project-find-dir "Find dir" "d")
                                   (project-dired "Dired" "D")
                                   (consult-ripgrep "ripgrep" "g")
-                                  (magit-status "Magit" "m"))))
+                                  (magit-project-status "Magit" "m"))))
 #+end_src
 
 *** Start vterm in project root

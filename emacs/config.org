@@ -2944,8 +2944,10 @@ Using ~ox-ipynb~ to convert =.org= files to =.ipynb= files. The built in functio
 (use-package erc
   :elpaca nil
   :init
-  (setq erc-server "irc.libera.chat")
-  (setq erc-nick "fast90")
+  (setq erc-server (cond (dn/is-macos "irc.libera.chat")
+                         (dn/is-wsl "localhost")))
+  (setq erc-nick (cond (dn/is-macos "fast90")
+                         (dn/is-wsl "Duy")))
   (setq erc-autojoin-channels-alist '(("irc.libera.chat" "#systemcrafters" "#emacs" "#org-mode")))
   (setq erc-kill-buffer-on-part t)
   (setq erc-autojoin-timing 'ident)

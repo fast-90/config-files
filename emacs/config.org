@@ -783,7 +783,7 @@ Other good themes:
   (load-theme 'modus-operandi t t)
   (modus-themes-with-colors
       (custom-set-faces
-       `(fill-column-indicator ((,c :background ,bg-dim)))))
+       `(fill-column-indicator ((,c :foreground ,bg-dim :background ,bg-dim :height 0.1)))))
   (set-face-attribute 'tab-bar nil :font (font-spec :family "IBM Plex Mono" :size dn/default-font-size)))  ; Loading modus theme resets tab-bar font, so we need to set it (again)
 
 (elpaca-wait)

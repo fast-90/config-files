@@ -2731,6 +2731,8 @@ import pandas
                                                        (:kernel . "python3")))
   (add-hook 'org-babel-after-execute-hook 'org-display-inline-images 'append)
   (org-babel-jupyter-override-src-block "python")
+  ;; To ensure python src blocks are opened in python-ts-mode
+  (setf (alist-get "python" org-src-lang-modes nil nil #'equal) 'python-ts)
   (defun dn/jupyter-org-insert-src-block-below ()
     (interactive)
     (let ((current-prefix-arg '(4))) (call-interactively 'jupyter-org-insert-src-block)))

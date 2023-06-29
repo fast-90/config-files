@@ -2295,9 +2295,8 @@ If you built Emacs from source, you should check whether tree-sitter is availabl
 #+begin_src emacs-lisp
 (use-package combobulate
   :elpaca (combobulate :type git :host github :repo "mickeynp/combobulate")
-  :hook
-  ((python-base-mode-hook . combobulate-mode))
   :init
+  (add-hook 'python-base-mode-hook (lambda ()(when buffer-file-name (combobulate-mode))))
   (setq combobulate-key-prefix "C-c q")
   (defvar-keymap combobulate-repeat-map
     :repeat t
@@ -2517,11 +2516,12 @@ Alternatives include [[https://github.com/jorgenschaefer/pyvenv][pyvenv.el]], [[
   :init
   (defun dn/python-pet-hook ()
     "Activate pet mode, and set the local variables to identify the correct executables."
-    (setq-local pyvenv-activate (pet-virtualenv-root))
-    (setq-local python-shell-interpreter (pet-executable-find "python"))
-    (setq-local python-shell-interpreter-args "-i")
-    (when-let ((black-executable (pet-executable-find "black")))
-      (setq-local blacken-executable black-executable))))
+    (when buffer-file-name
+      (setq-local pyvenv-activate (pet-virtualenv-root))
+      (setq-local python-shell-interpreter (pet-executable-find "python"))
+      (setq-local python-shell-interpreter-args "-i")
+      (when-let ((black-executable (pet-executable-find "black")))
+        (setq-local blacken-executable black-executable)))))
 #+end_src
 
 *** Pyvenv

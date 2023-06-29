@@ -1107,6 +1107,8 @@ I also enabled directory tracking and named vterm buffer, see also here how to s
 (use-package vertico-directory
   :elpaca nil
   :after vertico
+  :hook
+  (rfn-eshadow-update-overlay-hook . vertico-directory-tidy)
   ;; More convenient directory navigation commands
   :bind (:map vertico-map
               ("RET" . vertico-directory-enter)

@@ -783,7 +783,7 @@ Other good themes:
   (load-theme 'modus-operandi t t)
   (modus-themes-with-colors
       (custom-set-faces
-       `(fill-column-indicator ((,c :background ,bg-dim)))))
+       `(fill-column-indicator ((,c :foreground ,bg-dim :background ,bg-dim :height 0.1)))))
   (set-face-attribute 'tab-bar nil :font (font-spec :family "IBM Plex Mono" :size dn/default-font-size)))  ; Loading modus theme resets tab-bar font, so we need to set it (again)
 
 (elpaca-wait)
@@ -2297,9 +2297,8 @@ If you built Emacs from source, you should check whether tree-sitter is availabl
 #+begin_src emacs-lisp
 (use-package combobulate
   :elpaca (combobulate :type git :host github :repo "mickeynp/combobulate")
-  :hook
-  ((python-base-mode-hook . combobulate-mode))
   :init
+  (add-hook 'python-base-mode-hook (lambda ()(when buffer-file-name (combobulate-mode))))
   (setq combobulate-key-prefix "C-c q")
   (defvar-keymap combobulate-repeat-map
     :repeat t
@@ -2519,11 +2518,12 @@ Alternatives include [[https://github.com/jorgenschaefer/pyvenv][pyvenv.el]], [[
   :init
   (defun dn/python-pet-hook ()
     "Activate pet mode, and set the local variables to identify the correct executables."
-    (setq-local pyvenv-activate (pet-virtualenv-root))
-    (setq-local python-shell-interpreter (pet-executable-find "python"))
-    (setq-local python-shell-interpreter-args "-i")
-    (when-let ((black-executable (pet-executable-find "black")))
-      (setq-local blacken-executable black-executable))))
+    (when buffer-file-name
+      (setq-local pyvenv-activate (pet-virtualenv-root))
+      (setq-local python-shell-interpreter (pet-executable-find "python"))
+      (setq-local python-shell-interpreter-args "-i")
+      (when-let ((black-executable (pet-executable-find "black")))
+        (setq-local blacken-executable black-executable)))))
 #+end_src
 
 *** Pyvenv
@@ -2733,6 +2733,8 @@ import pandas
                                                        (:kernel . "python3")))
   (add-hook 'org-babel-after-execute-hook 'org-display-inline-images 'append)
   (org-babel-jupyter-override-src-block "python")
+  ;; To ensure python src blocks are opened in python-ts-mode
+  (setf (alist-get "python" org-src-lang-modes nil nil #'equal) 'python-ts)
   (defun dn/jupyter-org-insert-src-block-below ()
     (interactive)
     (let ((current-prefix-arg '(4))) (call-interactively 'jupyter-org-insert-src-block)))

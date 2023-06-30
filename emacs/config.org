@@ -1273,7 +1273,7 @@ Enabling icons in Corfu:
   (embark-collect-mode . consult-preview-at-point-mode))
 #+end_src
 
-** TODO Completions at point extensions (CAPE)
+** Completions at point extensions (CAPE)
 
 Idea: use C-p or M-p as the prefix key.
 

@@ -2960,8 +2960,8 @@ Using ~ox-ipynb~ to convert =.org= files to =.ipynb= files. The built in functio
   (setq erc-fill-static-center 20)
   (setq erc-fill-column 100)
   (setq erc-track-shorten-start 10)
-  (setq erc-track-exclude-types '("JOIN" "NICK" "QUIT" "MODE" "AWAY"))
-  (setq erc-hide-list '("JOIN" "NICK" "QUIT" "MODE" "AWAY"))
+  (setq erc-track-exclude-types '("JOIN" "NICK" "QUIT" "MODE" "AWAY" "PART"))
+  (setq erc-hide-list '("JOIN" "NICK" "QUIT" "MODE" "AWAY" "PART"))
   (add-to-list 'global-mode-string '("  " erc-modified-channels-object nil))
   (setq erc-track-exclude-server-buffer t))
 #+end_src

@@ -1200,6 +1200,9 @@ Enabling icons in Corfu:
   (setq xref-show-xrefs-function #'consult-xref)
   (setq xref-show-definitions-function #'consult-xref)
   (setq meow-goto-line-function 'consult-goto-line)
+  (meow-normal-define-key
+   '("M" . consult-register-store)
+   '("@" . consult-register))
   (defun dn/consult-outline ()
     "Use consult-org-heading if in org-mode, otherwise use consult-outline."
     (interactive)

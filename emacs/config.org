@@ -1277,6 +1277,14 @@ Enabling icons in Corfu:
 
 Idea: use C-p or M-p as the prefix key.
 
+#+begin_src emacs-lisp
+(use-package cape
+  :bind (("C-c i i" . completion-at-point) ;; capf
+         ("C-c i d" . cape-dabbrev)        ;; or dabbrev-completion
+         ("C-c i f" . cape-file))
+  :init
+  (add-to-list 'completion-at-point-functions #'cape-file))
+#+end_src
 
 * Windows and movement
 
@@ -2223,12 +2231,10 @@ Current the function below is unused as we are using ~vterm-toggle~ with ~vterm-
 
 ** LSP
 
-*** eglot
-
 #+begin_src emacs-lisp
 (use-package eglot
   :defer t
-  :after consult
+  :after (consult cape)
   :bind
   (:map dn/prog-map
         ("d" . xref-find-definitions)
@@ -2240,6 +2246,9 @@ Current the function below is unused as we are using ~vterm-toggle~ with ~vterm-
   (python-base-mode-hook . dn/pylsp-default-eglot-workspace-configuration)
   (python-base-mode-hook . eglot-ensure)
   :init
+  ;; Always refresh completion table from LSP
+  ;; Note: this is a test, might be slow depending on the LSP server
+  (advice-add 'eglot-completion-at-point :around #'cape-wrap-buster)
   (define-prefix-command 'dn/prog-map)
   (keymap-global-set "C-c l" '("prog" . dn/prog-map))
   (defun dn/pylsp-default-eglot-workspace-configuration()

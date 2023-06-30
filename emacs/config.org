@@ -440,6 +440,9 @@ Don't maximise window on WSL (it doesn't work well as the X server does not reco
     :elpaca nil
     :hook
     (dired-mode-hook . dired-omit-mode)
+    (dired-mode-hook . dired-hide-details-mode)
+    :bind
+    (:map dired-mode-map (")" . dired-omit-mode))
     :custom
     (dired-listing-switches "-agho --group-directories-first")
     (dired-kill-when-opening-new-dired-buffer t)
@@ -453,13 +456,6 @@ Don't maximise window on WSL (it doesn't work well as the X server does not reco
   (use-package all-the-icons-dired
     :after dired
     :hook (dired-mode-hook . all-the-icons-dired-mode))
-
-  ;; (use-package dired-hide-dotfiles
-  ;;   :after dired evil-collection
-  ;;   :hook (dired-mode-hook . dired-hide-dotfiles-mode)
-  ;;   :init
-  ;;   (evil-collection-define-key 'normal 'dired-mode-map
-  ;;     "H" 'dired-hide-dotfiles-mode))
 #+end_src
 
 *** MacOS specific setting for Dired

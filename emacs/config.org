@@ -915,7 +915,7 @@ Currently trying =mood-line= over =doom-modeline= as the latter messes up the ba
 
 #+begin_src emacs-lisp
 (use-package mood-line
-  :elpaca (:host gitlab :repo "trev-dev/mood-line")
+  :elpaca (:host gitlab :repo "qcfu-bu/mood-line")
   :init
   ;; (setq battery-mode-line-format (concat " " (dn/battery-icon) "%b%p% "))
   (setq mode-line-misc-info (remove '(global-mode-string ("" global-mode-string)) mode-line-misc-info))
@@ -2231,10 +2231,12 @@ Current the function below is unused as we are using ~vterm-toggle~ with ~vterm-
 
 ** LSP
 
+*** Eglot
+
 #+begin_src emacs-lisp
 (use-package eglot
   :defer t
-  :after (consult cape)
+  :after consult
   :bind
   (:map dn/prog-map
         ("d" . xref-find-definitions)

@@ -440,6 +440,9 @@ Don't maximise window on WSL (it doesn't work well as the X server does not reco
     :elpaca nil
     :hook
     (dired-mode-hook . dired-omit-mode)
+    (dired-mode-hook . dired-hide-details-mode)
+    :bind
+    (:map dired-mode-map (")" . dired-omit-mode))
     :custom
     (dired-listing-switches "-agho --group-directories-first")
     (dired-kill-when-opening-new-dired-buffer t)
@@ -453,13 +456,6 @@ Don't maximise window on WSL (it doesn't work well as the X server does not reco
   (use-package all-the-icons-dired
     :after dired
     :hook (dired-mode-hook . all-the-icons-dired-mode))
-
-  ;; (use-package dired-hide-dotfiles
-  ;;   :after dired evil-collection
-  ;;   :hook (dired-mode-hook . dired-hide-dotfiles-mode)
-  ;;   :init
-  ;;   (evil-collection-define-key 'normal 'dired-mode-map
-  ;;     "H" 'dired-hide-dotfiles-mode))
 #+end_src
 
 *** MacOS specific setting for Dired
@@ -975,7 +971,7 @@ Currently trying =mood-line= over =doom-modeline= as the latter messes up the ba
 
 #+begin_src emacs-lisp
 (use-package mood-line
-  :elpaca (:host gitlab :repo "trev-dev/mood-line")
+  :elpaca (:host gitlab :repo "qcfu-bu/mood-line")
   :init
   ;; (setq battery-mode-line-format (concat " " (dn/battery-icon) "%b%p% "))
   (setq mode-line-misc-info (remove '(global-mode-string ("" global-mode-string)) mode-line-misc-info))
@@ -1259,6 +1255,9 @@ Enabling icons in Corfu:
   (setq xref-show-xrefs-function #'consult-xref)
   (setq xref-show-definitions-function #'consult-xref)
   (setq meow-goto-line-function 'consult-goto-line)
+  (meow-normal-define-key
+   '("M" . consult-register-store)
+   '("@" . consult-register))
   (defun dn/consult-outline ()
     "Use consult-org-heading if in org-mode, otherwise use consult-outline."
     (interactive)
@@ -1333,10 +1332,18 @@ Enabling icons in Corfu:
   (embark-collect-mode . consult-preview-at-point-mode))
 #+end_src
 
-** TODO Completions at point extensions (CAPE)
+** Completions at point extensions (CAPE)
 
 Idea: use C-p or M-p as the prefix key.
 
+#+begin_src emacs-lisp
+(use-package cape
+  :bind (("C-c i i" . completion-at-point) ;; capf
+         ("C-c i d" . cape-dabbrev)        ;; or dabbrev-completion
+         ("C-c i f" . cape-file))
+  :init
+  (add-to-list 'completion-at-point-functions #'cape-file))
+#+end_src
 
 * Windows and movement
 
@@ -2287,7 +2294,7 @@ Current the function below is unused as we are using ~vterm-toggle~ with ~vterm-
 
 ** LSP
 
-*** eglot
+*** Eglot
 
 #+begin_src emacs-lisp
 (use-package eglot
@@ -2304,6 +2311,9 @@ Current the function below is unused as we are using ~vterm-toggle~ with ~vterm-
   (python-base-mode-hook . dn/pylsp-default-eglot-workspace-configuration)
   (python-base-mode-hook . eglot-ensure)
   :init
+  ;; Always refresh completion table from LSP
+  ;; Note: this is a test, might be slow depending on the LSP server
+  (advice-add 'eglot-completion-at-point :around #'cape-wrap-buster)
   (define-prefix-command 'dn/prog-map)
   (keymap-global-set "C-c l" '("prog" . dn/prog-map))
   (defun dn/pylsp-default-eglot-workspace-configuration()
@@ -3021,8 +3031,8 @@ Using ~ox-ipynb~ to convert =.org= files to =.ipynb= files. The built in functio
   (setq erc-fill-static-center 20)
   (setq erc-fill-column 100)
   (setq erc-track-shorten-start 10)
-  (setq erc-track-exclude-types '("JOIN" "NICK" "QUIT" "MODE" "AWAY"))
-  (setq erc-hide-list '("JOIN" "NICK" "QUIT" "MODE" "AWAY"))
+  (setq erc-track-exclude-types '("JOIN" "NICK" "QUIT" "MODE" "AWAY" "PART"))
+  (setq erc-hide-list '("JOIN" "NICK" "QUIT" "MODE" "AWAY" "PART"))
   (add-to-list 'global-mode-string '("  " erc-modified-channels-object nil))
   (setq erc-track-exclude-server-buffer t))
 #+end_src

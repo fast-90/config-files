@@ -2917,6 +2917,7 @@ Using ~ox-ipynb~ to convert =.org= files to =.ipynb= files. The built in functio
 (use-package quarto
   :elpaca (:host github :repo "fast-90/quarto.el")
   :defer t
+  :commands (quarto-preview quarto-preview-file)
   :bind
   (:map dn/prog-map
         ("o" . quarto-code-block-hydra/body))

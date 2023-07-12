@@ -3050,6 +3050,39 @@ Using ~ox-ipynb~ to convert =.org= files to =.ipynb= files. The built in functio
   (setq erc-autoaway-idle-seconds 300)
   (setq erc-auto-set-away t))
 #+end_src
+
+** Bitlbee specific commands
+
+#+begin_src emacs-lisp
+(when dn/is-wsl
+  (defun dn/msteams-add-contact-prompt (mailaddress)
+    "Prompts for MAILADDRESS and inserts the Bitlbee add command."
+    (interactive
+     (list (read-string "E-mail address: " "@kpmg.nl"))
+     (move-beginning-of-line))
+    (let* ((command-output (shell-command-to-string (concat "az ad user show --id " mailaddress)))
+           (json-object (json-read-from-string command-output))
+           (id (assoc-default 'id json-object))
+           (full-name (replace-regexp-in-string ",? " "" (assoc-default 'displayName json-object))))
+      (insert (concat "add eionrobb-msteams orgid:" id " " full-name)))))
+
+(when dn/is-wsl
+  (defun dn/msteams-add-contact-from-info ()
+    (interactive)
+    (let* ((id nil)
+           (name nil)
+           (current (save-excursion (point))))
+      (goto-char (point-max))
+      (when (search-backward-regexp "<@Duy> info \\(orgid.*?\\) " nil t)
+        (setq id (match-string 1)))
+      (goto-char (point-max))
+      (when (search-backward-regexp "<root> Display Name: \\(.*\\)" nil t)
+        (setq name (replace-regexp-in-string "[, ]" "" (match-string 1))))
+      (goto-char current)
+      (insert (format "rename %s %s" id name)))))
+
+#+end_src
+
 * Elfeed
 
 #+begin_src emacs-lisp

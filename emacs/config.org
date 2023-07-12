@@ -337,6 +337,12 @@ I copied this over from [[https://github.com/Nathan-Furnal/dotemacs/blob/master/
   ([remap describe-key] . helpful-key))
 #+end_src
 
+** Undo-fu
+
+#+begin_src emacs-lisp
+(use-package undo-fu)
+#+end_src
+
 ** Hydra
 
 #+begin_src emacs-lisp
@@ -623,11 +629,11 @@ brew install coreutils
      '("q" . meow-quit)
      '("Q" . meow-goto-line)
      '("r" . meow-replace)
-     '("R" . undo-redo)
+     '("R" . undo-fu-only-redo)
      '("s" . meow-kill)
      '("S" . meow-swap-grab)
      '("t" . meow-till)
-     '("u" . meow-undo)
+     '("u" . undo-fu-only-undo)
      '("U" . meow-undo-in-selection)
      '("v" . meow-visit)
      '("w" . meow-mark-word)

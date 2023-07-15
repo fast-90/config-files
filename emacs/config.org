@@ -1746,7 +1746,8 @@ Salv-mode provides a local minor mode to save a buffer when Emacs is idle. I onl
   :name "org-roam"
   :doc "My custom keymap for Org Roam."
   "f" #'org-roam-node-find
-  "d" #'org-roam-dailies-map)
+  "d" #'org-roam-dailies-map
+  "c" #'org-id-get-create)
 
 (fset 'dn/org-roam-map dn/org-roam-map)
 (keymap-global-set "C-c n" '("org-roam" . dn/org-roam-map))

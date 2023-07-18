@@ -411,15 +411,18 @@ Set cmd as meta-key (to align with Windows/Linux location), and set option as su
      (concat "msedge " url))))
 #+end_src
 
-*** Open file with native Windows app
+*** Open file/link with native Windows app
 
 #+begin_src emacs-lisp
 (when dn/is-wsl  
-(defun dn/open-file-with-wsl (file &optional _new-window)
-  "Open file with native Windows app."
-  (interactive "fOpen with Windows app: ")
-  (shell-command
-   (concat "wslview '" file "'"))))
+  (defun dn/open-file-with-wsl (file &optional _new-window)
+    "Open file with native Windows app."
+    (interactive "fOpen with Windows app: ")
+    (shell-command
+     (concat "wslview '" file "'"))))
+
+(when dn/is-wsl
+  (setq browse-url-generic-program "wslview"))
 #+end_src
 
 *** Prevent Windows intercepting certain hotkeys
@@ -459,9 +462,9 @@ Don't maximise window on WSL (it doesn't work well as the X server does not reco
       (setq dired-use-ls-dired t
             insert-directory-program "/usr/local/bin/gls")))
 
-  (use-package all-the-icons-dired
+  (use-package nerd-icons-dired
     :after dired
-    :hook (dired-mode-hook . all-the-icons-dired-mode))
+    :hook (dired-mode-hook . nerd-icons-dired-mode))
 #+end_src
 
 *** MacOS specific setting for Dired

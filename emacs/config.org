@@ -420,9 +420,6 @@ Set cmd as meta-key (to align with Windows/Linux location), and set option as su
     (interactive "fOpen with Windows app: ")
     (shell-command
      (concat "wslview '" file "'"))))
-
-(when dn/is-wsl
-  (setq browse-url-generic-program "wslview"))
 #+end_src
 
 *** Prevent Windows intercepting certain hotkeys
@@ -433,7 +430,7 @@ Note: after a restart of my WSL computer, =C-M-/= seems to work again.
 
 ** Maximise window on startup
 
-Don't maximise window on WSL (it doesn't work well as the X server does not recognize correct size of monitor).
+Don't maximise window on WSL (it doesn't work well as the X server does not recognise correct size of monitor).
 
 #+begin_src emacs-lisp
 (unless dn/is-wsl
@@ -2247,16 +2244,9 @@ Function to archive all done task in current org agenda/file.
 
 * Web browsing
 
-On WSL, ensure you have the following in your =.bashrc=:
-
-#+begin_src sh :noeval
-export BROWSER='eval "/mnt/c/Program Files/Google/Chrome/Application/chrome.exe"'
-# Or whatever the browser path is
-#+end_src
-
 #+begin_src emacs-lisp
 (cond (dn/is-wsl
-       (setq browse-url-generic-program (getenv "BROWSER"))
+       (setq browse-url-generic-program "wslview")
        (setq browse-url-browser-function 'browse-url-generic))
       (dn/is-macos
        (setq browse-url-browser-function 'browse-url-chrome)))

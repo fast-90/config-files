@@ -576,6 +576,7 @@ brew install coreutils
      '("/" . meow-keypad-describe-key)
      '("t" . "C-c t")
      '("u" . "C-u")
+     '("p" . "C-x p")
      '("q" . "C-c q")
      '("?" . meow-cheatsheet))
     (meow-normal-define-key

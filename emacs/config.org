@@ -983,12 +983,12 @@ Currently trying =mood-line= over =doom-modeline= as the latter messes up the ba
   ;; (setq battery-mode-line-format (concat " " (dn/battery-icon) "%b%p% "))
   (setq mode-line-misc-info (remove '(global-mode-string ("" global-mode-string)) mode-line-misc-info))
   (mood-line-mode)
-  (add-to-list 'mood-line-meow-state-alist '(select "[S]" . font-lock-constant-face))
   :custom
   (display-time-24hr-format t)
   (display-time-day-and-date t)
   :config
   (setq mood-line-glyph-alist mood-line-glyphs-fira-code)
+  (add-to-list 'mood-line-meow-state-alist '(select "[S]" . font-lock-constant-face))
   (display-time-mode)
   (display-battery-mode))
 #+end_src

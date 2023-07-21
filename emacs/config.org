@@ -2623,7 +2623,12 @@ I use =pyvenv= to in compination with =pet= to quickly switch to the correct env
 #+begin_src emacs-lisp
 (use-package python-pytest
   :bind (:map python-base-mode-map
-        ("C-c t" . python-pytest-dispatch)))
+              ("C-c t" . python-pytest-dispatch))
+  :config
+  (transient-append-suffix
+    'python-pytest-dispatch
+    "-v"
+    '("-r" "coverage report" "--cov-report term-missing --cov")))
 #+end_src
 
 Use ~pdb-capf~ for ~completion-at-point-functions~ when using ~pdb~ with ~pytest~:

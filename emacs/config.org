@@ -988,6 +988,7 @@ Currently trying =mood-line= over =doom-modeline= as the latter messes up the ba
   :custom
   (display-time-24hr-format t)
   (display-time-day-and-date t)
+  (display-time-default-load-average nil)
   :config
   (setq mood-line-glyph-alist mood-line-glyphs-fira-code)
   (display-time-mode)

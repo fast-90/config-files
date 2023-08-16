@@ -2592,6 +2592,7 @@ Alternatives include [[https://github.com/jorgenschaefer/pyvenv][pyvenv.el]], [[
   :init
   (defun dn/python-pet-hook ()
     "Activate pet mode, and set the local variables to identify the correct executables."
+    (pyvenv-deactivate)
     (when buffer-file-name
       (setq-local pyvenv-activate (pet-virtualenv-root))
       (setq-local python-shell-interpreter (pet-executable-find "python"))
@@ -2615,6 +2616,7 @@ I use =pyvenv= to in compination with =pet= to quickly switch to the correct env
   (defun dn/pet-pyvenv-activate ()
     "Activate the virtualenv identified by PET."
     (interactive)
+    (pyvenv-deactivate)
     (let ((venv (pet-virtualenv-root)))
       (pyvenv-activate venv)
       (message (concat "Activated environment in " venv)))))

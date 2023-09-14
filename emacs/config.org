@@ -2222,6 +2222,14 @@ Function to archive all done task in current org agenda/file.
     (define-key map (kbd "<f9>") #'logos-focus-mode)))
 #+end_src
 
+** Mermaid
+
+#+begin_src emacs-lisp
+(use-package mermaid-mode
+  :init
+  (setq mermaid-flags "-t dark -b transparent"))
+#+end_src
+
 * Pulsar
 
 #+begin_src emacs-lisp
@@ -2259,6 +2267,12 @@ Function to archive all done task in current org agenda/file.
        (setq browse-url-browser-function 'browse-url-generic))
       (dn/is-macos
        (setq browse-url-browser-function 'browse-url-chrome)))
+#+end_src
+
+** Edit with Emacs
+
+#+begin_src emacs-lisp
+(use-package edit-server)
 #+end_src
 
 * Pandoc
@@ -2972,6 +2986,14 @@ Using ~ox-ipynb~ to convert =.org= files to =.ipynb= files. The built in functio
 #+begin_src emacs-lisp
 (when dn/is-wsl
   (use-package ahk-mode))
+#+end_src
+
+* CSV
+
+#+begin_src emacs-lisp
+(use-package csv-mode
+  :hook
+  (csv-mode-hook . csv-align-mode))
 #+end_src
 
 * PDF

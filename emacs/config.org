@@ -2386,6 +2386,13 @@ If you built Emacs from source, you should check whether tree-sitter is availabl
     (add-to-list 'major-mode-remap-alist '(yaml-mode . yaml-ts-mode))))
 #+end_src
 
+** Breadcrumb
+
+#+begin_src emacs-lisp
+(use-package breadcrumb
+  :elpaca (breadcrumb :type git :host github :repo "joaotavora/breadcrumb"))
+#+end_src
+
 ** Combobulate
 
 #+begin_src emacs-lisp

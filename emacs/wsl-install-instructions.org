@@ -1,0 +1,74 @@
+* Introduction
+
+This is a guide on how to setup WSL 2 on a KPMG windows laptop.
+
+** Why?
+
+- Because I can.
+- Because there is much more support online for programming/coding in a Linux environment compared to a Windows environment.
+- Because most cloud based solutions (e.g. from AWS or Microsoft Azure) are built based on a UNIX system (and hence you will need to use a Linux terminal every now and then if you work with these solutions).
+- Personally, because I use Emacs for almost everything (programming, writing texts, productivity and task management), and Emacs works much better on Linux than on Windows (at least for me).
+
+** Opening programs as Administrator
+
+Along this process you will need to open a few programs as Administrator. You can do this by right-clicking on the program (often an ~.exe~ file) and choosing "Run with Administrative Priveleges (Audited)". You will see a pop-up with a prompt to submit your business reasons. Fill this in accordingly (e.g. "I need to install my IDE to write code for my engagements"). The program will now open with Admin rights.
+
+* Install WSL 2
+
+Follow the instruction [[https://docs.microsoft.com/en-us/windows/wsl/install][here]]. In short:
+
+1. Open PowerShell with Admin rights. In Windows Explorer, go to =%APPDATA%\Microsoft\Windows\Start Menu\Programs\Windows PowerShell= and use the right click menu as described above.
+2. Run ~wsl --install~ in PowerShell.
+3. Install Ubuntu by running ~wsl --install -d Ubuntu-20.04~. (Note: you can also install any other Linux distribution if you are comfortable to do so).
+4. Once the installation is complete, open Ubuntu-20.04 from your Windows Start Menu. You will see prompts to set up your WSL (Linux) environment for the first time. Just follow the prompts, and see [[https://docs.microsoft.com/en-us/windows/wsl/setup/environment#set-up-your-linux-username-and-password][here]] for tips.
+5. You know have WSL 2 installed on your Windows laptop! Open the Ubuntu-20.04 program and run any Linux command as you like/need (e.g. ~git~ commands or ~ls~).
+   
+* Fix internet connectivity
+
+At this point you are unable to connect to the internet in your Linux terminal (e.g. you are unable to run commands like ~git pull~ or ~apt install~ as you are not connected to the internet).
+
+To fix this problem, follow the steps [[https://gist.github.com/mandeepsmagh/f1d062fc59e4e6115385c2609b5f0448][here]]. Some important notes:
+
+- If you are not comfortable with using vi/vim, you can run ~sudo nano~ instead of ~sudo vi~ instead. Make your adjustments in Nano, and exit the program with =Ctrl-X=. You will be prompted to save the file, type =Y= and hit enter to save the file and exit.
+- The default gateway and IPv4 DNS servers change dependending on the WiFi network you are connected to. This means that you may need to add different IPs for the office, home and client locations. For reference, my =resolv.conf= looks something like this:
+
+  #+begin_src sh
+# Amstelveen office
+nameserver 10.219.158.70
+nameserver 10.220.240.1
+nameserver 10.220.240.2
+# Home
+nameserver XXX.XXX.X.XXX  # Replace these with your home address IPs
+nameserver XXX.XXX.X.X
+  #+end_src
+
+I also put Google's DNS in and I believe it makes internet work for all WiFi networks, although I still haven't extensively tested it yet:
+
+#+begin_src sh
+nameserver 8.8.8.8
+#+end_src
+  
+  This should allow you to connect to the internet if you are the office, however...
+  
+* Fix internet behind VPN
+
+You will notice that you are still unable to connect to the internet if you are behind a VPN. This is actually due to a bug in the version of Cisco AnyConnect that we have installed. The bug is fixed in a newer version (4.10.01075), however we are unable to update Cisco AnyConnect ourselves...
+
+Luckily there is a way around it. Follow the steps in [[https://github.com/sakai135/wsl-vpnkit][this guide]]. You should be able to connect to the internet behind a VPN as long as you run ~wsl.exe -d wsl-vpnkit service wsl-vpnkit start~ each time you start your WSL terminal (as per the aforementioned guide, put this in your =.bashrc= file if you do not want to do this manually every time.
+
+* Update CA certificates
+
+When trying to clone repositories from git you may get the following error
+
+#+begin_src sh
+fatal: unable to access 'https://git.mycompany.com/myuser/myrepo.git/': server certificate verification failed. CAfile: /etc/ssl/certs/ca-certificates.crt CRLfile: none
+#+end_src
+
+To resolve this, run the following two commands in your WSL terminal to update your list of public CA (Certificate Authority):
+
+#+begin_src sh
+sudo apt-get install apt-transport-https ca-certificates -y
+sudo update-ca-certificates
+#+end_src
+
+* Using WSL

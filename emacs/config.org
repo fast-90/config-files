@@ -466,7 +466,7 @@ Don't maximise window on WSL (it doesn't work well as the X server does not reco
     (setq dired-auto-revert-buffer t)
     (when dn/is-macos
       (setq dired-use-ls-dired t
-            insert-directory-program "/usr/local/bin/gls")))
+            insert-directory-program (executable-find "gls"))))
 
   (use-package nerd-icons-dired
     :after dired

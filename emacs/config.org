@@ -209,7 +209,10 @@ Installing as per the instructions:
 ;; Wait until use-package is loaded before installing packages with the macro
 (elpaca-wait)
 
-(use-package bind-key :after use-package) ;; if you use any :bind variant
+(use-package bind-key
+  :elpaca nil
+  :after use-package) ;; if you use any :bind variant
+
 #+end_src
 
 *** use-package-ensure-system-package
@@ -300,7 +303,10 @@ I copied this over from [[https://github.com/Nathan-Furnal/dotemacs/blob/master/
 ** Eldoc
 
 #+begin_src emacs-lisp
+(elpaca-wait)
+
 (use-package eldoc
+  :elpaca nil
   :custom
   (eldoc-echo-area-use-multiline-p nil))
 #+end_src
@@ -2454,6 +2460,7 @@ markdown-mode
 
 #+begin_src emacs-lisp
 (use-package python
+  :elpaca nil
   :init
   ;; (defun python-comint-filter (output)
   ;;     "Filter out '__PYTHON_EL_' when sending region to inferior Python shell.

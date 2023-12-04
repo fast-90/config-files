@@ -2825,7 +2825,6 @@ import pandas
 
 #+begin_src emacs-lisp
 (use-package rustic
-  :ensure-system-package rustup
   :config
   (setq rustic-format-on-save t)
   (setq rustic-lsp-client 'eglot))

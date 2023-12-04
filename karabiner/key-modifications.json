@@ -111,6 +111,54 @@
           ]
         }
       ]
+    },
+    {
+      "description": "Activate Firefox",
+      "manipulators": [
+        {
+          "type": "basic",
+          "from": {
+            "key_code": "k",
+            "modifiers": {
+              "mandatory": [
+                "option"
+              ],
+              "optional": [
+                "any"
+              ]
+            }
+          },
+          "to": [
+            {
+              "shell_command": "osascript -e 'activate application \"Firefox\"'"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "description": "Activate Emacs",
+      "manipulators": [
+        {
+          "type": "basic",
+          "from": {
+            "key_code": "j",
+            "modifiers": {
+              "mandatory": [
+                "option"
+              ],
+              "optional": [
+                "any"
+              ]
+            }
+          },
+          "to": [
+            {
+              "shell_command": "osascript -e 'activate application \"Emacs\"'"
+            }
+          ]
+        }
+      ]
     }
   ]
 }

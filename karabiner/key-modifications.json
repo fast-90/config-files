@@ -154,7 +154,55 @@
           },
           "to": [
             {
-              "shell_command": "osascript -e 'activate application \"Emacs\"'"
+              "shell_command": "osascript $HOME/repos/config-files/applescript/open-emacs.applescript"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "description": "Activate Firefox (numeric)",
+      "manipulators": [
+        {
+          "type": "basic",
+          "from": {
+            "key_code": "2",
+            "modifiers": {
+              "mandatory": [
+                "option"
+              ],
+              "optional": [
+                "any"
+              ]
+            }
+          },
+          "to": [
+            {
+              "shell_command": "osascript -e 'activate application \"Firefox\"'"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "description": "Activate Emacs (numeric)",
+      "manipulators": [
+        {
+          "type": "basic",
+          "from": {
+            "key_code": "1",
+            "modifiers": {
+              "mandatory": [
+                "option"
+              ],
+              "optional": [
+                "any"
+              ]
+            }
+          },
+          "to": [
+            {
+              "shell_command": "osascript $HOME/repos/config-files/applescript/open-emacs.applescript"
             }
           ]
         }

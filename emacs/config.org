@@ -2634,7 +2634,9 @@ Alternatives include [[https://github.com/jorgenschaefer/pyvenv][pyvenv.el]], [[
       (setq-local python-shell-interpreter (pet-executable-find "python"))
       (setq-local python-shell-interpreter-args "-i")
       (when-let ((black-executable (pet-executable-find "black")))
-        (setq-local blacken-executable black-executable)))))
+        (setq-local blacken-executable black-executable))
+      (when-let ((ruff-executable (pet-executable-find "ruff")))
+        (setq-local ruff-format-command ruff-executable)))))
 #+end_src
 
 *** Pyvenv
@@ -2683,15 +2685,17 @@ Use ~pdb-capf~ for ~completion-at-point-functions~ when using ~pdb~ with ~pytest
 #+end_src
 *** Blacken
 
+Blacken is now disabled by default in favour of =ruff-format=. If it needs to be enabled (e.g. for a local project), project folder specific variables have to be set.
+
 #+begin_src emacs-lisp
 (use-package blacken
   :defer t
   :custom
   (blacken-allow-py36 t)
-  (blacken-skip-string-normalization t)
-  :hook
-  (python-mode-hook . blacken-mode)
-  (python-ts-mode-hook . blacken-mode))
+  (blacken-skip-string-normalization t))
+  ;; :hook
+  ;; (python-mode-hook . blacken-mode)
+  ;; (python-ts-mode-hook . blacken-mode))
 #+end_src
 
 *** Numpydoc
@@ -2719,10 +2723,21 @@ Below are some ways to use it:
 
 **** flymake-ruff
 
-Adds the =flymake-ruff-load= command which loads the hook for current buffer to tell flymake to run checker. Seems kind of manual to invoke it this way, so don't like it as much.
+Adds the =flymake-ruff-load= command which loads the hook for current buffer to tell flymake to run checker. Seems kind of manual to invoke it this way, so don't like it as much. There is a recent update, but I haven't tried yet. Currently using =python-lsp-ruff= (plugin for =python-lsp-server=).
+
 #+begin_src emacs-lisp
 ;; (use-package flymake-ruff
 ;;   :straight t)
+#+end_src
+
+**** ruff-format
+
+Ruff is now able to format code, just like black but faster. There is also an emacs package to enable this:
+
+#+begin_src emacs-lisp
+(use-package ruff-format
+  :hook
+  (python-base-mode-hook . ruff-format-on-save-mode))
 #+end_src
 
 

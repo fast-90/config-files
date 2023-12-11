@@ -3122,7 +3122,7 @@ Can also be used in combination with emacs-jupyter. When the notebook is opened 
 * Email
 
 #+begin_src emacs-lisp
-(when (string-match "MBP.home" system-name) (require 'mail-config))
+(unless (string-match "xomnia" system-name) (require 'mail-config))
 #+end_src
 
 * ERC

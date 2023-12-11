@@ -3006,6 +3006,23 @@ Using ~ox-ipynb~ to convert =.org= files to =.ipynb= files. The built in functio
   )
 #+end_src
 
+*** code-cells
+
+Code cells allows me to author =ipynb= files in Python script format. Prerequisites are that =jupyter= and =jupytext= are installed and available. Currently tested with both installed in the corresponding venv.
+
+Can also be used in combination with emacs-jupyter. When the notebook is opened with code-cells, run ~jupyter-repl-associate-buffer~.
+
+#+begin_src emacs-lisp
+(use-package code-cells
+  :init
+  (add-to-list 'code-cells-eval-region-commands '(python-ts-mode . python-shell-send-region) t)
+  :bind (:map code-cells-mode-map
+              ("M-p" . code-cells-backward-cell)
+              ("M-n" . code-cells-forward-cell)
+              ("M-e" . code-cells-eval))
+  :config
+  (define-key code-cells-mode-map [remap indent-for-tab-command] (code-cells-speed-key 'outline-cycle)))
+#+end_src
 
 ** Quarto
 

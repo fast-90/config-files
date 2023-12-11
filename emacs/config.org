@@ -3079,7 +3079,7 @@ Using ~ox-ipynb~ to convert =.org= files to =.ipynb= files. The built in functio
 * Email
 
 #+begin_src emacs-lisp
-(when dn/is-macos (require 'mail-config))
+(when (string-match "MBP.home" system-name) (require 'mail-config))
 #+end_src
 
 * ERC

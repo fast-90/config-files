@@ -1066,6 +1066,7 @@ Currently trying =mood-line= over =doom-modeline= as the latter messes up the ba
 
 #+begin_src emacs-lisp
 (use-package vterm
+  :ensure-system-package cmake
   :bind (("C-c V" . vterm)
          :map vterm-mode-map
               ("C-b" . vterm-send-C-b))
@@ -1272,6 +1273,7 @@ Enabling icons in Corfu:
 
 #+begin_src emacs-lisp
 (use-package consult
+  :ensure-system-package (rg . ripgrep)
   :init
   (setq consult-locate-args "locate")
   (setq xref-show-xrefs-function #'consult-xref)
@@ -1496,6 +1498,7 @@ Package to easily navigate cursor within buffers. Using this over evil-easymotio
 
 #+begin_src emacs-lisp
 (use-package jinx
+  :ensure-system-package (enchant-2 . enchant)
   :bind
   (("C-c s n" . jinx-next)
    ("C-c s p" . jinx-previous)
@@ -2851,7 +2854,6 @@ import pandas
 
 #+begin_src emacs-lisp
 (use-package jupyter
-  :ensure-system-package jupyter
   :bind (:map jupyter-repl-mode-map 
               ("C-j" . 'jupyter-repl-forward-cell)
               ("C-k" . 'jupyter-repl-backward-cell)

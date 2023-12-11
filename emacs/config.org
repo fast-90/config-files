@@ -1636,10 +1636,11 @@ Package to easily navigate cursor within buffers. Using this over evil-easymotio
 (if (string= system-name "Duys-MBP.home")
     (setq inbox-file "~/org-roam-notes/20220101143145-inbox.org"
           general-task-file "~/org-roam-notes/20220101143545-tasks.org")
-  (if (string= system-name "NL5CG1462QH6")
-      (setq inbox-file "~/org-roam-notes/20220522180401-inbox.org"
-            general-task-file "~/org-roam-notes/20220522181915-general_tasks.org")
-    (setq inbox-file nil)))
+  (if (string-match "Xomnia" system-name)
+      (setq inbox-file "/Users/duynguyen/org-roam-notes/20231211120120-inbox.org"
+            general-task-file "/Users/duynguyen/org-roam-notes/20231211120831-tasks.org")
+    (setq inbox-file nil
+          general-task-file nil)))
 
 (setq org-capture-templates
       '(("i" "Inbox" plain (file inbox-file)

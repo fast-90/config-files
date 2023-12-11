@@ -1538,7 +1538,10 @@ Package to easily navigate cursor within buffers. Using this over evil-easymotio
 * Version control
 
 #+begin_src emacs-lisp
-(use-package magit)
+(use-package magit
+  :after transient)
+
+(use-package transient)
 #+end_src
 
 #+begin_src emacs-lisp

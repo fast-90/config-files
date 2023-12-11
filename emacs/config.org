@@ -2845,6 +2845,7 @@ import pandas
 
 #+begin_src emacs-lisp
 (use-package rustic
+  :ensure-system-package (rustup . "curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh")
   :config
   (setq rustic-format-on-save t)
   (setq rustic-lsp-client 'eglot))

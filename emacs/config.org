@@ -2676,6 +2676,7 @@ I use =pyvenv= to in compination with =pet= to quickly switch to the correct env
   ;; (pyvenv-post-deactivate-hooks . (lambda() (call-interactively 'eglot-reconnect)))
   :init
   (pyvenv-mode t)
+  (pyvenv-tracking-mode t)
   (defun dn/pet-pyvenv-activate ()
     "Activate the virtualenv identified by PET."
     (interactive)

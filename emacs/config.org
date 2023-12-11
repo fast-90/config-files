@@ -1666,6 +1666,8 @@ Related github issues:
 #+begin_src emacs-lisp
 (use-package org-roam
   :init
+  (unless (file-directory-p "~/org-roam-notes")
+    (make-directory "~/org-roam-notes"))
   (setq org-roam-directory "~/org-roam-notes")
   (setq org-roam-v2-ack t)
   (setq org-roam-database-connector 'sqlite-builtin)

@@ -734,20 +734,23 @@ This package is required to enable expected behaviour with Meow keybindings in n
 The used fonts have different names on different computers:
 
 #+begin_src emacs-lisp
-(if (string= system-name "Duys-MBP.home")
-    (setq dn/default-font "Input Mono"
-          dn/variable-font "IBM Plex Sans"
-          dn/default-font-size 13.0
-          dn/variable-font-size 14.0)
-  (if (string-match "Xomnia" system-name)
-      (setq dn/default-font "Input Mono"
-            dn/variable-font "IBM Plex Sans"
-            dn/default-font-size 13.0
-            dn/variable-font-size 14.0)
-    (setq dn/default-font nil
-          dn/variable-font nil
-          dn/default-font-size nil
-          dn/variable-font-size nil)))
+(defun font-available-p (font-name)
+  "Check whether font is available."
+  (if (find-font (font-spec :name font-name)) font-name nil))
+
+
+(if dn/is-macos
+    (progn
+      (when-let ((default-font (font-available-p "Input Mono")))
+        (setq dn/default-font default-font
+              dn/default-font-size 13.0))
+      (when-let ((variable-font (font-available-p "IBM Plex Sans")))
+        (setq dn/variable-font variable-font
+              dn/variable-font-size 14.0)))
+  (setq dn/default-font nil
+        dn/variable-font nil
+        dn/default-font-size nil
+        dn/variable-font-size nil))
 #+end_src
 
 Set fonts:

@@ -568,6 +568,11 @@ brew install coreutils
   (setq meow-use-dynamic-face-color t)
   (setq meow-use-cursor-position-hack t)
   :config
+  (setq mood-line-meow-state-alist '((normal "NORMAL" . font-lock-variable-name-face)
+                                     (insert "INSERT" . font-lock-string-face)
+                                     (keypad "KEYWORD" . font-lock-keyword-face)
+                                     (beacon "BEACON" . font-lock-type-face)
+                                     (motion "MOTION" . font-lock-constant-face)))
   (defun define-meow-select-mode ()
     "Define meow-select-mode to select and copy text in motion state."
     (setq meow-selection-keymap (make-keymap))
@@ -1025,7 +1030,7 @@ Currently trying =mood-line= over =doom-modeline= as the latter messes up the ba
   :elpaca nil
   :after mood-line
   :config
-  (add-to-list 'mood-line-meow-state-alist '(select "[S]" . font-lock-constant-face)))
+  (add-to-list 'mood-line-meow-state-alist '(select "SELECT" . font-lock-constant-face)))
 #+end_src
 
 * Tabs

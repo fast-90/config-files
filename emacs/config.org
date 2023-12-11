@@ -1,5 +1,22 @@
+* My Emacs configuration
+This file contains my Emacs configuration. Amongst other things, it sets up the following:
+
++ =early-init.el= and =init.el=.
++ Bootstrapping of ~elpaca~ installation.
++ Setup for org and org-roam.
++ Python IDE setup (note: Python needs to be installed separately, e.g. via =pyenv= or =rye=)
+  
 *  Installing Emacs
 
+** Prerequisites
+
+This configuration already covers a lot of the prerequisites, such as the installation of missing binaries (e.g. =cmake=, =enchant=) and creation of folders (=~/org-roam-notes=).
+
+The fonts have to be installed separately though. Currently the fonts used are:
++ "Input Mono" as the default (fixed) font
++ "IBM Sans Plex" as the variable font
++ "IBM Sans Mono" for the tab-bar
+  
 ** MacOS: using emac-plus
 
 I use [[https://github.com/d12frosted/homebrew-emacs-plus][emacs-plus]], which can be installed via homebrew.

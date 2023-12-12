@@ -857,7 +857,7 @@ Other good themes:
   (setq modus-themes-common-palette-overrides
         `(
           (cursor magenta-cooler)
-          (bg-mode-line-active "#2a2a6a")
+          (bg-mode-line-active bg-blue-subtle)
           ;; (border-mode-line-inactive bg-mode-line-inactive)
           ;; Make the fringe invisible.
           (fringe unspecified)

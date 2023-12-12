@@ -856,7 +856,7 @@ Other good themes:
   (setq modus-themes-common-palette-overrides
         `(
           (cursor magenta-cooler)
-          (border-mode-line-active border-mode-line-inactive)
+          (bg-mode-line-active "#2a2a6a")
           ;; (border-mode-line-inactive bg-mode-line-inactive)
           ;; Make the fringe invisible.
           (fringe unspecified)
@@ -866,12 +866,15 @@ Other good themes:
           (fg-line-number-active blue-cooler)
           (bg-line-number-inactive unspecified)
           (bg-line-number-active unspecified)
+          (fg-heading-1 blue-warmer)
+          (fg-heading-2 yellow-cooler)
+          (fg-heading-3 cyan-cooler)
           (bg-heading-1 unspecified)
           (bg-heading-2 unspecified)
           (bg-heading-3 unspecified)
           (bg-heading-4 unspecified)
-          (bg-heading-5 unspecified)
-          ,@modus-themes-preset-overrides-intense))
+          (bg-heading-5 unspecified)))
+          ;; ,@modus-themes-preset-overrides-intense))
   (load-theme 'modus-vivendi t)
   (load-theme 'modus-operandi t t)
   (modus-themes-with-colors

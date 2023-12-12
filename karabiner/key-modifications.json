@@ -148,9 +148,6 @@
             "modifiers": {
               "mandatory": [
                 "option"
-              ],
-              "optional": [
-                "any"
               ]
             }
           },
@@ -172,9 +169,6 @@
             "modifiers": {
               "mandatory": [
                 "option"
-              ],
-              "optional": [
-                "any"
               ]
             }
           },
@@ -196,9 +190,6 @@
             "modifiers": {
               "mandatory": [
                 "option"
-              ],
-              "optional": [
-                "any"
               ]
             }
           },
@@ -220,15 +211,33 @@
             "modifiers": {
               "mandatory": [
                 "option"
-              ],
-              "optional": [
-                "any"
               ]
             }
           },
           "to": [
             {
               "shell_command": "osascript $HOME/repos/config-files/applescript/open-emacs.applescript"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "description": "Activate Terminal",
+      "manipulators": [
+        {
+          "type": "basic",
+          "from": {
+            "key_code": "m",
+            "modifiers": {
+              "mandatory": [
+                "control"
+              ]
+            }
+          },
+          "to": [
+            {
+              "shell_command": "osascript -e 'tell application \"Terminal\" to activate'"
             }
           ]
         }

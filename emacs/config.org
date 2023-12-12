@@ -3027,13 +3027,12 @@ Can also be used in combination with emacs-jupyter. When the notebook is opened 
 
 #+begin_src emacs-lisp
 (use-package code-cells
-  :init
-  (add-to-list 'code-cells-eval-region-commands '(python-ts-mode . python-shell-send-region) t)
   :bind (:map code-cells-mode-map
               ("M-p" . code-cells-backward-cell)
               ("M-n" . code-cells-forward-cell)
               ("M-e" . code-cells-eval))
   :config
+  (add-to-list 'code-cells-eval-region-commands '(python-ts-mode . python-shell-send-region) t)
   (define-key code-cells-mode-map [remap indent-for-tab-command] (code-cells-speed-key 'outline-cycle)))
 #+end_src
 

@@ -857,8 +857,9 @@ Other good themes:
   (setq modus-themes-common-palette-overrides
         `(
           (cursor magenta-cooler)
+          (bg-region bg-magenta-intense)
           (bg-mode-line-active bg-blue-subtle)
-          ;; (border-mode-line-inactive bg-mode-line-inactive)
+          (border-mode-line-active bg-mode-line-active)
           ;; Make the fringe invisible.
           (fringe unspecified)
           ;; Make line numbers less intense and add a shade of cyan

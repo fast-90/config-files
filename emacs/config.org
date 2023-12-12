@@ -1460,6 +1460,7 @@ Package to easily navigate cursor within buffers. Using this over evil-easymotio
 	    "\\*Warnings\\*"
           "Output\\*$"
           "traceback\\*$"
+          "error\\*$"
           "\\*Async Shell Command\\*"
           help-mode
           helpful-mode

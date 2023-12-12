@@ -246,7 +246,7 @@ Use latest version of ~org~.
 
 #+begin_src emacs-lisp :tangle (expand-file-name "init.el" user-emacs-directory)
 (use-package org
-    :elpaca (org :repo "https://git.savannah.gnu.org/git/emacs/org-mode.git" :tag "release_9.6.13"))
+    :elpaca (:repo "https://git.savannah.gnu.org/git/emacs/org-mode.git" :tag "release_9.6.13"))
 
 ;; Wait until org is loaded before loading literate config.
 (elpaca-wait)

@@ -2435,7 +2435,11 @@ If you built Emacs from source, you should check whether tree-sitter is availabl
 
 #+begin_src emacs-lisp
 (use-package breadcrumb
-  :elpaca (breadcrumb :type git :host github :repo "joaotavora/breadcrumb"))
+  :config
+  (setq breadcrumb-project-max-length 0.3)
+  (setq breadcrumb-imenu-max-length 0.5)
+  (breadcrumb-mode 1))
+  
 #+end_src
 
 ** Combobulate

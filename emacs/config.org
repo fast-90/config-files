@@ -468,6 +468,8 @@ Don't maximise window on WSL (it doesn't work well as the X server does not reco
 ** Dired
 
 #+begin_src emacs-lisp
+(elpaca-wait)
+
   (use-package dired
     :elpaca nil
     :hook

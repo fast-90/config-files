@@ -1008,12 +1008,12 @@ Currently trying =mood-line= over =doom-modeline= as the latter messes up the ba
   :init
   ;; (setq battery-mode-line-format (concat " " (dn/battery-icon) "%b%p% "))
   (setq mode-line-misc-info (remove '(global-mode-string ("" global-mode-string)) mode-line-misc-info))
-  (mood-line-mode)
   :custom
   (display-time-24hr-format t)
   (display-time-day-and-date t)
   (display-time-default-load-average nil)
   :config
+  (mood-line-mode)
   (setq mood-line-glyph-alist mood-line-glyphs-fira-code)
   (display-time-mode)
   (display-battery-mode))

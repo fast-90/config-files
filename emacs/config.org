@@ -811,30 +811,6 @@ Font settings for daemon mode:
 #+end_src
 
 ** Theme
-
-*** Doom theme
-
-#+begin_src emacs-lisp
-;; (use-package doom-themes
-;;   :straight t
-;;   :init
-;;   (setq doom-themes-enable-bold t
-;; 	doom-themes-enable-italic t)
-;;   (load-theme 'doom-vibrant t))  ;; Ones I liked and used: doom-one, doom-dark+, doom-solarized-light, doom-snazzy, doom-palenight
-#+end_src
-
-Other good themes:
-
-- doom-palenight
-- doom-one
-- doom-vibrant
-- doom-dark+ (VS Code like)
-- doom-tomorrow-night
-- doom-xcode
-- doom-material
-- doom-ayu-mirage
-- doom-monokai-pro
-
 *** Modus themes
 
 #+begin_src emacs-lisp

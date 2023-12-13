@@ -1409,13 +1409,17 @@ Idea: use C-p or M-p as the prefix key.
 ** My window config
 
 #+begin_src emacs-lisp
+(defun dn/other-window-backward ()
+  "Move to other window backward"
+  (interactive)
+  (other-window -1))
+
+
 (defvar-keymap dn/other-window-repeat-map
   :repeat t
   "w" #'other-window
-  "W" (lambda ()
-        (interactive)
-        (setq repeat-map 'other-window-repeat-map)
-        (other-window -1)))
+  "W" #'dn/other-window-backward)
+
 
 (keymap-global-set "C-c w" #'other-window)
 #+end_src

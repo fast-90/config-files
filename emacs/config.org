@@ -460,9 +460,13 @@ Don't maximise window on WSL (it doesn't work well as the X server does not reco
 
 #+begin_src emacs-lisp
 (unless dn/is-wsl
+        (add-to-list 'initial-frame-alist '(fullscreen . maximized))
         (add-to-list 'default-frame-alist '(fullscreen . maximized)))
 #+end_src
 
+#+begin_src emacs-lisp
+(global-set-key (kbd "<f12>") 'toggle-frame-maximized)
+#+end_src
 * File and buffer management
 
 ** Dired

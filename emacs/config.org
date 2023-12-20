@@ -857,9 +857,13 @@ Font settings for daemon mode:
           (bg-heading-4 unspecified)
           (bg-heading-5 unspecified)))
   (load-theme 'modus-vivendi-tinted t)
-  (modus-themes-with-colors
+  (defun dn/set-fill-column-indicator-faces ()
+      "Set colour of fill-column-indicator based on modus theme."
+    (modus-themes-with-colors
       (custom-set-faces
        `(fill-column-indicator ((,c :foreground ,bg-dim :background ,bg-dim :height 0.1))))))
+  (dn/set-fill-column-indicator-faces)
+  (add-hook 'modus-themes-post-load-hook 'dn/set-fill-column-indicator-faces))
 
 (elpaca-wait)
 #+end_src

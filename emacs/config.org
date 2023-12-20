@@ -420,7 +420,8 @@ Set cmd as meta-key (to align with Windows/Linux location), and set option as su
 #+begin_src emacs-lisp
 (when dn/is-macos
   (setq mac-command-modifier 'meta
-        mac-option-modifier 'super))
+        mac-option-modifier 'super
+        ns-use-native-fullscreen nil))
 #+end_src
 
 ** Windows/WSL specific settings
@@ -454,7 +455,7 @@ See: https://emacs.stackexchange.com/questions/71706/blocked-keys-how-can-i-get-
 
 Note: after a restart of my WSL computer, =C-M-/= seems to work again. 
 
-** Maximise window on startup
+** Maximising windows
 
 Don't maximise window on WSL (it doesn't work well as the X server does not recognise correct size of monitor).
 

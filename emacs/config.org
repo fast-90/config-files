@@ -817,7 +817,7 @@ Font settings for daemon mode:
 (use-package modus-themes
   :init
   (setq modus-themes-custom-auto-reload nil
-        modus-themes-to-toggle '(modus-operandi modus-vivendi)
+        modus-themes-to-toggle '(modus-operandi-tinted modus-vivendi-tinted)
         modus-themes-mixed-fonts t
         modus-themes-variable-pitch-ui nil
         modus-themes-italic-constructs t
@@ -855,13 +855,10 @@ Font settings for daemon mode:
           (bg-heading-3 unspecified)
           (bg-heading-4 unspecified)
           (bg-heading-5 unspecified)))
-          ;; ,@modus-themes-preset-overrides-intense))
-  (load-theme 'modus-vivendi t)
-  (load-theme 'modus-operandi t t)
+  (load-theme 'modus-vivendi-tinted t)
   (modus-themes-with-colors
       (custom-set-faces
-       `(fill-column-indicator ((,c :foreground ,bg-dim :background ,bg-dim :height 0.1)))))
-  (set-face-attribute 'tab-bar nil :font (font-spec :family "IBM Plex Mono" :size dn/default-font-size)))  ; Loading modus theme resets tab-bar font, so we need to set it (again)
+       `(fill-column-indicator ((,c :foreground ,bg-dim :background ,bg-dim :height 0.1))))))
 
 (elpaca-wait)
 #+end_src

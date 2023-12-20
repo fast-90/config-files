@@ -1453,7 +1453,8 @@ Package to easily navigate cursor within buffers. Using this over evil-easymotio
 (use-package popper
   :bind (("C-`"   . popper-toggle-latest)
          ("M-`"   . popper-cycle)
-         ("C-M-`" . popper-toggle-type)
+         ("C-M-'" . popper-toggle-type)
+         ("C-'"   . popper-kill-latest-popup)
          ("M-'"   . popper-kill-latest-popup))
   :init
   (setq popper-reference-buffers

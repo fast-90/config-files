@@ -1098,6 +1098,22 @@ Currently trying =mood-line= over =doom-modeline= as the latter messes up the ba
       (set-face-attribute 'telephone-line-accent-inactive nil :foreground fg-dim :background bg-dim :inherit 'mode-line-inactive)))
   (dn/set-telephone-line-modus-faces))
 #+end_src
+
+*** Show time and battery
+
+#+begin_src emacs-lisp
+(defun dn/set-time-battery-info ()
+  (interactive)
+  (setq mode-line-misc-info (remove '(global-mode-string ("" global-mode-string)) mode-line-misc-info))
+  (setq display-time-24hr-format t)
+  (setq display-time-day-and-date t)
+  (setq display-time-default-load-average nil)
+  (display-time-mode 1)
+  (display-battery-mode 1))
+
+(dn/set-time-battery-info)
+#+end_src
+
 * Tabs
 
 #+begin_src emacs-lisp

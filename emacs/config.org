@@ -3050,31 +3050,34 @@ Can also be used in combination with emacs-jupyter. When the notebook is opened 
               ("M-e" . code-cells-eval))
   :config
   (add-to-list 'code-cells-eval-region-commands '(python-ts-mode . python-shell-send-region) t)
-  (define-key code-cells-mode-map [remap indent-for-tab-command] (code-cells-speed-key 'outline-cycle)))
+  (define-key code-cells-mode-map [remap indent-for-tab-command] (code-cells-speed-key 'outline-cycle))
+  (define-key code-cells-mode-map [remap meow-yank] (code-cells-speed-key 'code-cells-backward-cell))
+  (define-key code-cells-mode-map [remap meow-search] (code-cells-speed-key 'code-cells-forward-cell))
+  (define-key code-cells-mode-map [remap meow-next-word] (code-cells-speed-key 'code-cells-eval)))
 #+end_src
 
 ** Quarto
 
 #+begin_src emacs-lisp
-(use-package quarto
-  :elpaca (:host github :repo "fast-90/quarto.el")
-  :defer t
-  :commands (quarto-preview quarto-preview-file)
-  :bind
-  (:map dn/prog-map
-        ("o" . quarto-code-block-hydra/body))
-  :init
-  (defun poly-python-eval-region (beg end msg)
-    (python-shell-send-region beg end nil msg t))
+;; (use-package quarto
+;;   :elpaca (:host github :repo "fast-90/quarto.el")
+;;   :defer t
+;;   :commands (quarto-preview quarto-preview-file)
+;;   :bind
+;;   (:map dn/prog-map
+;;         ("o" . quarto-code-block-hydra/body))
+;;   :init
+;;   (defun poly-python-eval-region (beg end msg)
+;;     (python-shell-send-region beg end nil msg t))
   
-  (defun poly-python-mode-setup ()
-    (setq-local polymode-eval-region-function #'poly-python-eval-region))
-  :config
-  ;; Needed to make lsp work after adding additional code cells
-  (add-to-list 'polymode-run-these-after-change-functions-in-other-buffers 'eglot--after-change)
-  (add-to-list 'polymode-run-these-before-change-functions-in-other-buffers 'eglot--before-change)
-  :hook
-  (python-base-mode-hook . poly-python-mode-setup))
+;;   (defun poly-python-mode-setup ()
+;;     (setq-local polymode-eval-region-function #'poly-python-eval-region))
+;;   :config
+;;   ;; Needed to make lsp work after adding additional code cells
+;;   (add-to-list 'polymode-run-these-after-change-functions-in-other-buffers 'eglot--after-change)
+;;   (add-to-list 'polymode-run-these-before-change-functions-in-other-buffers 'eglot--before-change)
+;;   :hook
+;;   (python-base-mode-hook . poly-python-mode-setup))
 #+end_src
 
 ** YAML mode

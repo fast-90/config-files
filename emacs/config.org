@@ -1146,7 +1146,9 @@ I also enabled directory tracking and named vterm buffer, see also here how to s
 (use-package vterm-toggle
   :bind (("C-c v" . vterm-toggle)
          :map vterm-mode-map
-         ("C-<return>" . vterm-toggle-insert-cd))
+         ("C-<return>" . vterm-toggle-insert-cd)
+         ("C-M-p" . vterm-toggle-backward)
+         ("C-M-n" . vterm-toggle-forward))
   :custom
   (vterm-buffer-name-string "vterm: %s")
   (vterm-toggle-project-root t)

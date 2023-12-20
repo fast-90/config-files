@@ -1048,17 +1048,17 @@ Currently trying =mood-line= over =doom-modeline= as the latter messes up the ba
   (defun dn/modified-status ()
     "Display red dot if file is modified."
     (if (and (buffer-file-name (buffer-base-buffer)) (buffer-modified-p))
-        (propertize "● " 'face '(:inherit error))
-      "  "))
+        (propertize (all-the-icons-material "save") 'face '(:inherit error))
+      ""))
   (defun dn/read-only-status ()
     "Display lock if file is read-only."
     (if (and (buffer-file-name (buffer-base-buffer)) buffer-read-only)
-        (propertize " 🔒" 'face '(:height 0.85))
-      "  "))
+        (propertize (all-the-icons-material "lock") 'face '(:inherit warning))
+      ""))
   (telephone-line-defsegment* dn/telephone-line-buffer-segment ()
     `(""
+      ,(concat (telephone-line-raw mode-line-buffer-identification t) " ")
       ,(dn/modified-status)
-      ,(telephone-line-raw mode-line-buffer-identification t)
       ,(dn/read-only-status)))
   ;; Set form of segments
   (setq telephone-line-primary-left-separator 'telephone-line-identity-left

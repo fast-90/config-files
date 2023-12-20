@@ -480,7 +480,8 @@ Don't maximise window on WSL (it doesn't work well as the X server does not reco
     (dired-mode-hook . dired-omit-mode)
     (dired-mode-hook . dired-hide-details-mode)
     :bind
-    (:map dired-mode-map (")" . dired-omit-mode))
+    (:map dired-mode-map (")" . dired-omit-mode)
+          :map dired-jump-map ("j" . nil))
     :custom
     (dired-listing-switches "-agho --group-directories-first")
     (dired-kill-when-opening-new-dired-buffer t)

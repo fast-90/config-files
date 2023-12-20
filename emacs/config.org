@@ -2448,6 +2448,14 @@ If you built Emacs from source, you should check whether tree-sitter is availabl
   
 #+end_src
 
+** Symbols outline
+#+begin_src emacs-lisp
+(use-package symbols-outline
+  :bind (:map dn/prog-map
+              ("o" . symbols-outline-show))
+  :config
+  (setq symbols-outline-fetch-fn #'symbols-outline-lsp-fetch))
+#+end_src
 ** Combobulate
 
 #+begin_src emacs-lisp

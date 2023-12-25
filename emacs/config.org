@@ -465,6 +465,21 @@ Don't maximise window on WSL (it doesn't work well as the X server does not reco
         (add-to-list 'default-frame-alist '(fullscreen . maximized)))
 #+end_src
 
+Additional bindings:
+
+#+begin_src emacs-lisp
+(defun dn/almost-maximize-window ()
+  "Almost maximize window with rectangle.
+
+Also hides other apps"
+  (interactive)
+  (shell-command "open -g \"rectangle://execute-action?name=almost-maximize\"")
+  (shell-command "osascript -e 'tell application \"System Events\" to set visible of every process whose visible is true and name is not \"Emacs\" to false'")
+  (message "Almost maximize windows"))
+
+(global-set-key (kbd "<f10>") 'dn/almost-maximize-window)
+#+end_src
+
 #+begin_src emacs-lisp
 (global-set-key (kbd "<f12>") 'toggle-frame-maximized)
 #+end_src

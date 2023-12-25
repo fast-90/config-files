@@ -1055,6 +1055,13 @@ Currently trying =mood-line= over =doom-modeline= as the latter messes up the ba
     (if (and (buffer-file-name (buffer-base-buffer)) buffer-read-only)
         (propertize (all-the-icons-material "lock") 'face '(:inherit warning :family "Material Icons"))
       ""))
+  (defun dn/vc-branch-name ()
+    "Custom string to display vc (git) branch name on mode-line."
+    (if (not (and (buffer-file-name (buffer-base-buffer)) (vc-state (buffer-file-name)))) ""
+      (concat (all-the-icons-octicon "git-branch" :v-adjust 0.04) " " (magit-get-current-branch))))
+  (defun dn/vc-modified-state ()
+    "Show a '+' if changes have been added."
+    (when (string= (vc-state (buffer-file-name)) "edited") "+"))
   (telephone-line-defsegment* dn/telephone-line-buffer-segment ()
     `(""
       ,(concat (telephone-line-raw mode-line-buffer-identification t) " ")
@@ -1062,9 +1069,8 @@ Currently trying =mood-line= over =doom-modeline= as the latter messes up the ba
       ,(dn/read-only-status)))
   (telephone-line-defsegment* dn/telephone-line-vc-segment ()
     `(""
-      ,(all-the-icons-octicon "git-branch" :v-adjust 0.04)
-      " "
-      ,(magit-get-current-branch)))
+      ,(dn/vc-branch-name)
+      ,(dn/vc-modified-state)))
   ;; Set form of segments
   (setq telephone-line-primary-left-separator 'telephone-line-identity-left
       telephone-line-secondary-left-separator 'telephone-line-identity-hollow-left

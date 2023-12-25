@@ -1060,6 +1060,11 @@ Currently trying =mood-line= over =doom-modeline= as the latter messes up the ba
       ,(concat (telephone-line-raw mode-line-buffer-identification t) " ")
       ,(dn/modified-status)
       ,(dn/read-only-status)))
+  (telephone-line-defsegment* dn/telephone-line-vc-segment ()
+    `(""
+      ,(all-the-icons-octicon "git-branch" :v-adjust 0.04)
+      " "
+      ,(magit-get-current-branch)))
   ;; Set form of segments
   (setq telephone-line-primary-left-separator 'telephone-line-identity-left
       telephone-line-secondary-left-separator 'telephone-line-identity-hollow-left
@@ -1068,8 +1073,8 @@ Currently trying =mood-line= over =doom-modeline= as the latter messes up the ba
   ;; Set left/right hand side segments
   (setq telephone-line-lhs
         '((evil . (telephone-line-meow-tag-segment))
-          (accent . (telephone-line-vc-segment))
-          (nil . (dn/telephone-line-buffer-segment)))) 
+          (accent . (dn/telephone-line-vc-segment))
+          (nil . (dn/telephone-line-buffer-segment))))
   (setq telephone-line-rhs
         '((nil    . (telephone-line-misc-info-segment
                      telephone-line-flymake-segment))

@@ -1048,12 +1048,12 @@ Currently trying =mood-line= over =doom-modeline= as the latter messes up the ba
   (defun dn/modified-status ()
     "Display red dot if file is modified."
     (if (and (buffer-file-name (buffer-base-buffer)) (buffer-modified-p))
-        (propertize (all-the-icons-material "save") 'face '(:inherit error))
+        (propertize (all-the-icons-material "save") 'face '(:inherit error :family "Material Icons"))
       ""))
   (defun dn/read-only-status ()
     "Display lock if file is read-only."
     (if (and (buffer-file-name (buffer-base-buffer)) buffer-read-only)
-        (propertize (all-the-icons-material "lock") 'face '(:inherit warning))
+        (propertize (all-the-icons-material "lock") 'face '(:inherit warning :family "Material Icons"))
       ""))
   (telephone-line-defsegment* dn/telephone-line-buffer-segment ()
     `(""

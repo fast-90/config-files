@@ -1076,7 +1076,7 @@ Currently trying =mood-line= over =doom-modeline= as the latter messes up the ba
       (concat (all-the-icons-octicon "git-branch" :v-adjust 0.04) " " (magit-get-current-branch))))
   (defun dn/vc-modified-state ()
     "Show a '+' if changes have been added."
-    (when (string= (vc-state (buffer-file-name)) "edited") "+"))
+    (when (eq (vc-state (buffer-file-name)) 'edited) " +"))
   (telephone-line-defsegment* dn/telephone-line-buffer-segment ()
     `(""
       ,(concat (telephone-line-raw mode-line-buffer-identification t) " ")

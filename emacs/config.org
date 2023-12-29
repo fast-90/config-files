@@ -3369,6 +3369,18 @@ Can also be used in combination with emacs-jupyter. When the notebook is opened 
 ;;   (chatgpt-shell-openai-key ""))
 #+end_src
 
+* GPTel
+#+begin_src emacs-lisp
+(use-package gptel
+  :config
+  (setq-default gptel-backend
+                (gptel-make-ollama
+                 "Ollama"
+                 :host "localhost:11434"
+                 :models '("mistral" "codellama" "codellama:7b-code" "codellama:7b-python" "deepseek-coder")
+                 :stream t))
+  (setq-default gptel-model "mistral"))
+#+end_src
 * LaTeX
 
 Although not necessarily Emacs configuration, LaTeX needs to be installed in the OS in order to render LaTeX properly in org-mode. On WSL, I have:

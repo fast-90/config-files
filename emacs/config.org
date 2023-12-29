@@ -1553,6 +1553,19 @@ Idea: use C-p or M-p as the prefix key.
 (keymap-global-set "C-c w" #'other-window)
 #+end_src
 
+** Windmove
+#+begin_src emacs-lisp
+(use-package windmove
+  :elpaca nil
+  :bind (("s-j" . windmove-down)
+         ("s-k" . windmove-up)
+         ("s-h" . windmove-left)
+         ("s-l" . windmove-right)
+         ("s-J" . windmove-swap-states-down)
+         ("s-K" . windmove-swap-states-up)
+         ("s-H" . windmove-swap-states-left)
+         ("s-L" . windmove-swap-states-right)))
+#+end_src
 ** Avy
 
 Package to easily navigate cursor within buffers. Using this over evil-easymotion because Avy does not distinguish between forward and backward and allows jumping across visible buffers.

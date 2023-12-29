@@ -1081,8 +1081,9 @@ Currently trying =mood-line= over =doom-modeline= as the latter messes up the ba
       (cond
        ((memq state '(edited added)) " +")
        ((eq state 'needs-merge) " =")
+       ((eq state 'up-to-date) "")
        ((eq state 'needs-update) " ")
-       ((memq state '(removed conflict unregistered)) " x"))))
+       ((memq state '(removed conflict unregistered) " x")))))
   (telephone-line-defsegment* dn/telephone-line-buffer-segment ()
     `(""
       ,(concat (telephone-line-raw mode-line-buffer-identification t) " ")

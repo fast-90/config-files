@@ -3391,9 +3391,9 @@ Can also be used in combination with emacs-jupyter. When the notebook is opened 
                 (gptel-make-ollama
                  "Ollama"
                  :host "localhost:11434"
-                 :models '("mistral" "codellama" "codellama:7b-code" "codellama:7b-python" "deepseek-coder")
+                 :models '("mistral-openorca" "codellama" "codellama:7b-code" "codellama:7b-python" "deepseek-coder")
                  :stream t))
-  (setq-default gptel-model "mistral"))
+  (setq-default gptel-model "mistral-openorca"))
 #+end_src
 * LaTeX
 

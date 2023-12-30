@@ -3388,14 +3388,24 @@ Can also be used in combination with emacs-jupyter. When the notebook is opened 
 * GPTel
 #+begin_src emacs-lisp
 (use-package gptel
+  :hook
+  (gptel-mode-hook . markdown-toggle-markup-hiding)
+  :bind
+  (("C-c G" . gptel-menu))
   :config
   (setq-default gptel-backend
                 (gptel-make-ollama
                  "Ollama"
                  :host "localhost:11434"
-                 :models '("mistral-openorca" "codellama" "codellama:7b-code" "codellama:7b-python" "deepseek-coder")
+                 :models '("mistral" "codellama" "codellama:7b-python" "my-wizardcoder")
                  :stream t))
-  (setq-default gptel-model "mistral-openorca"))
+  (setq-default gptel-model "mistral")
+  (setq gptel-prompt-prefix-alist '((markdown-mode . "**Prompt:** ")
+                                    (org-mode . "*Prompt:* ")
+                                    (text-mode . "**Prompt:** ")))
+  (setq gptel-response-prefix-alist '((markdown-mode . "**Response:**\n\n")
+                                    (org-mode . "*Response:*\n\n")
+                                    (text-mode . "**Response:** "))))
 #+end_src
 * LaTeX
 

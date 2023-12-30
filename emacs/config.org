@@ -823,7 +823,8 @@ Font settings for daemon mode:
 
 (use-package all-the-icons
   :config
-  (set-fontset-font t #xe161 (font-spec :family "Material Icons")))
+  (set-fontset-font t #xe161 (font-spec :family "Material Icons"))
+  (set-fontset-font t #xe897 (font-spec :family "Material Icons")))
 
 (elpaca-wait)
 #+end_src

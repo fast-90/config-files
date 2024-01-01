@@ -3391,18 +3391,26 @@ Can also be used in combination with emacs-jupyter. When the notebook is opened 
 (use-package gptel
   :hook
   (gptel-mode-hook . markdown-toggle-markup-hiding)
+  (prog-mode-hook . dn/gptel-prog-hook)
   :bind
-  (("C-c G" . gptel-menu))
+  (("C-c G" . gptel-menu)
+   :map dn/prog-map
+   ("C" . gptel-complete-code))
   :init
+  (defvar gptel-completion-model "deepseek-coder:6.7b-base"
+  "The name of the model to use for code completion.")
   (defun gptel-complete-code ()
   "Complete code at point."
   (interactive)
   (let ((gptel-max-tokens 40)
         (gptel-temperature 0.2)
-        (gptel-model "deepseek-coder:6.7b-base"))
+        (gptel-model gptel-completion-model))
     (if current-prefix-arg
         (call-interactively #'gptel-menu)
       (gptel-send))))
+  (defun dn/gptel-prog-hook ()
+    "Default gptel parameters for programming."
+    (setq-local gptel-model "deepseek-coder:6.7b-instruct"))
   :config
   (setq-default gptel-backend
                 (gptel-make-ollama

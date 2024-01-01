@@ -822,7 +822,7 @@ Font settings for daemon mode:
 (set-face-attribute 'tab-bar nil :font (font-spec :family "IBM Plex Mono" :size dn/default-font-size))
 
 (use-package all-the-icons
-  :config
+  :init
   (set-fontset-font t #xe161 (font-spec :family "Material Icons"))
   (set-fontset-font t #xe897 (font-spec :family "Material Icons")))
 

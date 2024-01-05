@@ -284,7 +284,6 @@ Adjust emacs default settings like UI, indentation, bell sound, back up location
 (setq display-line-numbers-type t)                    ; Set line numbers
 (setq create-lockfiles nil)                           ; lock files kill `npm start'
 (setq-default fill-column 79)                         ; Set fill column to 80 rather than 70, in all cases.
-(pixel-scroll-precision-mode 1)                       ; Precision scrolling
 (setq ring-bell-function 'ignore)                     ; Disable bell sound
 (setq-default indent-tabs-mode nil)                   ; Don't use tabs for indentation
 (setq use-default-font-for-symbols nil)               ; Don't use use default fonts for symbols
@@ -482,6 +481,20 @@ Also hides other apps"
 
 #+begin_src emacs-lisp
 (global-set-key (kbd "<f12>") 'toggle-frame-maximized)
+#+end_src
+
+** Pixel precision scroll
+#+begin_src emacs-lisp
+(use-package pixel-scroll
+  :elpaca nil
+  :bind
+  ([remap scroll-up-command]   . pixel-scroll-interpolate-down)
+  ([remap scroll-down-command] . pixel-scroll-interpolate-up)
+  :custom
+  (pixel-scroll-precision-interpolate-page t)
+  (scroll-conservatively 101)
+  :init
+  (pixel-scroll-precision-mode 1))
 #+end_src
 * File and buffer management
 

@@ -3417,7 +3417,7 @@ Can also be used in combination with emacs-jupyter. When the notebook is opened 
   "Complete code at point."
   (interactive)
   (let ((gptel-max-tokens 40)
-        (gptel-temperature 0.2)
+        (gptel-temperature 0.1)
         (gptel-model gptel-completion-model))
     (if current-prefix-arg
         (call-interactively #'gptel-menu)
@@ -3425,14 +3425,20 @@ Can also be used in combination with emacs-jupyter. When the notebook is opened 
   (defun dn/gptel-prog-hook ()
     "Default gptel parameters for programming."
     (setq-local gptel-model "deepseek-coder:6.7b-instruct"))
+  (defun gptel-reset-context ()
+    "Reset context for current buffer.
+
+Makes the AI forget the past conversations of current buffer."
+    (interactive)
+    (setq-local gptel--ollama-context nil))
   :config
   (setq-default gptel-backend
                 (gptel-make-ollama
                  "Ollama"
                  :host "localhost:11434"
-                 :models '("mistral" "dolphin-mistral" "solar" "codellama" "codellama:7b-python" "deepseek-coder:6.7b-base" "deepseek-coder:6.7b-instruct")
+                 :models '("solar" "openhermes" "dolphin-mistral" "deepseek-coder:6.7b-base" "deepseek-coder:6.7b-instruct")
                  :stream t))
-  (setq-default gptel-model "solar")
+  (setq-default gptel-model "openhermes")
   (setq-default gptel-temperature nil)
   (setq gptel-directives '((default . "You are a large language model living in Emacs and a helpful assistant. Respond concisely.")
                            (programming . "You are a professional programmer and an expert in Python, SQL and Rust.")

@@ -1092,10 +1092,18 @@ Currently trying =mood-line= over =doom-modeline= as the latter messes up the ba
     (if (and (buffer-file-name (buffer-base-buffer)) buffer-read-only)
         (propertize (all-the-icons-material "lock") 'face '(:inherit warning :family "Material Icons"))
       ""))
+  (defvar dn/telephone-line-vc-max-length 0.25
+    "Soft cut-off for vc branch name in telephone line.")
+  (defun dn/adjusted-branch-name ()
+    "Shorten branch name if it is too long for current window."
+    (when (> (length (magit-get-current-branch)) (* (window-width) 0.25))
+        (replace-regexp-in-string "feature/" "f/" (magit-get-current-branch)))
   (defun dn/vc-branch-name ()
     "Custom string to display vc (git) branch name on mode-line."
     (if (not (and (buffer-file-name (buffer-base-buffer)) (vc-state (buffer-file-name)))) ""
-      (concat (all-the-icons-octicon "git-branch" :v-adjust 0.04) " " (magit-get-current-branch))))
+      (concat (all-the-icons-octicon "git-branch" :v-adjust 0.04)
+              " "
+              (dn/adjusted-branch-name))))
   (defun dn/vc-modified-state ()
     "Show a '+' if changes have been added."
     (when-let* ((vc-active (and vc-mode buffer-file-name))

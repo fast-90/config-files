@@ -328,6 +328,12 @@ I copied this over from [[https://github.com/Nathan-Furnal/dotemacs/blob/master/
   (eldoc-echo-area-use-multiline-p nil))
 #+end_src
 
+** Eldoc box
+#+begin_src emacs-lisp
+(use-package eldoc-box
+  :bind (:map dn/prog-map
+              ("h" . eldoc-box-eglot-help-at-point)))
+#+end_src
 ** Autorevert
 
 #+begin_src emacs-lisp

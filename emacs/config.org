@@ -1096,8 +1096,9 @@ Currently trying =mood-line= over =doom-modeline= as the latter messes up the ba
     "Soft cut-off for vc branch name in telephone line.")
   (defun dn/adjusted-branch-name ()
     "Shorten branch name if it is too long for current window."
-    (when (> (length (magit-get-current-branch)) (* (window-width) 0.25))
-        (replace-regexp-in-string "feature/" "f/" (magit-get-current-branch)))
+    (if (> (length (magit-get-current-branch)) (* (window-width) 0.25))
+        (replace-regexp-in-string "\\(\\w\\)\\w.*?/" "\\1/" (magit-get-current-branch))
+      (magit-get-current-branch)))
   (defun dn/vc-branch-name ()
     "Custom string to display vc (git) branch name on mode-line."
     (if (not (and (buffer-file-name (buffer-base-buffer)) (vc-state (buffer-file-name)))) ""
@@ -1125,9 +1126,9 @@ Currently trying =mood-line= over =doom-modeline= as the latter messes up the ba
       ,(dn/vc-modified-state)))
   ;; Set form of segments
   (setq telephone-line-primary-left-separator 'telephone-line-identity-left
-      telephone-line-secondary-left-separator 'telephone-line-identity-hollow-left
-      telephone-line-primary-right-separator 'telephone-line-identity-right
-      telephone-line-secondary-right-separator 'telephone-line-identity-hollow-right)
+        telephone-line-secondary-left-separator 'telephone-line-identity-hollow-left
+        telephone-line-primary-right-separator 'telephone-line-identity-right
+        telephone-line-secondary-right-separator 'telephone-line-identity-hollow-right)
   ;; Set left/right hand side segments
   (setq telephone-line-lhs
         '((evil . (telephone-line-meow-tag-segment))

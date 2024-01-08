@@ -3006,7 +3006,18 @@ Adds the =flymake-ruff-load= command which loads the hook for current buffer to 
 
 #+begin_src emacs-lisp
 ;; (use-package flymake-ruff
-;;   :straight t)
+;;   :after eglot
+;;   :elpaca (flymake-ruff
+;;              :type git
+;;              :host github
+;;              :repo "erickgnavar/flymake-ruff")
+;;   :hook (eglot-managed-mode-hook . flymake-ruff-load))
+
+
+;; (use-package ruff-fix
+;;   :elpaca (ruff-fix :host github :repo "mkt3/ruff-fix.el")
+;;   :bind
+;;   (:map python-base-mode-map ("C-c l I" . ruff-fix-buffer)))
 #+end_src
 
 **** ruff-format

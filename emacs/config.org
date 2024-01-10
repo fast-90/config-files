@@ -2556,7 +2556,7 @@ Current the function below is unused as we are using ~vterm-toggle~ with ~vterm-
         ("f" . eglot-format-buffer)
         ("R" . eglot-rename))
   :hook
-  (python-base-mode-hook . dn/pylsp-default-eglot-workspace-configuration)
+  ;; (python-base-mode-hook . dn/pylsp-default-eglot-workspace-configuration)
   (python-base-mode-hook . eglot-ensure)
   :init
   ;; Always refresh completion table from LSP

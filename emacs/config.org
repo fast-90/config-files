@@ -1430,6 +1430,7 @@ I also enabled directory tracking and named vterm buffer, see also here how to s
          ("C-j" . corfu-next)
          ("C-k" . corfu-previous)
          ("TAB" . corfu-insert)
+         ("C-d" . corfu-popupinfo-toggle)
          ("RET" . nil)
          :map org-mode-map
          ("C-," . nil))
@@ -1439,6 +1440,7 @@ I also enabled directory tracking and named vterm buffer, see also here how to s
   (corfu-on-exact-match nil)
   :init
   (global-corfu-mode)
+  (corfu-popupinfo-mode 1)
   (global-set-key (kbd "M-i") #'completion-at-point))
 #+end_src
 

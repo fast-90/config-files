@@ -2775,7 +2775,9 @@ I am used to using pyright, but have recently switched over to pylsp at home to 
 
 There is also [[https://github.com/mtshiba/pylyzer][pylyzer]], but it's still in its infancy.
 
-To setup a language server for Python, install =python-lsp-server= or =pyright= globally via =pip install --user= (or check the page for latest installation instructions). In case of pylsp the plugins need to be installed globally as well.
+To setup a language server for Python, install =python-lsp-server= or =pyright= globally (or check the page for latest installation instructions). In case of pylsp the plugins need to be installed globally as well.
+
+To install packages globally, consider using =pipx=. As of 2024-01-08, this is the only way to ensure =python-lsp-server= and its plugins are working globally. For the plugins, install them using =pipx inject=. Other options tried include =rye=, which did not work for me.
 
 Environments should be created as per the development workflow and the relevant tools (e.g. =pdm=). Other tools for linting, static type checking, formatting etc. should be installed in the virtual environment as well.
 

@@ -3287,6 +3287,16 @@ Can also be used in combination with emacs-jupyter. When the notebook is opened 
 (use-package yaml-mode)
 #+end_src
 
+** Highlight indentation
+#+begin_src emacs-lisp
+(use-package highlight-indent-guides
+  :after yaml-mode
+  :hook
+  (yaml-ts-mode-hook . highlight-indent-guides-mode)
+  :config
+  (setq highlight-indent-guides-method 'character)
+  (set-face-foreground 'highlight-indent-guides-character-face "dimgray"))
+#+end_src
 ** AutoHotKey
 
 #+begin_src emacs-lisp

@@ -2557,8 +2557,8 @@ Current the function below is unused as we are using ~vterm-toggle~ with ~vterm-
         ("R" . eglot-rename))
   :hook
   ;; (python-base-mode-hook . dn/pylsp-default-eglot-workspace-configuration)
-  (python-base-mode-hook . eglot-ensure)
-  :init
+  ((python-base-mode-hook dockerfile-ts-mode-hook) . eglot-ensure)
+    :init
   ;; Always refresh completion table from LSP
   ;; Note: this is a test, might be slow depending on the LSP server
   (advice-add 'eglot-completion-at-point :around #'cape-wrap-buster)
@@ -2616,7 +2616,8 @@ If you built Emacs from source, you should check whether tree-sitter is availabl
   :init
   (setq treesit-language-source-alist
         '((python . ("git@github.com:tree-sitter/tree-sitter-python.git"))
-          (yaml .("git@github.com:ikatyang/tree-sitter-yaml.git"))))
+          (yaml . ("git@github.com:ikatyang/tree-sitter-yaml.git"))
+          (dockerfile .("git@github.com:camdencheek/tree-sitter-dockerfile.git"))))
   :config
   (when (and (treesit-available-p) (executable-find "tree-sitter"))
     ;; (treesit-install-language-grammar 'python)
@@ -3093,6 +3094,27 @@ import pandas
   Note that =:async yes=  and =:session py= are set as default options in this config for Python blocks via the =org-babel-default-header-args:python= variable [[*Jupyter][here]].
 
 - The above workflow can be replicated with any tool that allows the creation of environments (e.g. conda/pyenv/poetry).
+
+** Docker
+*Prerequisites:*
++ Install Dockerfile treesit grammar (~treesit-install-language-grammar RET dockerfile~)
++ Install =dockerfile-language-server= (e.g. =brew install dockerfile-language-server=) for Eglot.
+
+Syntax highlighting:
+
+#+begin_src emacs-lisp
+(use-package dockerfile-ts-mode
+  :elpaca nil
+  :after treesit
+  :mode ("/Dockerfile\\'" . dockerfile-ts-mode))
+
+#+end_src
+
+Docker interface a la Magit (replacement for desktop app):
+
+#+begin_src emacs-lisp
+(use-package docker)
+#+end_src
 ** Rust
 
 #+begin_src emacs-lisp

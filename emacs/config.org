@@ -1624,11 +1624,12 @@ Package to easily navigate cursor within buffers. Using this over evil-easymotio
 
 #+begin_src emacs-lisp
 (use-package popper
-  :bind (("C-`"   . popper-toggle-latest)
+  :bind (("C-'"   . popper-toggle-latest)
          ("M-`"   . popper-cycle)
-         ("C-M-'" . popper-toggle-type)
-         ("C-'"   . popper-kill-latest-popup)
-         ("M-'"   . popper-kill-latest-popup))
+         ("M-'" . popper-toggle-type)
+         ("s-'"   . popper-kill-latest-popup)
+         :map org-mode-map
+         ("C-'" . nil))
   :init
   (setq popper-reference-buffers
         '("\\*Messages\\*"
@@ -1641,6 +1642,7 @@ Package to easily navigate cursor within buffers. Using this over evil-easymotio
           helpful-mode
 	    "\\*eldoc\\*"
 	    "\\*PDF-Occur\\*"
+            "\\*ChatGPT*\\*.*$"
           compilation-mode))
   (popper-mode +1)
   (popper-echo-mode +1))
@@ -3528,7 +3530,13 @@ Makes the AI forget the past conversations of current buffer."
                                     (text-mode . "**Prompt:** ")))
   (setq gptel-response-prefix-alist '((markdown-mode . "**Response:**\n\n")
                                     (org-mode . "*Response:*\n\n")
-                                    (text-mode . "**Response:** "))))
+                                    (text-mode . "**Response:** ")))
+  (add-to-list 'display-buffer-alist
+             '("\\*ChatGPT*\\*.*$"
+               (display-buffer-reuse-window)
+               (reusable-frames . visible)
+               (side . right)
+               (window-width . 0.3))))
 #+end_src
 * LaTeX
 

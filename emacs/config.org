@@ -1238,44 +1238,23 @@ Currently trying =mood-line= over =doom-modeline= as the latter messes up the ba
 #+begin_src emacs-lisp
 (use-package vterm
   :ensure-system-package cmake
-  :bind (("C-c V" . vterm)
+  :bind (("C-c v" . vterm)
          :map vterm-mode-map
-              ("C-b" . vterm-send-C-b))
-  ;; :init
-  ;; (defun run-in-vterm-kill (process event)
-  ;;   "A process sentinel. Kills PROCESS's buffer if it is live."
-  ;;   (let ((b (process-buffer process)))
-  ;;     (and (buffer-live-p b)
-  ;;          (kill-buffer b))))
-;;   (defun run-in-vterm (command)
-;;     "Execute string COMMAND in a new vterm.
-
-;; Interactively, prompt for COMMAND with the current buffer's file
-;; name supplied. When called from Dired, supply the name of the
-;; file at point.
-
-;; Like `async-shell-command`, but run in a vterm for full terminal features.
-
-;; The new vterm buffer is named in the form `*foo bar.baz*`, the
-;; command and its arguments in earmuffs.
-
-;; When the command terminates, the shell remains open, but when the
-;; shell exits, the buffer is killed."
-;;     (interactive
-;;      (list
-;;       (let* ((f (cond (buffer-file-name)
-;;                       ((eq major-mode 'dired-mode)
-;;                        (dired-get-filename nil t))))
-;;              (filename (concat " " (shell-quote-argument (and f (file-relative-name f))))))
-;;         (read-shell-command "Terminal command: "
-;;                             (cons filename 0)
-;;                             (cons 'shell-command-history 1)
-;;                             (list filename)))))
-;;     (with-current-buffer (vterm (concat "*" command "*"))
-;;       (set-process-sentinel vterm--process #'run-in-vterm-kill)
-;;       (vterm-send-string command)
-;;       (vterm-send-return)))
+         ("C-b" . vterm-send-C-b))
   :config
+  (add-to-list 'display-buffer-alist
+               '((lambda (buffer-or-name _)
+                   (let ((buffer (get-buffer buffer-or-name)))
+                     (with-current-buffer buffer
+                       (or (equal major-mode 'vterm-mode)
+                           (string-prefix-p vterm-buffer-name (buffer-name buffer))))))
+                 (display-buffer-reuse-window display-buffer-at-bottom)
+                 (display-buffer-reuse-window display-buffer-in-direction)
+                 ;;display-buffer-in-direction/direction/dedicated is added in emacs27
+                 ;;(direction . bottom)
+                 (dedicated . t) ;dedicated is supported in emacs27
+                 (reusable-frames . visible)
+                 (window-height . 0.3)))
   (dolist (mode '(term-mode-hook
                   shell-mode-hook
                   vterm-mode-hook
@@ -1290,31 +1269,31 @@ I also enabled directory tracking and named vterm buffer, see also here how to s
 ** vterm-toggle
 
 #+begin_src emacs-lisp
-(use-package vterm-toggle
-  :bind (("C-c v" . vterm-toggle)
-         :map vterm-mode-map
-         ("C-<return>" . vterm-toggle-insert-cd)
-         ("C-M-p" . vterm-toggle-backward)
-         ("C-M-n" . vterm-toggle-forward))
-  :custom
-  (vterm-buffer-name-string "vterm: %s")
-  (vterm-toggle-project-root t)
-  (vterm-toggle-scope 'project)
-  :config
-  (setq vterm-toggle-fullscreen-p nil)
-  (add-to-list 'display-buffer-alist
-               '((lambda (buffer-or-name _)
-                   (let ((buffer (get-buffer buffer-or-name)))
-                     (with-current-buffer buffer
-                       (or (equal major-mode 'vterm-mode)
-                           (string-prefix-p vterm-buffer-name (buffer-name buffer))))))
-                 (display-buffer-reuse-window display-buffer-at-bottom)
-                 (display-buffer-reuse-window display-buffer-in-direction)
-                 ;;display-buffer-in-direction/direction/dedicated is added in emacs27
-                 ;;(direction . bottom)
-                 (dedicated . t) ;dedicated is supported in emacs27
-                 (reusable-frames . visible)
-                 (window-height . 0.3))))
+;; (use-package vterm-toggle
+;;   :bind (("C-c v" . vterm-toggle)
+;;          :map vterm-mode-map
+;;          ("C-<return>" . vterm-toggle-insert-cd)
+;;          ("C-M-p" . vterm-toggle-backward)
+;;          ("C-M-n" . vterm-toggle-forward))
+;;   :custom
+;;   (vterm-buffer-name-string "vterm: %s")
+;;   (vterm-toggle-project-root t)
+;;   (vterm-toggle-scope 'project)
+;;   :config
+;;   (setq vterm-toggle-fullscreen-p nil)
+;;   (add-to-list 'display-buffer-alist
+;;                '((lambda (buffer-or-name _)
+;;                    (let ((buffer (get-buffer buffer-or-name)))
+;;                      (with-current-buffer buffer
+;;                        (or (equal major-mode 'vterm-mode)
+;;                            (string-prefix-p vterm-buffer-name (buffer-name buffer))))))
+;;                  (display-buffer-reuse-window display-buffer-at-bottom)
+;;                  (display-buffer-reuse-window display-buffer-in-direction)
+;;                  ;;display-buffer-in-direction/direction/dedicated is added in emacs27
+;;                  ;;(direction . bottom)
+;;                  (dedicated . t) ;dedicated is supported in emacs27
+;;                  (reusable-frames . visible)
+;;                  (window-height . 0.3))))
 #+end_src
 
 ** exec-path-from-shell
@@ -1624,7 +1603,7 @@ Package to easily navigate cursor within buffers. Using this over evil-easymotio
 
 #+begin_src emacs-lisp
 (use-package popper
-  :bind (("C-'"   . popper-toggle-latest)
+  :bind (("C-'"   . popper-toggle)
          ("M-`"   . popper-cycle)
          ("M-'" . popper-toggle-type)
          ("s-'"   . popper-kill-latest-popup)
@@ -1642,10 +1621,18 @@ Package to easily navigate cursor within buffers. Using this over evil-easymotio
           helpful-mode
 	    "\\*eldoc\\*"
 	    "\\*PDF-Occur\\*"
+	    "\\*vterm\\*"
             "\\*ChatGPT*\\*.*$"
           compilation-mode))
+  (setq popper-group-function #'popper-group-by-project) 
   (popper-mode +1)
-  (popper-echo-mode +1))
+  (popper-echo-mode +1)
+  (add-to-list 'display-buffer-alist
+               '("\\*eldoc*\\*.*$"
+                 (display-buffer-reuse-window)
+                 (reusable-frames . visible)
+                 (side . right)
+                 (window-width . 0.3)) nil))
 #+end_src
 
 * Spell / syntax checking
@@ -3108,8 +3095,16 @@ Syntax highlighting:
 (use-package dockerfile-ts-mode
   :elpaca nil
   :after treesit
-  :mode ("/Dockerfile\\'" . dockerfile-ts-mode))
-
+  :mode ("/Dockerfile\\'" . dockerfile-ts-mode)
+  :bind (:map dockerfile-ts-mode-map ("C-c C-c" . docker-build))
+  :init
+  (defun docker-build(image-name)
+    "Build image from current Dockerfile."
+    (interactive "sImage name: ")
+    (if-let (project (project-current))
+        (let ((default-directory (project-root project)))
+          (async-shell-command (concat "docker build -t " image-name " -f " (buffer-file-name) " .")))
+      (async-shell-command (concat "docker build -t " image-name " .")))))
 #+end_src
 
 Docker interface a la Magit (replacement for desktop app):
@@ -3510,6 +3505,12 @@ Can also be used in combination with emacs-jupyter. When the notebook is opened 
 Makes the AI forget the past conversations of current buffer."
     (interactive)
     (setq-local gptel--ollama-context nil))
+  (add-to-list 'display-buffer-alist
+               '("\\*ChatGPT*\\*.*$"
+                 (display-buffer-reuse-window)
+                 (reusable-frames . visible)
+                 (side . right)
+                 (window-width . 0.3)))
   :config
   (setq-default gptel-backend
                 (gptel-make-ollama
@@ -3530,13 +3531,7 @@ Makes the AI forget the past conversations of current buffer."
                                     (text-mode . "**Prompt:** ")))
   (setq gptel-response-prefix-alist '((markdown-mode . "**Response:**\n\n")
                                     (org-mode . "*Response:*\n\n")
-                                    (text-mode . "**Response:** ")))
-  (add-to-list 'display-buffer-alist
-             '("\\*ChatGPT*\\*.*$"
-               (display-buffer-reuse-window)
-               (reusable-frames . visible)
-               (side . right)
-               (window-width . 0.3))))
+                                    (text-mode . "**Response:** "))))
 #+end_src
 * LaTeX
 

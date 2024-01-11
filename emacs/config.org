@@ -1573,19 +1573,19 @@ Idea: use C-p or M-p as the prefix key.
 ** My window config
 
 #+begin_src emacs-lisp
-(defun dn/other-window-backward ()
-  "Move to other window backward"
-  (interactive)
-  (other-window -1))
+(keymap-global-set "C-c w h" 'shrink-window-horizontally)
+(keymap-global-set "C-c w l" 'enlarge-window-horizontally)
+(keymap-global-set "C-c w j" 'shrink-window)
+(keymap-global-set "C-c w k" 'enlarge-window)
+(keymap-global-set "C-c w 0" 'balance-windows)
 
-
-(defvar-keymap dn/other-window-repeat-map
+(defvar-keymap dn/window-resize-repeat-map
   :repeat t
-  "w" #'other-window
-  "W" #'dn/other-window-backward)
-
-
-(keymap-global-set "C-c w" #'other-window)
+  "h" #'shrink-window-horizontally
+  "l" #'enlarge-window-horizontally
+  "j" #'shrink-window
+  "k" #'enlarge-window
+  "0" #'balance-windows)
 #+end_src
 
 ** Windmove

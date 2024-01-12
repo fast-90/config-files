@@ -1234,13 +1234,29 @@ Currently trying =mood-line= over =doom-modeline= as the latter messes up the ba
 #+end_src
 
 ** vterm
-
 #+begin_src emacs-lisp
 (use-package vterm
   :ensure-system-package cmake
-  :bind (("C-c v" . vterm)
+  :bind (("C-c v" . dn/project-vterm)
          :map vterm-mode-map
          ("C-b" . vterm-send-C-b))
+  :init
+  (defun dn/project-vterm ()
+    "Start an inferior shell in the current project's root directory.
+If a buffer already exists for running a shell in the project's root,
+switch to it.  Otherwise, create a new shell buffer.
+With \\[universal-argument] prefix arg, create a new inferior shell buffer even
+if one already exists."
+    (interactive)
+    (require 'comint)
+    (let* ((default-directory (project-root (project-current t)))
+           (default-project-shell-name (project-prefixed-buffer-name "vterm"))
+           (shell-buffer (get-buffer default-project-shell-name)))
+      (if (and shell-buffer (not current-prefix-arg))
+          (if (comint-check-proc shell-buffer)
+              (pop-to-buffer shell-buffer (bound-and-true-p display-comint-buffer-action))
+            (vterm shell-buffer))
+        (vterm (generate-new-buffer-name default-project-shell-name)))))
   :config
   (add-to-list 'display-buffer-alist
                '((lambda (buffer-or-name _)

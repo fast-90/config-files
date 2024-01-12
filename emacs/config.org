@@ -2740,6 +2740,8 @@ Alternative regex string for simpler replacement: '__PYTHON_EL_eval(\".*?[\\]n\\
 
   (defun dn/python-hook ()
     (setq-local fill-column 79)
+    (set (make-local-variable 'compile-command)
+                 (concat "pytest " (buffer-name)))
     (display-fill-column-indicator-mode))
   :hook
   (comint-preoutput-filter-functions . dn/python-comint-filter)
@@ -2923,6 +2925,23 @@ Use ~pdb-capf~ for ~completion-at-point-functions~ when using ~pdb~ with ~pytest
           (lambda ()
             (add-hook 'completion-at-point-functions
                       'pdb-capf nil t))))
+#+end_src
+
+*** Compile
+Testing  ~compile~ as a replacement for ~python-pytest~ as the latter depends on projectile (which I don't use).
+
+#+begin_src emacs-lisp
+(use-package compile
+  :elpaca nil
+  :init
+  (setq compilation-scroll-output 'first-error)
+  (setq compilation-always-kill t)
+  (setq compilation-max-output-line-length nil))
+
+(use-package fancy-compilation
+  :config
+  (fancy-compilation-mode)
+  (setq fancy-compilation-scroll-output 'first-error))
 #+end_src
 *** Blacken
 

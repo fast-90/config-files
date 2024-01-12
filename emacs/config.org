@@ -1637,18 +1637,30 @@ Package to easily navigate cursor within buffers. Using this over evil-easymotio
           helpful-mode
 	    "\\*eldoc\\*"
 	    "\\*PDF-Occur\\*"
-	    "\\*vterm\\*"
+	    "\\*.*vterm.*\\*"
+	    "\\*pytest\\*"
             "\\*ChatGPT*\\*.*$"
           compilation-mode))
   (setq popper-group-function #'popper-group-by-project) 
   (popper-mode +1)
   (popper-echo-mode +1)
-  (add-to-list 'display-buffer-alist
-               '("\\*eldoc*\\*.*$"
-                 (display-buffer-reuse-window)
-                 (reusable-frames . visible)
-                 (side . right)
-                 (window-width . 0.3)) nil))
+  (dolist (buffer-name-regex '("\\*ChatGPT*\\*.*$" "\\*eldoc*\\*.*$"))
+    (add-to-list 'display-buffer-alist
+                 `(,buffer-name-regex
+                   (display-buffer-reuse-window)
+                   (reusable-frames . visible)
+                   (side . right)
+                   (window-width . 0.3)) nil ))
+  (dolist (buffer-name-regex '("\\*pytest*\\*.*$" "\\*.*vterm.*\\*" "\\*compilation\\*"))
+    (add-to-list 'display-buffer-alist
+                 `(,buffer-name-regex
+                   (display-buffer-reuse-window display-buffer-at-bottom)
+                   (display-buffer-reuse-window display-buffer-in-direction)
+                   ;;display-buffer-in-direction/direction/dedicated is added in emacs27
+                   ;;(direction . bottom)
+                   (dedicated . t) ;dedicated is supported in emacs27
+                   (reusable-frames . visible)
+                   (window-height . 0.3)) nil)))
 #+end_src
 
 * Spell / syntax checking
@@ -2519,29 +2531,6 @@ Function to archive all done task in current org agenda/file.
                                   (project-dired "Dired" "D")
                                   (consult-ripgrep "ripgrep" "g")
                                   (magit-project-status "Magit" "m"))))
-#+end_src
-
-*** Start vterm in project root
-
-Current the function below is unused as we are using ~vterm-toggle~ with ~vterm-toggle-project-root~ and ~vterm-toggle-scope~.
-
-#+begin_src emacs-lisp
-;; (defun dn/project-vterm ()
-;;   "Start an inferior shell in the current project's root directory.
-;; If a buffer already exists for running a shell in the project's root,
-;; switch to it.  Otherwise, create a new shell buffer.
-;; With \\[universal-argument] prefix arg, create a new inferior shell buffer even
-;; if one already exists."
-;;   (interactive)
-;;   (require 'comint)
-;;   (let* ((default-directory (project-root (project-current t)))
-;;          (default-project-shell-name (project-prefixed-buffer-name "vterm"))
-;;          (shell-buffer (get-buffer default-project-shell-name)))
-;;     (if (and shell-buffer (not current-prefix-arg))
-;;         (if (comint-check-proc shell-buffer)
-;;             (pop-to-buffer shell-buffer (bound-and-true-p display-comint-buffer-action))
-;;           (vterm shell-buffer))
-;;       (vterm (generate-new-buffer-name default-project-shell-name)))))
 #+end_src
 
 ** LSP
@@ -3521,12 +3510,6 @@ Can also be used in combination with emacs-jupyter. When the notebook is opened 
 Makes the AI forget the past conversations of current buffer."
     (interactive)
     (setq-local gptel--ollama-context nil))
-  (add-to-list 'display-buffer-alist
-               '("\\*ChatGPT*\\*.*$"
-                 (display-buffer-reuse-window)
-                 (reusable-frames . visible)
-                 (side . right)
-                 (window-width . 0.3)))
   :config
   (setq-default gptel-backend
                 (gptel-make-ollama

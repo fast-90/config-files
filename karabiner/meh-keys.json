@@ -1,0 +1,189 @@
+{
+  "title": "Duy's Meh keys configuration",
+  "rules": [
+    {
+      "description": "Activate Firefox (Meh)",
+      "manipulators": [
+        {
+          "type": "basic",
+          "from": {
+            "key_code": "d",
+            "modifiers": {
+              "mandatory": [
+                "left_option",
+                "left_shift",
+                "left_control"
+              ]
+            }
+          },
+          "to": [
+            {
+              "shell_command": "osascript -e 'activate application \"Firefox\"'"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "description": "Activate Emacs (Meh)",
+      "manipulators": [
+        {
+          "type": "basic",
+          "from": {
+            "key_code": "f",
+            "modifiers": {
+              "mandatory": [
+                "left_option",
+                "left_shift",
+                "left_control"
+              ]
+            }
+          },
+          "to": [
+            {
+              "shell_command": "osascript $HOME/repos/config-files/applescript/open-emacs.applescript"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "description": "Activate Terminal (Meh)",
+      "manipulators": [
+        {
+          "type": "basic",
+          "from": {
+            "key_code": "a",
+            "modifiers": {
+              "mandatory": [
+                "left_option",
+                "left_shift",
+                "left_control"
+              ]
+            }
+          },
+          "to": [
+            {
+              "shell_command": "osascript -e 'tell application \"Terminal\" to activate'"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "description": "Maximise window (Meh)",
+      "manipulators": [
+        {
+          "type": "basic",
+          "from": {
+            "key_code": "return_or_enter",
+            "modifiers": {
+              "mandatory": [
+                "left_option",
+                "left_shift",
+                "left_control"
+              ]
+            }
+          },
+          "to": [
+            {
+              "shell_command": "open -g \"rectangle://execute-action?name=maximize\""
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "description": "Left half window (Meh)",
+      "manipulators": [
+        {
+          "type": "basic",
+          "from": {
+            "key_code": "h",
+            "modifiers": {
+              "mandatory": [
+                "left_option",
+                "left_shift",
+                "left_control"
+              ]
+            }
+          },
+          "to": [
+            {
+              "shell_command": "open -g \"rectangle://execute-action?name=left-half\""
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "description": "Right half window (Meh)",
+      "manipulators": [
+        {
+          "type": "basic",
+          "from": {
+            "key_code": "l",
+            "modifiers": {
+              "mandatory": [
+                "left_option",
+                "left_shift",
+                "left_control"
+              ]
+            }
+          },
+          "to": [
+            {
+              "shell_command": "open -g \"rectangle://execute-action?name=right-half\""
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "description": "Top half window (Meh)",
+      "manipulators": [
+        {
+          "type": "basic",
+          "from": {
+            "key_code": "k",
+            "modifiers": {
+              "mandatory": [
+                "left_option",
+                "left_shift",
+                "left_control"
+              ]
+            }
+          },
+          "to": [
+            {
+              "shell_command": "open -g \"rectangle://execute-action?name=top-half\""
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "description": "Bottom half window (Meh)",
+      "manipulators": [
+        {
+          "type": "basic",
+          "from": {
+            "key_code": "j",
+            "modifiers": {
+              "mandatory": [
+                "left_option",
+                "left_shift",
+                "left_control"
+              ]
+            }
+          },
+          "to": [
+            {
+              "shell_command": "open -g \"rectangle://execute-action?name=bottom-half\""
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

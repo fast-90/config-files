@@ -622,6 +622,15 @@ brew install coreutils
   (setq meow-use-clipboard t)
   (setq meow-use-dynamic-face-color t)
   (setq meow-use-cursor-position-hack t)
+  (defmacro nt--call-negative (form)
+    `(let ((current-prefix-arg -1))
+       (call-interactively ,form)))
+  (defun nt-negative-find ()
+    (interactive)
+    (nt--call-negative 'meow-find))
+  (defun nt-negative-till ()
+    (interactive)
+    (nt--call-negative 'meow-till))
   :config
   (defun define-meow-select-mode ()
     "Define meow-select-mode to select and copy text in motion state."
@@ -775,6 +784,99 @@ brew install coreutils
       '("X" . avy-goto-line)
       '("y" . (lambda () (interactive) (meow-save) (meow-motion-mode)))
       '("z" . meow-pop-selection)))
+  (defun meow-setup-colemak ()
+    (setq meow-cheatsheet-layout meow-cheatsheet-layout-colemak)
+    (meow-motion-overwrite-define-key
+     ;; Use e to move up, n to move down.
+     ;; Since special modes usually use n to move down, we only overwrite e here.
+     '("e" . meow-prev)
+     '("<escape>" . ignore))
+    (meow-leader-define-key
+     '("?" . meow-cheatsheet)
+     ;; To execute the originally e in MOTION state, use SPC e.
+     '("e" . "H-e")
+     '("1" . meow-digit-argument)
+     '("2" . meow-digit-argument)
+     '("3" . meow-digit-argument)
+     '("4" . meow-digit-argument)
+     '("5" . meow-digit-argument)
+     '("6" . meow-digit-argument)
+     '("7" . meow-digit-argument)
+     '("8" . meow-digit-argument)
+     '("9" . meow-digit-argument)
+     '("0" . meow-digit-argument)
+     '("b" . consult-buffer)
+     '("t" . "C-c t")
+     '("u" . "C-u")
+     '("p" . "C-x p")
+     '("q" . "C-c q"))
+    (meow-normal-define-key
+     '("0" . meow-expand-0)
+     '("1" . meow-expand-1)
+     '("2" . meow-expand-2)
+     '("3" . meow-expand-3)
+     '("4" . meow-expand-4)
+     '("5" . meow-expand-5)
+     '("6" . meow-expand-6)
+     '("7" . meow-expand-7)
+     '("8" . meow-expand-8)
+     '("9" . meow-expand-9)
+     '("-" . negative-argument)
+     '(";" . meow-reverse)
+     '("," . meow-inner-of-thing)
+     '("." . meow-bounds-of-thing)
+     '("[" . meow-beginning-of-thing)
+     '("]" . meow-end-of-thing)
+     '("/" . meow-visit)
+     '("a" . meow-append)
+     '("A" . meow-open-below)
+     '("b" . meow-back-word)
+     '("B" . meow-back-symbol)
+     '("c" . meow-change)
+     '("C" . meow-comment)
+     '("d" . meow-delete)
+     '("e" . meow-prev)
+     '("E" . meow-prev-expand)
+     '("f" . meow-find)
+     '("F" . nt-negative-find)
+     '("g" . meow-cancel-selection)
+     '("G" . meow-grab)
+     '("m" . meow-left)
+     '("M" . meow-left-expand)
+     '("i" . meow-right)
+     '("I" . meow-right-expand)
+     '("j" . meow-join)
+     '("k" . meow-kill)
+     '("l" . meow-line)
+     '("L" . avy-goto-line)
+     '("h" . meow-mark-word)
+     '("H" . meow-mark-symbol)
+     '("n" . meow-next)
+     '("N" . meow-next-expand)
+     '("o" . meow-block)
+     '("O" . meow-to-block)
+     '("p" . meow-yank)
+     '("P" . meow-replace)
+     '("q" . meow-quit)
+     '("r" . undo-fu-only-redo)
+     '("s" . meow-insert)
+     '("S" . meow-open-above)
+     '("t" . meow-till)
+     '("T" . nt-negative-till)
+     '("u" . undo-fu-only-undo)
+     '("U" . meow-undo-in-selection)
+     '("v" . meow-search)
+     '("V" . avy-goto-char-timer)
+     '("w" . meow-next-word)
+     '("W" . meow-next-symbol)
+     '("x" . meow-delete)
+     '("X" . meow-backward-delete)
+     '("y" . meow-save)
+     '("Y" . meow-swap-grab)
+     '("z" . meow-pop-selection)
+     '("=" . meow-indent)
+     '("'" . repeat)
+     '("<escape>" . ignore)))
   (meow-thing-register 'quote
                        '(regexp "\"" "\"")
                        '(regexp "\"" "\""))
@@ -783,7 +885,7 @@ brew install coreutils
                        '(regexp "<" ">"))
   (add-to-list 'meow-char-thing-table '(?q . quote))
   (add-to-list 'meow-char-thing-table '(?a . angled))
-  (meow-setup)
+  (meow-setup-colemak)
   (meow-global-mode))
 #+end_src
 
@@ -1449,7 +1551,7 @@ I also enabled directory tracking and named vterm buffer, see also here how to s
   (corfu-on-exact-match nil)
   :init
   (global-corfu-mode)
-  (corfu-popupinfo-mode 1)
+  ;; (corfu-popupinfo-mode 1)
   (global-set-key (kbd "M-i") #'completion-at-point))
 #+end_src
 
@@ -1582,18 +1684,18 @@ Idea: use C-p or M-p as the prefix key.
 ** My window config
 
 #+begin_src emacs-lisp
-(keymap-global-set "C-c w h" 'shrink-window-horizontally)
-(keymap-global-set "C-c w l" 'enlarge-window-horizontally)
-(keymap-global-set "C-c w j" 'shrink-window)
-(keymap-global-set "C-c w k" 'enlarge-window)
+(keymap-global-set "C-c w m" 'shrink-window-horizontally)
+(keymap-global-set "C-c w i" 'enlarge-window-horizontally)
+(keymap-global-set "C-c w n" 'shrink-window)
+(keymap-global-set "C-c w e" 'enlarge-window)
 (keymap-global-set "C-c w 0" 'balance-windows)
 
 (defvar-keymap dn/window-resize-repeat-map
   :repeat t
-  "h" #'shrink-window-horizontally
-  "l" #'enlarge-window-horizontally
-  "j" #'shrink-window
-  "k" #'enlarge-window
+  "m" #'shrink-window-horizontally
+  "i" #'enlarge-window-horizontally
+  "n" #'shrink-window
+  "e" #'enlarge-window
   "0" #'balance-windows)
 #+end_src
 
@@ -1601,14 +1703,14 @@ Idea: use C-p or M-p as the prefix key.
 #+begin_src emacs-lisp
 (use-package windmove
   :elpaca nil
-  :bind (("s-j" . windmove-down)
-         ("s-k" . windmove-up)
-         ("s-h" . windmove-left)
-         ("s-l" . windmove-right)
-         ("s-J" . windmove-swap-states-down)
-         ("s-K" . windmove-swap-states-up)
-         ("s-H" . windmove-swap-states-left)
-         ("s-L" . windmove-swap-states-right)))
+  :bind (("s-n" . windmove-down)
+         ("s-e" . windmove-up)
+         ("s-m" . windmove-left)
+         ("s-i" . windmove-right)
+         ("s-N" . windmove-swap-states-down)
+         ("s-E" . windmove-swap-states-up)
+         ("s-M" . windmove-swap-states-left)
+         ("s-I" . windmove-swap-states-right)))
 #+end_src
 ** Avy
 
@@ -1635,6 +1737,7 @@ Package to easily navigate cursor within buffers. Using this over evil-easymotio
 (use-package popper
   :bind (("C-'"   . popper-toggle)
          ("M-`"   . popper-cycle)
+         ("C-\""   . popper-cycle)
          ("M-'" . popper-toggle-type)
          ("s-'"   . popper-kill-latest-popup)
          :map org-mode-map
@@ -3545,9 +3648,9 @@ Makes the AI forget the past conversations of current buffer."
                 (gptel-make-ollama
                  "Ollama"
                  :host "localhost:11434"
-                 :models '("solar" "openhermes" "dolphin-mistral" "deepseek-coder:6.7b-base" "deepseek-coder:6.7b-instruct")
+                 :models '("solar" "openhermes" "nous-hermes2:10.7b" "dolphin-mistral" "deepseek-coder:6.7b-base" "deepseek-coder:6.7b-instruct")
                  :stream t))
-  (setq-default gptel-model "openhermes")
+  (setq-default gptel-model "nous-hermes2:10.7b")
   (setq-default gptel-temperature nil)
   (setq gptel-directives '((default . "You are a large language model living in Emacs and a helpful assistant. Respond concisely.")
                            (programming . "You are a professional programmer and an expert in Python, SQL and Rust.")

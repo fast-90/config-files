@@ -126,7 +126,8 @@ Useful links for troubleshooting:
        (add-to-list 'default-frame-alist '(drag-internal-border . 1))
        (add-to-list 'default-frame-alist '(internal-border-width . 5)))
       (dn/is-macos
-       (add-to-list 'default-frame-alist '(ns-transparent-titlebar . t))
+       (add-to-list 'default-frame-alist '(undecorated-round . t))
+       ;; (add-to-list 'default-frame-alist '(ns-transparent-titlebar . t))
        (add-to-list 'default-frame-alist '(ns-appearance . dark))
        (setq ns-use-proxy-icon nil)
        (setq frame-title-format nil)))
@@ -481,13 +482,22 @@ Also hides other apps"
   (interactive)
   (shell-command "open -g \"rectangle://execute-action?name=almost-maximize\"")
   (shell-command "osascript -e 'tell application \"System Events\" to set visible of every process whose visible is true and name is not \"Emacs\" to false'")
-  (message "Almost maximize windows"))
+  (message "Almost maximize window"))
 
-(global-set-key (kbd "<f10>") 'dn/almost-maximize-window)
+(global-set-key (kbd "<f10>") #'dn/almost-maximize-window)
 #+end_src
 
 #+begin_src emacs-lisp
-(global-set-key (kbd "<f12>") 'toggle-frame-maximized)
+(defun dn/maximize-window ()
+  "Maximize window with rectangle.
+
+Also hides other apps"
+  (interactive)
+  (shell-command "open -g \"rectangle://execute-action?name=maximize\"")
+  (shell-command "osascript -e 'tell application \"System Events\" to set visible of every process whose visible is true and name is not \"Emacs\" to false'")
+  (message "Maximize window"))
+
+(global-set-key (kbd "<f12>") #'dn/maximize-window)
 #+end_src
 
 ** Pixel precision scroll
@@ -497,6 +507,7 @@ Also hides other apps"
   :bind
   ([remap scroll-up-command]   . pixel-scroll-interpolate-down)
   ([remap scroll-down-command] . pixel-scroll-interpolate-up)
+  ;; ("C-f" . scroll-up-command)
   :custom
   (pixel-scroll-precision-interpolate-page t)
   (scroll-conservatively 101)
@@ -886,6 +897,9 @@ Font settings for daemon mode:
           (fg-line-number-active blue-cooler)
           (bg-line-number-inactive unspecified)
           (bg-line-number-active unspecified)
+          (bg-tab-bar bg-main)
+          (bg-tab-current bg-blue-intense)
+          (bg-tab-other bg-inactive)
           (fg-heading-1 blue-warmer)
           (fg-heading-2 yellow-cooler)
           (fg-heading-3 cyan-cooler)
@@ -1781,6 +1795,7 @@ Package to easily navigate cursor within buffers. Using this over evil-easymotio
   (setq org-format-latex-options (plist-put org-format-latex-options :scale 1.3))
   :custom
   (org-image-actual-width nil)
+  (org-startup-with-inline-images t)
   (org-confirm-babel-evaluate nil)     ; Do not ask for confirmation when evaluating src blocks
   (org-catch-invisible-edits 'show)    ; When making invisible edits, show the location of the edit
   (org-ellipsis " ▼ ")
@@ -2887,10 +2902,6 @@ I use =pyvenv= to in compination with =pet= to quickly switch to the correct env
 
 #+begin_src emacs-lisp
 (use-package pyvenv
-  ;; :hook
-  ;; These hooks were required when using the manual method to activate the venv. Testing it now without the hooks.
-  ;; (pyvenv-post-activate-hooks . (lambda() (call-interactively 'eglot-reconnect)))
-  ;; (pyvenv-post-deactivate-hooks . (lambda() (call-interactively 'eglot-reconnect)))
   :init
   (pyvenv-mode t)
   (pyvenv-tracking-mode t)
@@ -2906,14 +2917,14 @@ I use =pyvenv= to in compination with =pet= to quickly switch to the correct env
 *** Pytest
 
 #+begin_src emacs-lisp
-(use-package python-pytest
-  :bind (:map python-base-mode-map
-              ("C-c t" . python-pytest-dispatch))
-  :config
-  (transient-append-suffix
-    'python-pytest-dispatch
-    "-v"
-    '("-r" "coverage report" "--cov-report term-missing --cov")))
+;; (use-package python-pytest
+;;   :bind (:map python-base-mode-map
+;;               ("C-c t" . python-pytest-dispatch))
+;;   :config
+;;   (transient-append-suffix
+;;     'python-pytest-dispatch
+;;     "-v"
+;;     '("-r" "coverage report" "--cov-report term-missing --cov")))
 #+end_src
 
 Use ~pdb-capf~ for ~completion-at-point-functions~ when using ~pdb~ with ~pytest~:
@@ -3553,10 +3564,16 @@ Makes the AI forget the past conversations of current buffer."
 #+end_src
 * LaTeX
 
-Although not necessarily Emacs configuration, LaTeX needs to be installed in the OS in order to render LaTeX properly in org-mode. On WSL, I have:
+Although not necessarily Emacs configuration, LaTeX needs to be installed in the OS in order to render LaTeX properly in org-mode:
 
 1. LaTeX via [[https://yihui.org/tinytex/][TinyTex]] (need to run =tlmgr path remove= in order for it to work properly).
-2. =sudo apt-get install dvipng=
-3. =sudo apt-get install texlive-plain-generic=
+2. =tlmrg install dvisvgm=
+3. =ln -s ~/Library/TinyTeX/bin/*/dvisvgm /usr/local/bin/=
+4. =tlmrg install ulem=
+5. =tlmrg install wrapfig=
+6. =sudo apt-get install texlive-plain-generic= (maybe??)
+7. Lastly
+   #+begin_src emacs-lisp
+(setq org-latex-create-formula-image-program 'dvisvgm)
+   #+end_src
 
-I suspect step 1 is not needed, though this needs to be tested later.

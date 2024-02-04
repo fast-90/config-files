@@ -1704,13 +1704,13 @@ Idea: use C-p or M-p as the prefix key.
 (use-package windmove
   :elpaca nil
   :bind (("s-n" . windmove-down)
-         ("s-e" . windmove-up)
+         ("s-e" . windmove-up
          ("s-m" . windmove-left)
          ("s-i" . windmove-right)
-         ("s-N" . windmove-swap-states-down)
-         ("s-E" . windmove-swap-states-up)
-         ("s-M" . windmove-swap-states-left)
-         ("s-I" . windmove-swap-states-right)))
+         ("C-s-n" . windmove-swap-states-down)
+         ("C-s-e" . windmove-swap-states-up)
+         ("C-s-m" . windmove-swap-states-left)
+         ("C-s-i" . windmove-swap-states-right)))
 #+end_src
 ** Avy
 
@@ -1720,8 +1720,7 @@ Package to easily navigate cursor within buffers. Using this over evil-easymotio
 (use-package avy
   :defer t
   :init
-  (meow-normal-define-key
-   '(":" . (lambda () (interactive) (avy-goto-char-timer)))))
+  (setq avy-keys '(?t ?n ?s ?e ?r ?i ?o ?a)))
 #+end_src
 
 ** ace-link

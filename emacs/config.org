@@ -1759,14 +1759,27 @@ Idea: use C-p or M-p as the prefix key.
 #+begin_src emacs-lisp
 (use-package windmove
   :elpaca nil
-  :bind (("s-n" . windmove-down)
-         ("s-e" . windmove-up
-         ("s-m" . windmove-left)
-         ("s-i" . windmove-right)
-         ("C-s-n" . windmove-swap-states-down)
-         ("C-s-e" . windmove-swap-states-up)
-         ("C-s-m" . windmove-swap-states-left)
-         ("C-s-i" . windmove-swap-states-right)))
+  :init
+  (defun windmove-setup ()
+    (keymap-global-set "s-j" #'windmove-down)
+    (keymap-global-set "s-k" #'windmove-up)
+    (keymap-global-set "s-h" #'windmove-left)
+    (keymap-global-set "s-l" #'windmove-right)
+    (keymap-global-set "C-s-j" #'windmove-swap-states-down)
+    (keymap-global-set "C-s-k" #'windmove-swap-states-up)
+    (keymap-global-set "C-s-h" #'windmove-swap-states-left)
+    (keymap-global-set "C-s-l" #'windmove-swap-states-right))
+  (defun windmove-setup-colemak ()
+    (keymap-global-set "s-n" #'windmove-down)
+    (keymap-global-set "s-e" #'windmove-up)
+    (keymap-global-set "s-m" #'windmove-left)
+    (keymap-global-set "s-i" #'windmove-right)
+    (keymap-global-set "C-s-n" #'windmove-swap-states-down)
+    (keymap-global-set "C-s-e" #'windmove-swap-states-up)
+    (keymap-global-set "C-s-m" #'windmove-swap-states-left)
+    (keymap-global-set "C-s-i" #'windmove-swap-states-right))
+  :config
+  (windmove-setup-colemak))
 #+end_src
 ** Avy
 
@@ -3734,4 +3747,20 @@ Although not necessarily Emacs configuration, LaTeX needs to be installed in the
    #+begin_src emacs-lisp
 (setq org-latex-create-formula-image-program 'dvisvgm)
    #+end_src
-
+* Colemak settings
+#+begin_src emacs-lisp
+(use-package emacs
+  :elpaca nil
+  :after meow
+  :init
+  (defvar use-colemak t)
+  (defun toggle-colemak ()
+    "Toggle between Colemak and Qwerty bindings."
+    (interactive)
+    (setq use-colemak (not use-colemak))
+    (if use-colemak
+        (progn (meow-setup-colemak)
+               (windmove-setup-colemak))
+      (progn (meow-setup)
+             (windmove-setup)))))
+#+end_src

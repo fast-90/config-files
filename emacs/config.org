@@ -1411,7 +1411,7 @@ Currently trying =mood-line= over =doom-modeline= as the latter messes up the ba
   :ensure-system-package cmake
   :bind (("C-c v" . dn/project-vterm)
          :map vterm-mode-map
-         ("C-b" . vterm-send-C-b))
+         ("C-b" . vterm--self-insert))
   :init
   (defun dn/project-vterm ()
     "Start an inferior shell in the current project's root directory.

@@ -1795,10 +1795,10 @@ Idea: use C-p or M-p as the prefix key.
     (keymap-global-set "s-e" #'windmove-up)
     (keymap-global-set "s-m" #'windmove-left)
     (keymap-global-set "s-i" #'windmove-right)
-    (keymap-global-set "C-s-n" #'windmove-swap-states-down)
-    (keymap-global-set "C-s-e" #'windmove-swap-states-up)
-    (keymap-global-set "C-s-m" #'windmove-swap-states-left)
-    (keymap-global-set "C-s-i" #'windmove-swap-states-right))
+    (keymap-global-set "s-N" #'windmove-swap-states-down)
+    (keymap-global-set "s-E" #'windmove-swap-states-up)
+    (keymap-global-set "s-M" #'windmove-swap-states-left)
+    (keymap-global-set "s-I" #'windmove-swap-states-right))
   :config
   (windmove-setup-colemak))
 #+end_src

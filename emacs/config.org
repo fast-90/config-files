@@ -863,8 +863,8 @@ brew install coreutils
      '("D" . meow-backward-delete)
      '("e" . meow-prev)
      '("E" . meow-prev-expand)
-     '("f" . meow-find)
-     '("F" . nt-negative-find)
+     '("f" . avy-goto-char-timer)
+     '("F" . meow-find)
      '("g" . meow-cancel-selection)
      '("G" . meow-grab)
      '("h" . undo-fu-only-undo)
@@ -2817,6 +2817,7 @@ If you built Emacs from source, you should check whether tree-sitter is availabl
   :init
   (setq treesit-language-source-alist
         '((python . ("git@github.com:tree-sitter/tree-sitter-python.git"))
+          (typescript . ("git@github.com:tree-sitter/tree-sitter-typescript.git"))
           (yaml . ("git@github.com:ikatyang/tree-sitter-yaml.git"))
           (dockerfile .("git@github.com:camdencheek/tree-sitter-dockerfile.git"))))
   :config

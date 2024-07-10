@@ -3244,7 +3244,16 @@ Docker interface a la Magit (replacement for desktop app):
   (setq rustic-format-on-save t)
   (setq rustic-lsp-client 'eglot))
 #+end_src
+** Just
+#+begin_src emacs-lisp
+(use-package just-mode)
+#+end_src
 
+#+begin_src emacs-lisp
+(use-package justl
+  :bind
+  ("C-x p j" . justl-exec-recipe-in-dir))
+#+end_src
 ** Jupyter
 
 #+begin_src emacs-lisp
@@ -3445,7 +3454,19 @@ Can also be used in combination with emacs-jupyter. When the notebook is opened 
 (when dn/is-wsl
   (use-package ahk-mode))
 #+end_src
+** Devdocs
+#+begin_src emacs-lisp
+(use-package devdocs
+  :bind (("C-h D" . devdocs-lookup)))
+#+end_src
+** Kubernetes
+#+begin_src emacs-lisp
+(use-package kele
+  :config
+  (kele-mode 1))
 
+(use-package kubernetes)
+#+end_src
 * CSV
 
 #+begin_src emacs-lisp

@@ -1113,89 +1113,6 @@ Font settings for daemon mode:
   (dimmer-configure-magit)
   (dimmer-mode t))
 #+end_src
-** Battery formatting
-
-This section contains my custom setup to format =battery-mode-line-string=, which will be shown at the top in the global tab-bar. It is mainly copied from the source of =smart-mode-line= and adjusted to my own liking. Main reason for doing this myself is I am not using any other functions of =smart-mode-line=, and =sml/setup=  also messes up the branch name in the mode-line (https://github.com/Malabarba/smart-mode-line/issues/255).
-
-*** Battery functions
-
-#+begin_src emacs-lisp
-(defun dn/charging-wsl ()
-  "Check whether WSL computer is charging"
-  (let ((result (funcall battery-status-function)))
-    (let ((charging (cdr (assoc 66 result))))
-      (if (not (string= charging "Discharging")) t nil))))
-
-(defun dn/charging-macos ()
-  "Check whether MacOS computer is charging"
-  (let ((result (funcall battery-status-function)))
-    (let ((charging (cdr (assoc 76 result))))
-      (if (string= charging "AC") t nil))))
-
-(defun dn/charging ()
-  "Check whether computer is charging"
-  (if dn/is-wsl (dn/charging-wsl)
-    (if dn/is-macos (dn/charging-macos) nil)))
-
-(defun dn/battery-percentage nil
-  "Get battery percentage (100% = 1000000)"
-  (let
-      ((result
-        (funcall battery-status-function)))
-    (let
-        ((percentage-string
-          (cdr
-           (assoc 112 result))))
-      (let
-          ((percentage
-            (string-to-number percentage-string)))
-        percentage))))
-
-(defun dn/battery-icon ()
-  "Set battery icon based on battery charge status and percentage"
-  (if (dn/charging) (all-the-icons-faicon "plug" :v-adjust 0.04)
-    (if (> (dn/battery-percentage) 95.0) (all-the-icons-faicon "battery-full" :v-adjust -0.05)
-      (if (> (dn/battery-percentage) 70.0) (all-the-icons-faicon "battery-three-quarters" :v-adjust -0.05)
-        (if (> (dn/battery-percentage) 40.0) (all-the-icons-faicon "battery-half" :v-adjust -0.05)
-          (if (> (dn/battery-percentage) battery-load-critical) (all-the-icons-faicon "battery-quarter" :v-adjust -0.05) (all-the-icons-faicon "battery-empty" :v-adjust -0.05)))))))
-
-(defface dn/battery-charging
-  '((t :foreground "ForestGreen" :weight normal)) "")
-
-(defface dn/battery-discharging
-  '((t :inherit warning :weight normal)) "")
-
-(defun dn/set-battery-font ()
-  "Set `dn/battery' face depending on battery state."
-  (if (dn/charging)
-      (copy-face 'dn/battery-charging 'dn/battery)
-    (copy-face 'dn/battery-discharging 'dn/battery)))
-
-(defadvice battery-update (before dn/set-battery-font activate)
-  "Fontify the battery display."
-  (dn/set-battery-font)
-  (if dn/is-macos
-      (setq battery-mode-line-format (concat " " (dn/battery-icon) " [%b%p%] "))
-      (setq battery-mode-line-format (concat " " (dn/battery-icon) "[%b%p%] "))))
-
-(defun dn/battery-formatting ()
-  "Apply battery formatting when updating battery status"
-  (eval-after-load 'battery
-    '(defadvice battery-update (after dn/after-battery-update-advice () activate)
-       "Change battery color and icon."
-       (when battery-mode-line-string
-         (setq battery-mode-line-string
-               (propertize battery-mode-line-string
-                           'face 'dn/battery))))))
-#+end_src
-
-*** Set battery string format
-
-#+begin_src emacs-lisp
-(dn/battery-formatting)
-(display-battery-mode)
-(add-hook 'server-after-make-frame-hook 'battery-update)
-#+end_src
 
 ** Modeline
 
@@ -1357,21 +1274,6 @@ Currently trying =mood-line= over =doom-modeline= as the latter messes up the ba
   (dn/set-telephone-line-modus-faces))
 #+end_src
 
-*** Show time and battery
-
-#+begin_src emacs-lisp
-(defun dn/set-time-battery-info ()
-  (interactive)
-  (setq mode-line-misc-info (remove '(global-mode-string ("" global-mode-string)) mode-line-misc-info))
-  (setq display-time-24hr-format t)
-  (setq display-time-day-and-date t)
-  (setq display-time-default-load-average nil)
-  (display-time-mode 1)
-  (display-battery-mode 1))
-
-(dn/set-time-battery-info)
-#+end_src
-
 * Tabs
 
 #+begin_src emacs-lisp
@@ -1384,19 +1286,12 @@ Currently trying =mood-line= over =doom-modeline= as the latter messes up the ba
                 'face (funcall tab-bar-tab-face-function tab)))
   (add-to-list 'tab-bar-format 'tab-bar-format-align-right 'append)
   (add-to-list 'tab-bar-format 'tab-bar-format-global 'append)
-  (setq global-mode-string '("  " display-time-string battery-mode-line-string))
   :custom
   (tab-bar-show t)
   (tab-bar-close-button-show nil)
   (tab-bar-new-button-show nil)
   (tab-bar-tab-name-format-function #'tab-bar-tab-name-format-comfortable)
-  (tab-bar-select-tab-modifiers '(meta))
-  ;; :custom-face
-  ;; (tab-bar ((t (:font "IBM Plex Mono" :size dn/tab-bar-font-height))))
-  ;; (tab-bar-tab ((t (:bold t :height 1.0 :foreground "sienna"))))
-  ;; (tab-bar-tab-inactive ((t (:background nil :inherit 'mode-line :height 1.0 ))))
-  :config
-  (set-face-attribute 'tab-bar nil :font (font-spec :family "Input Mono" :size dn/default-font-size)))
+  (tab-bar-select-tab-modifiers '(meta)))
 #+end_src
 
 ** Tab-bookmark

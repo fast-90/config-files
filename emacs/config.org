@@ -3478,26 +3478,26 @@ Can also be used in combination with emacs-jupyter. When the notebook is opened 
 * PDF
 
 #+begin_src emacs-lisp
-(use-package pdf-tools
-  :init
-  (pdf-tools-install))
+;; (use-package pdf-tools
+;;   :init
+;;   (pdf-tools-install))
 
-(use-package pdf-occur
-  :elpaca nil
-  :after pdf-tools
-  :bind (:map pdf-occur-buffer-mode-map
-              ("C-<return>" . pdf-occur-view-occurrence)
-              :map pdf-view-mode-map
-              ("C-s" . pdf-occur)))
+;; (use-package pdf-occur
+;;   :elpaca nil
+;;   :after pdf-tools
+;;   :bind (:map pdf-occur-buffer-mode-map
+;;               ("C-<return>" . pdf-occur-view-occurrence)
+;;               :map pdf-view-mode-map
+;;               ("C-s" . pdf-occur)))
 
-;; pdf-view-restore remembers last position in pdf before closing
+;; ;; pdf-view-restore remembers last position in pdf before closing
 
-(use-package pdf-view-restore
-  :after pdf-tools
-  :hook
-  (pdf-view-mode-hook . pdf-view-restore-mode)
-  :custom
-  (pdf-view-restore-file-name (expand-file-name ".pdf-view-restore" user-emacs-directory))) 
+;; (use-package pdf-view-restore
+;;   :after pdf-tools
+;;   :hook
+;;   (pdf-view-mode-hook . pdf-view-restore-mode)
+;;   :custom
+;;   (pdf-view-restore-file-name (expand-file-name ".pdf-view-restore" user-emacs-directory))) 
 #+end_src
 
 * Ledger
@@ -3528,7 +3528,7 @@ Can also be used in combination with emacs-jupyter. When the notebook is opened 
 * Email
 
 #+begin_src emacs-lisp
-(unless (string-match "xomnia" system-name) (require 'mail-config))
+;; (unless (string-match "xomnia" system-name) (require 'mail-config))
 #+end_src
 
 * ERC

@@ -2719,8 +2719,8 @@ If you built Emacs from source, you should check whether tree-sitter is availabl
   (when (and (treesit-available-p) (executable-find "tree-sitter"))
     ;; (treesit-install-language-grammar 'python)
     ;; (treesit-install-language-grammar 'yaml)
-    (add-to-list 'major-mode-remap-alist '(python-mode . python-ts-mode))
-    (add-to-list 'major-mode-remap-alist '(yaml-mode . yaml-ts-mode))))
+    (add-to-list 'major-mode-remap-alist '(python-mode . python-ts-mode))))
+    ;; (add-to-list 'major-mode-remap-alist '(yaml-mode . yaml-ts-mode))))
 #+end_src
 
 ** Breadcrumb
